@@ -83,10 +83,10 @@ function install_spark_with_cloud_jars() {
 }
 
 function install_and_config_jupyter() {
-  # install jupyterlab and spylon_kernel for Spark runtime
+  # Install jupyterlab and spylon_kernel for Spark runtime
   pip install jupyterlab;
   pip install spylon-kernel;
-  python -m spylon_kernel install;
+  python -m spylon_kernel install --user
   echo Y | jupyter notebook --generate-config;
   # set default password(cloudtik) for jupyter lab
   sed -i  "1 ic.NotebookApp.password = 'argon2:\$argon2id\$v=19\$m=10240,t=10,p=8\$Y+sBd6UhAyKNsI+/mHsy9g\$WzJsUujSzmotUkblSTpMwCFoOBVSwm7S5oOPzpC+tz8'" ~/.jupyter/jupyter_notebook_config.py && \
