@@ -32,17 +32,32 @@ DEFAULT_AMI_NAME = "AWS Deep Learning AMI (Ubuntu 18.04) V30.0"
 
 # Obtained from https://aws.amazon.com/marketplace/pp/B07Y43P7X5 on 8/4/2020.
 DEFAULT_AMI = {
-    "us-east-1": "ami-029510cec6d69f121",  # US East (N. Virginia)
-    "us-east-2": "ami-08bf49c7b3a0c761e",  # US East (Ohio)
-    "us-west-1": "ami-0cc472544ce594a19",  # US West (N. California)
-    "us-west-2": "ami-0a2363a9cff180a64",  # US West (Oregon)
-    "ca-central-1": "ami-0a871851b2ab39f01",  # Canada (Central)
-    "eu-central-1": "ami-049fb1ea198d189d7",  # EU (Frankfurt)
-    "eu-west-1": "ami-0abcbc65f89fb220e",  # EU (Ireland)
-    "eu-west-2": "ami-0755b39fd4dab7cbe",  # EU (London)
-    "eu-west-3": "ami-020485d8df1d45530",  # EU (Paris)
-    "sa-east-1": "ami-058a6883cbdb4e599",  # SA (Sao Paulo)
+    "us-east-1": "ami-04505e74c0741db8d",  # US East (N. Virginia)
+    "us-east-2": "ami-0fb653ca2d3203ac1",  # US East (Ohio)
+    "us-west-1": "ami-01f87c43e618bf8f0",  # US West (N. California)
+    "us-west-2": "ami-0892d3c7ee96c0bf7",  # US West (Oregon)
+    "af-souce-1": "ami-030b8d2037063bab3", # Africa (Cape Town)
+    "ap-east-1": "ami-0b981d9ee99b28eba", # Asia Pacific (Hong Kong)
+    "ap-south-1": "ami-0851b76e8b1bce90b", # # Asia Pacific (Mumbai)
+    "ap-northeast-1": "ami-088da9557aae42f39", # Asia Pacific (Tokyo)
+    "ap-northeast-2": "ami-0454bb2fefc7de534", # Asia Pacific (Seoul),
+    "ap-northeast-3": "ami-096c4b6e0792d8c16", # Asia Pacific (Osaka),
+    "ap-southeast-1": "ami-055d15d9cfddf7bd3", # Asia Pacific (Singapore)
+    "ap-southeast-2": "ami-0b7dcd6e6fd797935", # Asia Pacific (Sydney),
+    "ap-southeast-3": "ami-0a9c8e0ccf1d85f67", # Asia Pacific (Jakarta)
+    "ca-central-1": "ami-0aee2d0182c9054ac",  # Canada (Central)
+    "eu-central-1": "ami-0d527b8c289b4af7f",  # EU (Frankfurt)
+    "eu-west-1": "ami-08ca3fed11864d6bb",  # EU (Ireland)
+    "eu-west-2": "ami-0015a39e4b7c0966f",  # EU (London)
+    "eu-west-3": "ami-0c6ebbd55ab05f070",  # EU (Paris)
+    "eu-south-1": "ami-0f8ce9c417115413d",  # EU (Milan)
+    "eu-north-1": "ami-092cce4a19b438926",  # EU (Stockholm)
+    "me-south-1": "ami-0b4946d7420c44be4",  # Middle East (Bahrain)
+    "sa-east-1": "ami-090006f29ecb2d79a",  # SA (Sao Paulo)
 }
+
+NUM_AWS_WORKSPACE_CREATION_STEPS = 7
+NUM_AWS_WORKSPACE_DELETION_STEPS = 7
 
 # todo: cli_logger should handle this assert properly
 # this should probably also happens somewhere else
@@ -342,17 +357,29 @@ def delete_workspace_aws(config):
     ec2 = _resource("ec2", config)
     ec2_client = _client("ec2", config)
     workspace_name = config["workspace_name"]
+    use_internal_ips = config["provider"].get("use_internal_ips", False)
     vpcid = get_workspace_vpc_id(workspace_name, ec2_client)
     if vpcid is None:
         cli_logger.print("The workspace: {} doesn't exist!".format(config["workspace_name"]))
         return
 
+    current_step = 1
+    total_steps = NUM_AWS_WORKSPACE_DELETION_STEPS
+    if not use_internal_ips:
+        total_steps += 1
+
     try:
 
         with cli_logger.group("Deleting workspace: {}", workspace_name):
-            _delete_workspace_instance_profile(config, workspace_name)
+            with cli_logger.group(
+                    "Deleting instance profile",
+                    _numbered=("[]", current_step, total_steps)):
+                current_step += 1
+                _delete_workspace_instance_profile(config, workspace_name)
+
             _delete_network_resources(config, workspace_name,
-                                      ec2, ec2_client, vpcid)
+                                      ec2, ec2_client, vpcid,
+                                      current_step, total_steps)
 
     except Exception as e:
         cli_logger.error(
@@ -372,7 +399,8 @@ def _delete_workspace_instance_profile(config, workspace_name):
 
 
 def _delete_network_resources(config, workspace_name,
-                              ec2, ec2_client, vpcid):
+                              ec2, ec2_client, vpcid,
+                              current_step, total_steps):
     use_internal_ips = config["provider"].get("use_internal_ips", False)
 
     """
@@ -381,32 +409,60 @@ def _delete_network_resources(config, workspace_name,
          2.) Delete route-tables for private subnets 
          3.) Delete nat-gateway for private subnets
          4.) Delete public subnets
-         5.) Delete internat gateway
+         5.) Delete internet gateway
          6.) Delete security group
          7.) Delete vpc
     """
 
     # delete private subnets
-    _delete_private_subnets(workspace_name, ec2, vpcid)
+    with cli_logger.group(
+            "Deleting private subnet",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        _delete_private_subnets(workspace_name, ec2, vpcid)
 
-    # delete route tables for private sybnets
-    _delete_route_table(workspace_name, ec2, vpcid)
+    # delete route tables for private subnets
+    with cli_logger.group(
+            "Deleting route table",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        _delete_route_table(workspace_name, ec2, vpcid)
 
     # delete nat-gateway
-    _delete_nat_gateway(workspace_name, ec2_client, vpcid)
+    with cli_logger.group(
+            "Deleting NAT gateway",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        _delete_nat_gateway(workspace_name, ec2_client, vpcid)
 
     # delete public subnets
-    _delete_public_subnets(workspace_name, ec2, vpcid)
+    with cli_logger.group(
+            "Deleting public subnet",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        _delete_public_subnets(workspace_name, ec2, vpcid)
 
-    # delete internat gateway
-    _delete_internet_gateway(workspace_name, ec2, vpcid)
+    # delete internet gateway
+    with cli_logger.group(
+            "Deleting Internet gateway",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        _delete_internet_gateway(workspace_name, ec2, vpcid)
 
     # delete security group
-    _delete_security_group(config, vpcid)
+    with cli_logger.group(
+            "Deleting security group",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        _delete_security_group(config, vpcid)
 
     # delete vpc
     if not use_internal_ips:
-        _delete_vpc(ec2, ec2_client, vpcid)
+        with cli_logger.group(
+                "Deleting VPC",
+                _numbered=("[]", current_step, total_steps)):
+            current_step += 1
+            _delete_vpc(ec2, ec2_client, vpcid)
 
 
 def create_aws_workspace(config):
@@ -452,7 +508,7 @@ def bootstrap_aws(config):
     config = _configure_security_group(config)
 
     # Provide a helpful message for missing AMI.
-    _check_ami(config)
+    _configure_ami(config)
 
     return config
 
@@ -486,7 +542,7 @@ def bootstrap_aws_from_workspace(config):
     config = _configure_security_group_from_workspace(config)
 
     # Provide a helpful message for missing AMI.
-    _check_ami(config)
+    _configure_ami(config)
 
     return config
 
@@ -1010,11 +1066,21 @@ def _configure_workspace(config):
     ec2 = _resource("ec2", config)
     ec2_client = _client("ec2", config)
     workspace_name = config["workspace_name"]
+    use_internal_ips = config["provider"].get("use_internal_ips", False)
+
+    current_step = 1
+    total_steps = NUM_AWS_WORKSPACE_CREATION_STEPS
 
     try:
         with cli_logger.group("Creating workspace: {}", workspace_name):
-            _configure_network_resources(config, ec2, ec2_client)
-            _configure_workspace_instance_profile(config, workspace_name)
+            with cli_logger.group(
+                    "Creating instance profile",
+                    _numbered=("[]", current_step, total_steps)):
+                current_step += 1
+                _configure_workspace_instance_profile(config, workspace_name)
+
+            _configure_network_resources(config, ec2, ec2_client,
+                                         current_step, total_steps)
     except Exception as e:
         cli_logger.error("Failed to create workspace. {}", str(e))
         raise e
@@ -1040,10 +1106,62 @@ def _get_workspace_instance_profile_name(workspace_name):
     return "cloudtik-{}-profile".format(workspace_name)
 
 
-def _configure_network_resources(config, ec2, ec2_client):
-    use_internal_ips = config["provider"].get("use_internal_ips", False)
+def _configure_network_resources(config, ec2, ec2_client,
+                                 current_step, total_steps):
     workspace_name = config["workspace_name"]
 
+    # create VPC
+    with cli_logger.group(
+            "Creating VPC",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        vpc = _configure_vpc(config, workspace_name, ec2, ec2_client)
+
+    # create subnets
+    with cli_logger.group(
+            "Creating subnets",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        subnets = _create_and_configure_subnets(config, vpc)
+
+    # TODO check whether we need to create new internet gateway? Maybe existing vpc contains internet subnets
+    # create internet gateway for public subnets
+    with cli_logger.group(
+            "Creating Internet gateway",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        internet_gateway = _create_internet_gateway(config, ec2, vpc)
+
+    # add internet_gateway into public route table
+    with cli_logger.group(
+            "Updating route table",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        _update_route_table_for_public_subnet(config, ec2, ec2_client, vpc, subnets[0], internet_gateway)
+        # create private route table for private subnets
+        private_route_table = _create_route_table_for_private_subnet(config, ec2, vpc, subnets[-1])
+
+    # create NAT gateway for private subnets
+    with cli_logger.group(
+            "Creating NAT gateway",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        nat_gateway = _create_nat_gateway(config, ec2_client, vpc, subnets[0])
+        # Create a default route pointing to NAT Gateway for private subnets
+        ec2_client.create_route(RouteTableId=private_route_table.id, DestinationCidrBlock='0.0.0.0/0',
+                                NatGatewayId=nat_gateway['NatGatewayId'])
+
+    with cli_logger.group(
+            "Creating security group",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        _upsert_security_group(config, vpc.id)
+
+    return config
+
+
+def _configure_vpc(config, workspace_name, ec2, ec2_client):
+    use_internal_ips = config["provider"].get("use_internal_ips", False)
     if use_internal_ips:
         # No need to create new vpc
         VpcId = get_current_vpc(config)
@@ -1058,30 +1176,7 @@ def _configure_network_resources(config, ec2, ec2_client):
             raise RuntimeError("There is a same name VPC for workspace: {}, "
                                "if you want to create a new workspace with the same name, "
                                "you need to execute workspace delete first!".format(workspace_name))
-
-    # create subnets
-    subnets = _create_and_configure_subnets(config, vpc)
-
-    # TODO check whether we need to create new internet gateway? Maybe existing vpc contains internet subnets
-    # create internet gateway for public subnets
-    internet_gateway = _create_internet_gateway(config, ec2, vpc)
-
-    # add internet_gateway into public route table
-    _update_route_table_for_public_subnet(config, ec2, ec2_client, vpc, subnets[0], internet_gateway)
-
-    # create private route table for private subnets
-    private_route_table = _create_route_table_for_private_subnet(config, ec2, vpc, subnets[-1])
-
-    # create nate_gatway for private subnets
-    nat_gateway = _create_nat_gateway(config, ec2_client, vpc, subnets[0])
-
-    # Create a default route pointing to NAT Gateway for private subnets
-    ec2_client.create_route(RouteTableId=private_route_table.id, DestinationCidrBlock='0.0.0.0/0',
-                            NatGatewayId=nat_gateway['NatGatewayId'])
-
-    _upsert_security_group(config, vpc.id)
-
-    return config
+    return vpc
 
 
 def _configure_subnets_cidr(vpc):
@@ -1303,7 +1398,7 @@ def _configure_security_group_from_workspace(config):
     return config
 
 
-def _check_ami(config):
+def _configure_ami(config):
     """Provide helpful message for missing ImageId for node configuration."""
 
     # map from node type key -> source of ImageId field
@@ -1313,15 +1408,12 @@ def _check_ami(config):
     region = config["provider"]["region"]
     default_ami = DEFAULT_AMI.get(region)
     if not default_ami:
-        # If we do not provide a default AMI for the given region, noop.
-        return
+        cli_logger.abort("Not support on this region: {}. Please use one of these regions {}".
+                         format(region, sorted(DEFAULT_AMI.keys())))
 
     for key, node_type in config["available_node_types"].items():
         node_config = node_type["node_config"]
-        node_ami = node_config.get("ImageId", "").lower()
-        if node_ami in ["", "latest_dlami"]:
-            node_config["ImageId"] = default_ami
-            ami_src_info[key] = "dlami"
+        node_config["ImageId"] = default_ami
 
 
 def _upsert_security_groups(config, node_types):

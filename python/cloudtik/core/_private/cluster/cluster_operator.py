@@ -70,6 +70,7 @@ POLL_INTERVAL = 5
 
 Port_forward = Union[Tuple[int, int], List[Tuple[int, int]]]
 
+NUM_TEARDOWN_CLUSTER_STEPS_BASE = 2
 
 def try_logging_config(config: Dict[str, Any]) -> None:
     if config["provider"]["type"] == "aws":
@@ -233,7 +234,8 @@ def create_or_update_cluster(
     cli_logger.labeled_value("Cluster", config["cluster_name"])
 
     cli_logger.newline()
-    config = _bootstrap_config(config, no_config_cache=no_config_cache)
+    config = _bootstrap_config(config, no_config_cache=no_config_cache,
+                               init_config_cache=True)
 
     try_logging_config(config)
     get_or_create_head_node(config, config_file, no_restart, restart_only, yes,
@@ -245,7 +247,8 @@ CONFIG_CACHE_VERSION = 1
 
 
 def _bootstrap_config(config: Dict[str, Any],
-                      no_config_cache: bool = False) -> Dict[str, Any]:
+                      no_config_cache: bool = False,
+                      init_config_cache: bool = False) -> Dict[str, Any]:
     # Check if bootstrapped, return if it is the case
     if config.get("bootstrapped", False):
         return config
@@ -320,7 +323,7 @@ def _bootstrap_config(config: Dict[str, Any],
             "update your install command.")
 
     resolved_config = provider_cls.bootstrap_config(config)
-    if not no_config_cache:
+    if not no_config_cache or init_config_cache:
         with open(cache_key, "w") as f:
             config_cache = {
                 "_version": CONFIG_CACHE_VERSION,
@@ -343,28 +346,45 @@ def teardown_cluster(config_file: str, yes: bool, workers_only: bool,
 
     config = _bootstrap_config(config)
 
-    cli_logger.confirm(yes, "Are you sure that you want to tear down cluster {}?",
+    cli_logger.confirm(yes, "Are you sure that you want to shut down cluster {}?",
                        config["cluster_name"], _abort=True)
 
+    current_step = 1
+    total_steps = NUM_TEARDOWN_CLUSTER_STEPS_BASE
     if proxy_stop:
-        _stop_proxy(config)
+        total_steps += 1
+    if not workers_only:
+        total_steps += 1
+
+    if proxy_stop:
+        with cli_logger.group(
+                "Stopping proxy",
+                _numbered=("[]", current_step, total_steps)):
+            current_step += 1
+            _stop_proxy(config)
 
     try:
         if not workers_only:
-            cli_logger.print("Requesting head node to stop head services.")
-            stop_node_from_head(config_file,
-                                node_ip=None, all_nodes=False,
-                                override_cluster_name=override_cluster_name)
+            with cli_logger.group(
+                    "Requesting head to stop head services",
+                    _numbered=("[]", current_step, total_steps)):
+                current_step += 1
+                stop_node_from_head(config_file,
+                                    node_ip=None, all_nodes=False,
+                                    override_cluster_name=override_cluster_name)
 
         # Running teardown cluster process on head first. But we allow this to fail.
         # Since head node problem should not prevent cluster tear down
-        cli_logger.print("Requesting head node to stop workers.")
-        cmd = "cloudtik head teardown"
-        if keep_min_workers:
-            cmd += " --keep-min-workers"
-        exec_cmd_on_cluster(config_file,
-                            cmd,
-                            override_cluster_name)
+        with cli_logger.group(
+                "Requesting head to stop workers",
+                _numbered=("[]", current_step, total_steps)):
+            current_step += 1
+            cmd = "cloudtik head teardown"
+            if keep_min_workers:
+                cmd += " --keep-min-workers"
+            exec_cmd_on_cluster(config_file,
+                                cmd,
+                                override_cluster_name)
     except Exception as e:
         # todo: add better exception info
         cli_logger.verbose_error("{}", str(e))
@@ -375,12 +395,18 @@ def teardown_cluster(config_file: str, yes: bool, workers_only: bool,
             "Ignoring the exception and "
             "attempting to shut down the cluster nodes anyway.")
 
-    provider = _get_node_provider(config["provider"], config["cluster_name"])
-    # Since head node has down the workers shutdown
-    # We continue shutdown the head and remaining workers
-    teardown_cluster_nodes(config, provider,
-                           workers_only, keep_min_workers,
-                           False)
+    with cli_logger.group(
+            "Stopping head and remaining nodes",
+            _numbered=("[]", current_step, total_steps)):
+        current_step += 1
+        provider = _get_node_provider(config["provider"], config["cluster_name"])
+        # Since head node has down the workers shutdown
+        # We continue shutdown the head and remaining workers
+        teardown_cluster_nodes(config, provider,
+                               workers_only, keep_min_workers,
+                               False)
+
+    cli_logger.success("Successfully shut down cluster: {} .", config["cluster_name"])
 
 
 def teardown_cluster_nodes(config: Dict[str, Any],
