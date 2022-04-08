@@ -1,5 +1,28 @@
 #!/bin/bash
 
+args=$(getopt -a -o h::p: -l head::,provider: -- "$@")
+eval set -- "${args}"
+
+IS_HEAD_NODE=false
+
+while true
+do
+    case "$1" in
+    --head)
+        IS_HEAD_NODE=true
+        ;;
+    -p|--provider)
+        PROVIDER=$2
+        shift
+        ;;
+    --)
+        shift
+        break
+        ;;
+    esac
+    shift
+done
+
 export HADOOP_VERSION=3.2.0
 export SPARK_VERSION=3.1.1
 
@@ -120,6 +143,26 @@ function install_spark_with_cloud_jars() {
     done
 }
 
+function install_ganglia_server() {
+    # Simply do the install, if they are already installed, it doesn't take time
+    sudo apt-get update -y
+    sudo apt-get install -y apache2 php libapache2-mod-php php-common php-mbstring php-gmp php-curl php-intl php-xmlrpc php-zip php-gd php-mysql php-xml
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ganglia-monitor rrdtool gmetad ganglia-webfrontend
+}
+
+function install_ganglia_client() {
+    sudo apt-get update -y
+    sudo apt-get install -y ganglia-monitor
+}
+
+function install_ganglia() {
+    if [ $IS_HEAD_NODE == "true" ];then
+        install_ganglia_server
+    else
+        install_ganglia_client
+    fi
+}
+
 install_jdk
 install_hadoop
 install_spark
@@ -128,3 +171,4 @@ install_tools
 install_yarn_with_spark_jars
 install_hadoop_with_cloud_jars
 install_spark_with_cloud_jars
+install_ganglia
