@@ -110,7 +110,7 @@ function install_yarn_with_spark_jars() {
 
 function download_hadoop_cloud_jars() {
     HADOOP_TOOLS_LIB=${HADOOP_HOME}/share/hadoop/tools/lib
-    HADOOP_COMMON_LIB=${HADOOP_HOME}/share/hadoop/common/lib/
+    HADOOP_HDFS_LIB=${HADOOP_HOME}/share/hadoop/hdfs/lib
 
     GCS_HADOOP_CONNECTOR="gcs-connector-hadoop3-latest.jar"
     if [ ! -f "${HADOOP_TOOLS_LIB}/${GCS_HADOOP_CONNECTOR}" ]; then
@@ -122,7 +122,7 @@ function download_hadoop_cloud_jars() {
     JETTY_UTIL_JARS=('jetty-util-ajax-[0-9]*[0-9].v[0-9]*[0-9].jar' 'jetty-util-[0-9]*[0-9].v[0-9]*[0-9].jar')
     for jar in ${JETTY_UTIL_JARS[@]};
     do
-	    find "${HADOOP_COMMON_LIB}" -name $jar | xargs -i cp {} "${HADOOP_TOOLS_LIB}";
+	    find "${HADOOP_HDFS_LIB}" -name $jar | xargs -i cp {} "${HADOOP_TOOLS_LIB}";
     done
 }
 
