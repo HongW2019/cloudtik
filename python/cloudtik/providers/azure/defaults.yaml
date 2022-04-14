@@ -40,7 +40,7 @@ available_node_types:
                 imageSku: 1804-gen2
                 imageVersion: latest
                 osDiskType: StandardSSD_LRS
-                osDiskSizeGB: 100
+                osDiskSizeGB: 150
                 dataDisks: []
 
     worker.default:
@@ -59,7 +59,7 @@ available_node_types:
                 imageSku: 1804-gen2
                 imageVersion: latest
                 osDiskType: StandardSSD_LRS
-                osDiskSizeGB: 100
+                osDiskSizeGB: 150
                 dataDisks: []
                 # comment lines below to not use Spot instances
                 priority: Spot
