@@ -54,9 +54,9 @@ available_node_types:
             azure_arm_parameters:
                 vmSize: Standard_D4s_v3
                 # List images https://docs.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage
-                imagePublisher: canonical
-                imageOffer: 0001-com-ubuntu-server-focal
-                imageSku: 20_04-lts-gen2
+                imagePublisher: microsoft-dsvm
+                imageOffer: ubuntu-1804
+                imageSku: 1804-gen2
                 imageVersion: latest
                 osDiskType: StandardSSD_LRS
                 osDiskSizeGB: 100
