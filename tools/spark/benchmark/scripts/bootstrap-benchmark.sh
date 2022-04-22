@@ -1,7 +1,7 @@
 #!/bin/bash
 sudo apt-get install -y git
 export USER_HOME=/home/$(whoami)
-BENCHMARK_TOOL_HOME=$USER_HOME/runtime/benchmark-tools
+export BENCHMARK_TOOL_HOME=$USER_HOME/runtime/benchmark-tools
 mkdir -p $BENCHMARK_TOOL_HOME
 sudo chown $(whoami):$(whoami) $BENCHMARK_TOOL_HOME
 sudo apt-get update
@@ -14,6 +14,7 @@ function install_sbt() {
     curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo -H gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
     sudo chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
     sudo apt-get update
+    sudo apt-get install default-jre -y
     sudo apt-get install sbt -y
 }
 
