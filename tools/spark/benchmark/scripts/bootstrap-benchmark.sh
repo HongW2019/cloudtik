@@ -1,12 +1,30 @@
 #!/bin/bash
 sudo apt-get install -y git
 export USER_HOME=/home/$(whoami)
+export RUNTIME_PATH=$USER_HOME/runtime
 BENCHMARK_TOOL_HOME=$USER_HOME/runtime/benchmark-tools
 mkdir -p $BENCHMARK_TOOL_HOME
 sudo chown $(whoami):$(whoami) $BENCHMARK_TOOL_HOME
 sudo apt-get update
 
+
+function install_jdk() {
+    # install JDK
+    export JAVA_HOME=$RUNTIME_PATH/jdk
+
+    if [ ! -d "${JAVA_HOME}" ]; then
+      (cd $RUNTIME_PATH && wget -q --show-progress https://devops.egov.org.in/Downloads/jdk/jdk-8u192-linux-x64.tar.gz  && \
+          gunzip jdk-8u192-linux-x64.tar.gz && \
+          tar -xf jdk-8u192-linux-x64.tar && \
+          rm jdk-8u192-linux-x64.tar && \
+          mv jdk1.8.0_192 jdk)
+      echo "export JAVA_HOME=$JAVA_HOME">> ${USER_HOME}/.bashrc
+      echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> ${USER_HOME}/.bashrc
+    fi
+}
+
 function install_sbt() {
+    install_jdk
     sudo apt-get update
     sudo apt-get install apt-transport-https curl gnupg -yqq
     echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
