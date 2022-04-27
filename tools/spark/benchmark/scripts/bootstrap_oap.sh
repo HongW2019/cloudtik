@@ -1,6 +1,5 @@
 #!/bin/bash
 
-sudo apt-get install -y git
 export USER_HOME=/home/$(whoami)
 export BENCHMARK_TOOL_HOME=$USER_HOME/runtime/benchmark-tools
 mkdir -p "$BENCHMARK_TOOL_HOME"
