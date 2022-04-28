@@ -218,6 +218,7 @@ function update_config_for_remote_storage() {
 function update_config_for_storage() {
     if [ "$HDFS_ENABLED" == "true" ];then
         update_config_for_hdfs
+        cp -r ${output_dir}/hadoop/hdfs/core-site.xml  ${HADOOP_HOME}/etc/hadoop/
     else
         update_config_for_remote_storage
         cp -r ${output_dir}/hadoop/${provider}/core-site.xml  ${HADOOP_HOME}/etc/hadoop/
@@ -322,6 +323,9 @@ function configure_hadoop_and_spark() {
         cp -r ${output_dir}/spark/*  ${SPARK_HOME}/conf
 
         if [ "$HDFS_ENABLED" == "true" ]; then
+#            cp -r ${output_dir}/hadoop/hdfs-site.xml  ${HADOOP_HOME}/etc/hadoop/
+#            cp -r ${output_dir}/hadoop/hdfs-site.xml  ${HADOOP_HOME}/etc/hadoop/
+
             # Create event log dir on hdfs
             ${HADOOP_HOME}/bin/hdfs --loglevel WARN --daemon start namenode
             ${HADOOP_HOME}/bin/hadoop --loglevel WARN fs -mkdir -p /shared/spark-events
