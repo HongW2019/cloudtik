@@ -199,6 +199,7 @@ Execute commands on cluster head (or specified node or on all nodes)
 Submit a job to the cluster to run
 
 ::
+
     cloudtik submit your-cluster-config.yaml your-job-file.(py|sh|scala)
 
 Copy local files to cluster head (or to all nodes)
