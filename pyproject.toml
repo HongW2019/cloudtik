@@ -1,4 +1,4 @@
-name = "BigDL"
+name = "CloudTik"
 version = "0.9"
 description = "An open source cloud platform for scaling your distributed analytics and AI cluster on public Cloud providers including AWS, Azure, GCP, etc."
 license = "Apache-2.0"
