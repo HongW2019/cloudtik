@@ -49,9 +49,11 @@ for specific cloud providers. For AWS example,
 
 * Running CloudTik on aws
 
-    ``pip install -U "cloudtik[aws] @ https://s3-us-west-2.amazonaws.com/cloudtik/downloads/wheels/cloudtik-0.9.0-cp37-cp37m-manylinux2014_x86_64.whl"``
+::
 
-Replace "cloudtik[aws]" with "clouditk[azure]" or "cloudtik[gcp]" if you want to use Azure or GCP.
+    pip install -U "cloudtik[aws] @ https://s3-us-west-2.amazonaws.com/cloudtik/downloads/wheels/cloudtik-0.9.0-cp37-cp37m-manylinux2014_x86_64.whl"
+
+Replace ``cloudtik[aws]`` with ``clouditk[azure]`` or ``cloudtik[gcp]`` if you want to use Azure or GCP.
 Use "cloudtik[all]" if you want to manage clusters with all supported Cloud providers.
 
 3. Configure Credentials for Cloud Providers
@@ -71,7 +73,9 @@ Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in [t
 CloudTik uses Workspace concept to manage your Cloud network and other resources. In a Workspace, you can start one or more clusters.
 Use the following command to create and provision a Workspace:
 
-    ``cloudtik workspace create your-workspace-config.yaml``
+::
+
+    cloudtik workspace create your-workspace-config.yaml
 
 A typical workspace configuration file is usually very simple. Specific the unique workspace name, cloud provider type
 and a few cloud provider specific properties. Take AWS for example,
@@ -116,7 +120,9 @@ More details, please refer to configure [gcs bucket guide]
 
 Now you can start a cluster:
 
-    ``cloudtik start your-cluster-config.yaml``
+::
+
+    cloudtik start your-cluster-config.yaml
 
 A typical cluster configuration file is usually very simple thanks to CloudTik hierarchy templates design. Take AWS
 for example,
@@ -180,27 +186,38 @@ Use the following commands to show various cluster information.
 
 Attach to the cluster head (or specific node)
 
- ``cloudtik attach your-cluster-config.yaml``
+::
+
+    cloudtik attach your-cluster-config.yaml
 
 Execute commands on cluster head (or specified node or on all nodes)
 
- ``cloudtik exec your-cluster-config.yaml``
+::
+
+    cloudtik exec your-cluster-config.yaml
 
 Submit a job to the cluster to run
 
- ``cloudtik submit your-cluster-config.yaml your-job-file.(py|sh|scala)``
+::
+    cloudtik submit your-cluster-config.yaml your-job-file.(py|sh|scala)
 
 Copy local files to cluster head (or to all nodes)
 
- ``cloudtik rsync-up your-cluster-config.yaml [source] [target]``
+::
+
+    cloudtik rsync-up your-cluster-config.yaml [source] [target]
 
 Copy file from cluster to local
 
- ``cloudtik rsync-down your-cluster-config.yaml [source] [target]``
+::
+
+    cloudtik rsync-down your-cluster-config.yaml [source] [target]
 
 Stop a cluster
 
- ``cloudtik stop your-cluster-config.yaml``
+::
+
+    cloudtik stop your-cluster-config.yaml
 
 
 For more information as to the commands, you can use ``cloudtik --help`` or ``cloudtik [command] --help`` to get detailed instructions.
