@@ -93,7 +93,7 @@ Running Spark on Cloud needs a Cloud storage to store staging and events data.
 **on GCP**
 
 If you do not already have a GCS bucket, create one and configure its permission for your service account.
-More details, please refer to configure {doc}`configure-gcs-bucket`.
+More details, please refer to :doc:`configure-gcs-bucket`.
 
 
 6. Start a cluster
