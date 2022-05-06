@@ -4,7 +4,7 @@ Getting Started with CloudTik
 1. Prepare Python environment
 """"""""""""""""""""""""""""""
 
-CloudTik requires a Python environment to run. We suggest you use Conda to manage Python environments and packages. If you don't have Conda , you can refer ```dev/install-conda.sh``` to install conda on Ubuntu systems.
+CloudTik requires a Python environment to run. We suggest you use Conda to manage Python environments and packages. If you don't have Conda , you can refer ``dev/install-conda.sh`` to install conda on Ubuntu systems.
 
 ::
 
@@ -46,7 +46,7 @@ Please follow the instructions described in the `AWS docs <https://boto3.amazona
 Use "az login" to log into your Azure cloud account at the machine.
 
 * If you use GCP
-Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in the `GCP docs <https://cloud.google.com/docs/authentication/getting-started>`__.
+Set the ``GOOGLE_APPLICATION_CREDENTIALS`` environment variable as described in the `GCP docs <https://cloud.google.com/docs/authentication/getting-started>`__.
 
 4. Create a Workspace for Clusters
 """"""""""""""""""""""""""""""""""""
@@ -144,7 +144,7 @@ for example,
             min_workers: 3
 
 You need the cloud storage access information in Step 5 and only a few additional key settings in the configuration file to launch a cluster.
-Refer to example/cluster folder for more cluster configurations examples.
+Refer to ``../../example/cluster`` folder for more cluster configurations examples.
 
 7. Manage the cluster
 """""""""""""""""""""""
