@@ -24,4 +24,4 @@ of taking a lot of time constructing the cluster and platform. We target:
    :caption: Quick Start
 
    getting-started.rst
-   building.rst
+   building.md
