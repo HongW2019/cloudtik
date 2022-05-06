@@ -1,5 +1,5 @@
 Getting Started with CloudTik
-===============
+==============================
 
 1. Prepare Python environment
 """"""""""""""""""""""""""""""
