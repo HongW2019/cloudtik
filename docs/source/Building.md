@@ -4,8 +4,8 @@
 
 Before you start to build wheels for CloudTik, we recommend you create a python environment (>= Python 3.7).
 
-### 1. Install prerequisit package for building enviroment
-We provide ```./dev/install-dev.sh``` to for installing build dependencies on Ubtuntu systems.
+### 1. Install prerequisite package for building environment
+We provide ```./dev/install-dev.sh``` to for installing build dependencies on Ubuntu systems.
 ```
 bash ./dev/install-dev.sh
 ```

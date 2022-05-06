@@ -60,12 +60,15 @@ Use "cloudtik[all]" if you want to manage clusters with all supported Cloud prov
 """""""""""""""""""""""""""""""""""""""""""""
 
 You need to configure or log into your Cloud account to gain access to your cloud provider API.
+
 * If you use AWS
-Please follow the instructions described in [the AWS docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) for configuring AWS credentials needed to acccess AWS.
+Please follow the instructions described in the `AWS docs <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html>`__ to configure AWS credentials.
+
 * If you use Azure
 Use "az login" to log into your Azure cloud account at the machine.
+
 * If you use GCP
-Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in [the GCP docs](https://cloud.google.com/docs/authentication/getting-started).
+Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in the `GCP docs <https://cloud.google.com/docs/authentication/getting-started>`__.
 
 4. Create a Workspace for Clusters
 """"""""""""""""""""""""""""""""""""
@@ -112,8 +115,7 @@ Running Spark on Cloud needs a Cloud storage to store staging and events data.
 **on GCP**
 
 If you do not already have a GCS bucket, create one and configure its permission for your service account.
-More details, please refer to configure [gcs bucket guide]
-:doc:`/Configure-GCS-Bucket.md`
+More details, please refer to configure :doc:`configure-gcs-bucket`
 
 6. Start a cluster
 """""""""""""""""""
@@ -133,7 +135,7 @@ for example,
     from: aws/standard
 
     # Workspace into which to launch the cluster
-    workspace_name: exmaple-workspace
+    workspace_name: example-workspace
 
     # A unique identifier for the cluster.
     cluster_name: example-docker
