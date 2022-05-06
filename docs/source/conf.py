@@ -10,10 +10,4 @@ html_theme_options = {
     "home_page_in_toc": True,
 }
 
-# The suffix of source filenames.
-
-source_suffix = {'.rst': 'restructuredtext',
-                 '.txt': 'markdown',
-                 '.md': 'markdown', }
-
 master_doc = 'index'
