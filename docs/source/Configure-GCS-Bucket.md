@@ -4,8 +4,8 @@ If you do not already have a GCS bucket, create one and configure its permission
 
 Select your bucket, then click **ADD PRINCIPLE**.
 
-![gcs-bucket](./image/gcs-bucket.png)
+![gcs-bucket](../image/gcs-bucket.png)
 
 Fill the first item with your service account email and select a role: Storage Admin.
 
-![gcs-bucket-principle](./image/gcs-bucket-principle.png)
+![gcs-bucket-principle](../image/gcs-bucket-principle.png)
