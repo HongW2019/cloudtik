@@ -30,5 +30,5 @@ of taking a lot of time constructing the cluster and platform. We target:
    :maxdepth: 1
    :caption: User Guide
 
-    launching-clusters.md
-    managing-clusters.md
+   launching-clusters.md
+   managing-clusters.md
