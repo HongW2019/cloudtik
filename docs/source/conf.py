@@ -48,15 +48,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = 'sphinx_rtd_theme'
 
-html_theme_options = {
-    "repository_url": "https://github.com/oap-project/cloudtik.git",
-    "use_repository_button": True,
-    "use_issues_button": True,
-    "use_edit_page_button": True,
-    "path_to_docs": "docs/source",
-    "home_page_in_toc": True,
-}
-
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
