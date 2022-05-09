@@ -25,10 +25,13 @@ of taking a lot of time constructing the cluster and platform. We target:
 
    getting-started.md
    building.md
+   launching-clusters.md
+   managing-clusters.md
+
 
 .. toctree::
    :maxdepth: 1
    :caption: User Guide
 
-    launching-clusters.md
-    managing-clusters.md
+   launching-clusters.md
+   managing-clusters.md
