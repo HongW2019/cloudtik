@@ -32,7 +32,7 @@ of taking a lot of time constructing the cluster and platform. We target:
 
    cluster-configuration.md
    managing-clusters.md
-   cloudtik-runtime.md
+   cloudtik-runtimes.md
 
 
 .. toctree::

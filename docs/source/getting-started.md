@@ -1,4 +1,5 @@
-# Getting Started with CloudTik
+# Getting Started
+
 ### 1. Prepare Python environment
 CloudTik requires a Python environment to run. We suggest you use Conda to manage Python environments and packages. If you don't have Conda , you can refer ```dev/install-conda.sh``` to install conda on Ubuntu systems. 
 ```
