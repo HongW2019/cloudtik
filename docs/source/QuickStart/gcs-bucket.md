@@ -1,4 +1,4 @@
-### Configure GCS Bucket
+### Configuring GCS Bucket
 
 If you do not already have a GCS bucket, create one and configure its permission for your [service account](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account).
 
