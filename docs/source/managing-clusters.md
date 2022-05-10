@@ -1,19 +1,17 @@
 # Managing Clusters
 
-## Managing Cluster with CloudTik
-
 This section will introduce CloudTik usages about managing the created clusters in details.
 
 #### Show cluster status and information
 
 Use the following commands to show various cluster information.
 ```
-cloudtik status your-cluster-config.yaml
-cloudtik info your-cluster-config.yaml
-cloudtik head-ip your-cluster-config.yaml
-cloudtik worker-ips your-cluster-config.yaml
-cloudtik process-status your-cluster-config.yaml
-cloudtik monitor your-cluster-config.yaml
+cloudtik status /path/to/your-cluster-config.yaml
+cloudtik info /path/to/your-cluster-config.yaml
+cloudtik head-ip /path/to/your-cluster-config.yaml
+cloudtik worker-ips /path/to/your-cluster-config.yaml
+cloudtik process-status /path/to/your-cluster-config.yaml
+cloudtik monitor /path/to/your-cluster-config.yaml
 ```
 #### Attach to the cluster head (or specific node)
 ```

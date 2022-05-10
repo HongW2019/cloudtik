@@ -20,7 +20,7 @@ Use `az login` to log into your Azure cloud account.
 
 #### GCP
 
-Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in [the GCP docs](https://cloud.google.com/docs/authentication/getting-started).
+Create a service account then set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in [the GCP docs](https://cloud.google.com/docs/authentication/getting-started).
 
 ### Step 1. Create a workspace for your clusters.
 
@@ -54,6 +54,7 @@ provider:
           IpRanges:
           - CidrIp: 0.0.0.0/0
 ```
+
 Check `./example/cluster` folder for more Workspace configuration file examples.
 
 
@@ -74,7 +75,7 @@ More details, please refer to [gcs bucket guide](./configure-gcs-bucket.md).
 
 A typical cluster configuration file is usually very simple thanks to CloudTik hierarchy templates design. 
 
-Take AWS for example here.
+AWS docker-based cluster configuration file is shown below.
 
 ```
 # An example of standard 1 + 3 nodes cluster with standard instance type
@@ -111,7 +112,47 @@ available_node_types:
         min_workers: 3
 ```
 
-You need the cloud storage access information in Step 5 and only a few additional key settings in the configuration file to launch a cluster.
+#### GCP 
+
+GCP host-based cluster configuration example is shown below.
+
+```
+# An example of standard 1 + 3 nodes cluster with standard instance type
+from: gcp/standard
+
+# A unique identifier for the cluster.
+cluster_name: example-standard
+
+# Workspace into which to launch the cluster
+workspace_name: exmaple-workspace
+
+# Cloud-provider specific configuration.
+provider:
+    type: gcp
+    region: us-central1
+    availability_zone: us-central1-a
+    project_id: your_project_id
+    # GCS configurations for storage
+    gcp_cloud_storage:
+        gcs.bucket: your_gcs_bucket
+        gcs.service.account.client.email: your_service_account_client_email
+        gcs.service.account.private.key.id: your_service_account_private_key_id
+        gcs.service.account.private.key: your_service_account_private_key
+
+# How CloudTik will authenticate with newly launched nodes.
+auth:
+    ssh_user: ubuntu
+    # Set proxy if you are in corporation network. For example,
+    # ssh_proxy_command: "ncat --proxy-type socks5 --proxy your_proxy_host:your_proxy_port %h %p"
+
+available_node_types:
+    worker-default:
+        # The minimum number of worker nodes to launch.
+        min_workers: 3
+
+```
+
+After create a service account on GCP in step 0, you can the JSON file and get service account key of it, then fill them out to cluster configuration file `gcp_cloud_storage` above.
 
 Refer to `example/cluster` folder for more cluster configurations examples of different cloud providers.
 
