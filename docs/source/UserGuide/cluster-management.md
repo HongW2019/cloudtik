@@ -1,8 +1,8 @@
-# Managing Clusters
+# Cluster Management
 
 This section will introduce CloudTik usages about managing the created clusters in details.
 
-#### Show cluster status and information
+###### Show cluster status and information
 
 Use the following commands to show various cluster information.
 ```
@@ -13,27 +13,27 @@ cloudtik worker-ips /path/to/your-cluster-config.yaml
 cloudtik process-status /path/to/your-cluster-config.yaml
 cloudtik monitor /path/to/your-cluster-config.yaml
 ```
-#### Attach to the cluster head (or specific node)
+###### Attach to the cluster head (or specific node)
 ```
 cloudtik attach your-cluster-config.yaml
 ```
-#### Execute commands on cluster head (or specified node or on all nodes)
+###### Execute commands on cluster head (or specified node or on all nodes)
 ```
 cloudtik exec your-cluster-config.yaml
 ```
-#### Submit a job to the cluster to run
+###### Submit a job to the cluster to run
 ```
 cloudtik submit your-cluster-config.yaml your-job-file.(py|sh|scala)
 ```
-#### Copy local files to cluster head (or to all nodes)
+###### Copy local files to cluster head (or to all nodes)
 ```
 cloudtik rsync-up your-cluster-config.yaml [source] [target]
 ```
-#### Copy file from cluster to local
+###### Copy file from cluster to local
 ```
 cloudtik rsync-down your-cluster-config.yaml [source] [target]
 ```
-#### Stop a cluster
+###### Stop a cluster
 ```
 cloudtik stop your-cluster-config.yaml
 ```
