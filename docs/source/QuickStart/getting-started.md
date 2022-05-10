@@ -1,4 +1,5 @@
-# Getting Started with CloudTik
+# Getting Started
+
 ### 1. Prepare Python environment
 CloudTik requires a Python environment to run. We suggest you use Conda to manage Python environments and packages. If you don't have Conda , you can refer ```dev/install-conda.sh``` to install conda on Ubuntu systems. 
 ```
@@ -37,7 +38,7 @@ Use the following command to create and provision a Workspace:
 cloudtik workspace create your-workspace-config.yaml
 ```
 A typical workspace configuration file is usually very simple. Specific the unique workspace name, cloud provider type
-and a few cloud provider specific properties. Take AWS for example,
+and a few cloud provider specific properties. Take AWS as example,
 ```
 # A unique identifier for the workspace.
 workspace_name: example-workspace
@@ -63,7 +64,7 @@ Running Spark on Cloud needs a Cloud storage to store staging and events data.
 #### If you use Azure
 #### If you use GCP
 If you do not already have a GCS bucket, create one and configure its permission for your service account.
-More details, please refer to [gcs bucket guide](./configure-gcs-bucket.md).
+More details, please refer to [gcs bucket guide](gcs-bucket.md).
 
 ### 6. Start a cluster
 Now you can start a cluster:

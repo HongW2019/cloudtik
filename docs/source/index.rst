@@ -23,12 +23,22 @@ of taking a lot of time constructing the cluster and platform. We target:
    :maxdepth: 1
    :caption: Quick Start
 
-   getting-started.md
-   building.md
+   QuickStart/getting-started.md
+   QuickStart/installing-cloudtik.md
 
 .. toctree::
    :maxdepth: 1
    :caption: User Guide
 
-   launching-clusters.md
-   managing-clusters.md
+   UserGuide/cluster-configuration.md
+   UserGuide/cluster-management.md
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: CloudTik Core
+
+   CloudtikCore/node-providers.md
+   CloudtikCore/cloudtik-runtimes.md
+   CloudtikCore/config-schema.md
+   CloudtikCore/workspace.md

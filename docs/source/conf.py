@@ -30,7 +30,9 @@ release = '0.9.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['recommonmark']
+extensions = ['recommonmark',
+              'sphinx_markdown_tables'
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -47,15 +49,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
-
-html_theme_options = {
-    "repository_url": "https://github.com/oap-project/cloudtik.git",
-    "use_repository_button": True,
-    "use_issues_button": True,
-    "use_edit_page_button": True,
-    "path_to_docs": "docs/source",
-    "home_page_in_toc": True,
-}
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
