@@ -1,1 +1,0 @@
-# CloudTik Architecture

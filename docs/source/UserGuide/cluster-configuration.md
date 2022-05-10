@@ -69,7 +69,7 @@ If you choose cloud storage for your clusters, additionally, configure cloud sto
 #### GCP
 
 If you do not already have a GCS bucket, create one and configure its permission for your service account.
-More details, please refer to [gcs bucket guide](./configure-gcs-bucket.md).
+More details, please refer to [gcs bucket guide](../QuickStart/configure-gcs-bucket.md).
 
 ### Step 3. Fill out required field in cluster yaml
 
