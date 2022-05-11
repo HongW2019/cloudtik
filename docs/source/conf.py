@@ -29,10 +29,41 @@ release = '0.9.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['recommonmark',
-              'sphinx_markdown_tables',
-              'sphinx_tabs.tabs'
-              ]
+
+extensions = [
+    "sphinx_panels",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
+    "sphinx_click.ext",
+    "sphinx-jsonschema",
+    "sphinxemoji.sphinxemoji",
+    "sphinx_copybutton",
+    "sphinxcontrib.yt",
+    "versionwarning.extension",
+    "sphinx_sitemap",
+    "myst_nb",
+    "sphinx.ext.doctest",
+    "sphinx.ext.coverage",
+    "sphinx_external_toc",
+    "sphinx_thebe",
+    "sphinxcontrib.autodoc_pydantic",
+    'recommonmark',
+    'sphinx_markdown_tables',
+    'sphinx_tabs.tabs',
+]
+
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
+    "deflist",
+    "html_admonition",
+    "html_image",
+    "colon_fence",
+    "smartquotes",
+    "replacements",
+]
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
