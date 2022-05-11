@@ -14,8 +14,6 @@ Syntax
     :ref:`cluster_name <cluster-configuration-cluster-name>`: str
     :ref:`upscaling_speed <cluster-configuration-upscaling-speed>`: float
     :ref:`idle_timeout_minutes <cluster-configuration-idle-timeout-minutes>`: int
-    :ref:`docker <cluster-configuration-docker>`:
-        :ref:`docker <cluster-configuration-docker-type>`
     :ref:`provider <cluster-configuration-provider>`:
         :ref:`provider <cluster-configuration-provider-type>`
     :ref:`auth <cluster-configuration-auth>`:
@@ -43,26 +41,6 @@ Syntax
 
 Custom types
 ------------
-
-.. _cluster-configuration-docker-type:
-
-Docker
-~~~~~~
-
-.. parsed-literal::
-    :ref:`image <cluster-configuration-image>`: str
-    :ref:`head_image <cluster-configuration-head-image>`: str
-    :ref:`worker_image <cluster-configuration-worker-image>`: str
-    :ref:`container_name <cluster-configuration-container-name>`: str
-    :ref:`pull_before_run <cluster-configuration-pull-before-run>`: bool
-    :ref:`run_options <cluster-configuration-run-options>`:
-        - str
-    :ref:`head_run_options <cluster-configuration-head-run-options>`:
-        - str
-    :ref:`worker_run_options <cluster-configuration-worker-run-options>`:
-        - str
-    :ref:`disable_automatic_runtime_detection <cluster-configuration-disable-automatic-runtime-detection>`: bool
-    :ref:`disable_shm_size_detection <cluster-configuration-disable-shm-size-detection>`: bool
 
 .. _cluster-configuration-auth-type:
 
@@ -147,7 +125,7 @@ Node types
 
 The ``available_nodes_types`` object's keys represent the names of the different node types.
 
-Deleting a node type from ``available_node_types`` and updating with :ref:`cloudtik up<cloudtik-up-doc>` will cause the cloudtik to scale down all nodes of that type.
+Deleting a node type from ``available_node_types`` and updating with ``cloudtik start CLUSTER_CONFIG_FILE`` will cause the cloudtik to scale down all nodes of that type.
 In particular, changing the key of a node type object will
 result in removal of nodes corresponding to the old key; nodes with the new key name will then be
 created according to cluster configuration and cloudtik resource demands.
@@ -260,30 +238,6 @@ The number of minutes that need to pass before an idle worker node is removed by
 * **Default:** ``5``
 * **Minimum:** ``0``
 * **Maximum:** Unbounded
-
-.. _cluster-configuration-docker:
-
-``docker``
-~~~~~~~~~~
-
-Configure cloudtik to run in Docker containers.
-
-* **Required:** No
-* **Importance:** High
-* **Type:** :ref:`Docker <cluster-configuration-docker-type>`
-* **Default:** ``{}``
-
-In rare cases when Docker is not available on the system by default (e.g., bad AMI), add the following commands to :ref:`initialization_commands <cluster-configuration-initialization-commands>` to install it.
-
-.. code-block:: yaml
-
-    initialization_commands:
-        - curl -fsSL https://get.docker.com -o get-docker.sh
-        - sudo sh get-docker.sh
-        - sudo usermod -aG docker $USER
-        - sudo systemctl restart docker -f
-
-.. _cluster-configuration-provider:
 
 ``provider``
 ~~~~~~~~~~~~

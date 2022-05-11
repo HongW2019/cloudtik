@@ -32,6 +32,9 @@ of taking a lot of time constructing the cluster and platform. We target:
 
    UserGuide/runtimes.md
    UserGuide/cluster-yaml-configuration.rst
+   UserGuide/aws-configuration.md
+   UserGuide/azure-configuration.md
+   UserGuide/gcp-configuration.md
    UserGuide/cluster-management.md
 
 
