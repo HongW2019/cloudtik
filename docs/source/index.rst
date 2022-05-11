@@ -30,13 +30,14 @@ of taking a lot of time constructing the cluster and platform. We target:
    :maxdepth: 1
    :caption: User Guide
 
-   UserGuide/cluster-configuration.md
+   UserGuide/runtimes.md
+   UserGuide/cluster-yaml-configuration.rst
    UserGuide/cluster-management.md
 
 
 .. toctree::
    :maxdepth: 1
-   :caption: CloudTik Core
+   :caption: References
 
    CloudtikCore/node-providers.md
    CloudtikCore/cloudtik-runtimes.md
