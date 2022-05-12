@@ -21,28 +21,31 @@ of taking a lot of time constructing the cluster and platform. We target:
 
 .. toctree::
    :maxdepth: 1
-   :caption: Quick Start
+   :caption: Getting Started
 
-   QuickStart/getting-started.md
-   QuickStart/installing-cloudtik.md
+   GettingStarted/introduction.md
+   GettingStarted/quick-start.md
 
 .. toctree::
    :maxdepth: 1
    :caption: User Guide
 
-   UserGuide/runtimes.md
-   UserGuide/cluster-yaml-configuration.rst
-   UserGuide/aws-configuration.md
-   UserGuide/azure-configuration.md
-   UserGuide/gcp-configuration.md
-   UserGuide/cluster-management.md
+   UserGuide/key-concepts.md
+   UserGuide/architecture-overview.md
+   UserGuide/installation.md
+   UserGuide/login-to-cloud.md
+   UserGuide/creating-workspace.md
+   UserGuide/creating-cluster.md
+   UserGuide/managing-cluster.md
+   UserGuide/advanced-tasks.md
 
 
 .. toctree::
    :maxdepth: 1
-   :caption: References
+   :caption: Reference
 
-   CloudtikCore/node-providers.md
-   CloudtikCore/cloudtik-runtimes.md
-   CloudtikCore/config-schema.md
-   CloudtikCore/workspace.md
+   Reference/configuration.md
+   Reference/command-reference.md
+   Reference/providers.md
+   Reference/runtimes.md
+   Reference/api-reference.md
