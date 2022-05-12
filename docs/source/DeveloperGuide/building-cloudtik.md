@@ -25,7 +25,6 @@ After create a Python environment as above, then build cloudtik wheel for Linux.
 Run the following command to start the build.
 
 ```
-git clone https://github.com/oap-project/cloudtik.git && cd cloudtik
 bash build.sh
 ```
 Then under `./python/dist` directory, you will find the `*.whl` which is your current Python version's CloudTik wheel for Linux.

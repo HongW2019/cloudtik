@@ -49,3 +49,11 @@ of taking a lot of time constructing the cluster and platform. We target:
    Reference/providers.md
    Reference/runtimes.md
    Reference/api-reference.md
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Developer Guide
+
+   DeveloperGuide/building-cloudtik.md
+   DeveloperGuide/developer-api.md

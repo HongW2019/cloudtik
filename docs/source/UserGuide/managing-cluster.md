@@ -1,15 +1,62 @@
 # Managing Cluster
 
-## Status and Information
+### Status and Information
 
-## Attach to Cluster Nodes
+Use the following commands to show various cluster information.
 
-## Execute and Submit Jobs
+```
+cloudtik status /path/to/your-cluster-config.yaml
+cloudtik info /path/to/your-cluster-config.yaml
+cloudtik head-ip /path/to/your-cluster-config.yaml
+cloudtik worker-ips /path/to/your-cluster-config.yaml
+cloudtik process-status /path/to/your-cluster-config.yaml
+cloudtik monitor /path/to/your-cluster-config.yaml
+```
 
-## Managing Files
+### Attach to Cluster Nodes
 
-## Start or Stop Runtime Services
+```
+cloudtik attach /path/to/your-cluster-config.yaml
+``` 
 
-## Scale Up or Scale Down Cluster
+### Execute and Submit Jobs
 
-## Accessing the Web UI
+```
+cloudtik exec /path/to/your-cluster-config.yaml
+```
+
+### Managing Files
+
+###### Copy local files to cluster head (or to all nodes)
+
+```
+cloudtik rsync-up /path/to/your-cluster-config.yaml [source] [target]
+```
+
+###### Copy file from cluster to local
+```
+cloudtik rsync-down /path/to/your-cluster-config.yaml [source] [target]
+```
+
+### Start or Stop Runtime Services
+
+###### Start a cluster
+
+```
+cloudtik start /path/to/your-cluster-config.yaml -y
+```
+
+###### Stop a cluster
+
+```
+cloudtik stop your-cluster-config.yaml -y
+```
+
+### Scale Up or Scale Down Cluster
+
+
+### Accessing the Web UI
+
+
+
+For more information as to the commands, you can use `cloudtik --help` or `cloudtik [command] --help` to get detailed instructions.
