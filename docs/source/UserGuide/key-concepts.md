@@ -23,16 +23,18 @@ CloudTik supports node providers of your analytics and AI clusters both on prem 
 
 ## Runtime
 
-Cloudtik introduces **Runtime** concept to deploy different analytics and AI framework to deploy into clusters.
+CloudTik introduces **Runtime** concept to integrate different analytics and AI framework to deploy into clusters.
 
-- Ganglia
+- **Spark**,  a multi-language engine for executing data engineering, data science, and machine learning.
 
-- Metastore
+- **HDFS**, a distributed file system designed to run on commodity hardware.
 
-- Spark
+- **Ganglia**, a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids.
 
-- Presto
+- **Metastore**, a service that stores metadata related to Apache Hive and other services.
 
-- ZooKeeper
+- **Presto**, a distributed SQL query engine for running interactive analytic queries against data sources of all sizes.
 
-- Kafka
+- **ZooKeeper**, a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.
+
+- **Kafka**, a community distributed event streaming platform capable of handling trillions of events a day.

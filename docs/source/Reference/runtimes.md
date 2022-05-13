@@ -1,6 +1,6 @@
 # Runtimes
 
-Cloudtik introduces **Runtime** concept to deploy different analytics and AI framework to deploy into clusters.
+Cloudtik introduces **Runtime** concept to integrate different analytics and AI framework to deploy into clusters.
 
 ## Ganglia
 
