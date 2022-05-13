@@ -10,7 +10,6 @@ Please follow instructions below to customize your cluster configuration.
 ## Controlling the Number of Workers
 
 The minimum number of worker nodes to launch. Default number is 1, you can change it according to your use case by 
-
 adding configuration to the cluster configuration yaml file to overwrite default as below, which sets minimum number of worker nodes to 3.
 
 ```
@@ -109,8 +108,10 @@ You can find `available_node_types` section providing with instances type exampl
 
 Then we also offer cluster configuration yaml example, which is located in CloudTik's `example/cluster/` directory.
 
-Here also take [AWS standard cluster](../../../example/cluster/aws/example-standard.yaml) for example, it inherits
+It takes AWS standard cluster for example, locating in CloudTik's `./example/cluster/aws/example-standard.yaml`, it inherits
 AWS standard template, which is set by `from: AWS/standard` as below.
+Then it can inherit the `available_node_types` of AWS standard template, which will select the same node configuration, 
+needless to set them again.
 
 ```
 # An example of standard 1 + 3 nodes cluster with standard instance type

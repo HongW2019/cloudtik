@@ -56,20 +56,6 @@ Useful commands:
 
 ```
 
-Show process status of cluster nodes.
-
-```
-$ cloudtik process-status /path/to/your-cluster-config.yaml
- 
-Total 2 live nodes reported.
-+----------+-----------+--------------+-----------+-----------+--------------+-----------+----------+
-| node-ip  | node-type | n-controller | n-manager | l-monitor | c-controller | r-manager | r-server |
-+----------+-----------+--------------+-----------+-----------+--------------+-----------+----------+
-| 10.0.x.x |    head   |   running    |     -     |  sleeping |   sleeping   |  sleeping | sleeping |
-| 10.0.x.x |   worker  |   running    |  sleeping |  sleeping |      -       |     -     |    -     |
-+----------+-----------+--------------+-----------+-----------+--------------+-----------+----------+
-```
-
 Show debug status of cluster scaling.
 
 ```
@@ -163,13 +149,13 @@ Execute the following command to submit and run the script of generating data af
 cloudtik submit /path/to/your-cluster-config.yaml $CLOUTIK_HOME/tools/spark/benchmark/scripts/tpcds-datagen.scala --conf spark.driver.scaleFactor=1 --conf spark.driver.fsdir="s3a://s3_bucket_name" --jars \$HOME/runtime/benchmark-tools/spark-sql-perf/target/scala-2.12/spark-sql-perf_2.12-0.5.1-SNAPSHOT.jar
 ```
 
-`$CLOUTIK_HOME/tools/spark/benchmark/scripts/tpcds-datagen.scala` is the script's location, if you have cloned the CloudTik repo.
+`$CLOUTIK_HOME/tools/spark/benchmark/scripts/tpcds-datagen.scala` is the script's location on your working node.
 
 `spark.driver.scaleFactor=1` is to generate 1 GB data, you can change it by case. 
 
 `spark.driver.fsdir="s3a://s3_bucket_name"` is to specify S3 bucket name, change it to your bucket link of cloud storage.
 
-`--jars \$HOME/runtime/benchmark-tools/spark-sql-perf/target/scala-2.12/spark-sql-perf_2.12-0.5.1-SNAPSHOT.jar`  is to specify the default path of spark-sql-perf jar on cluster nodes, just leave it untouched.
+`--jars \$HOME/runtime/benchmark-tools/spark-sql-perf/target/scala-2.12/spark-sql-perf_2.12-0.5.1-SNAPSHOT.jar` specifies the default path of spark-sql-perf jar when the cluster nodes are set up, just leave it untouched.
 
 
 ###### 3. Run TPC-DS power test
