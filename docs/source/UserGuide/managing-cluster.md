@@ -158,7 +158,9 @@ cloudtik submit /path/to/your-cluster-config.yaml [job-file (py|sh|scala)]
 
 #### Run TPC-DS on Spark cluster
 
-## 1. Creating a cluster
+Here is the example of running TPC-DS on Spark cluster with `cloudtik submit`  
+
+##### 1. Creating a cluster
 
 To generate data and run TPC-DS on Cloudtik cluster, some tools must be installed in advance.
 We provide a script to simplify the installation of these dependencies. You only need to add the following bootstrap_commands to the cluster configuration file.
@@ -170,7 +172,7 @@ bootstrap_commands:
         bash ~/bootstrap-benchmark.sh  --tpcds
 ```
 
-#### 2. Generating data
+##### 2. Generating data
 
 We provided the datagen scala script which can be found from CloudTik's `./tools/spark/benchmark/scripts/tpcds-datagen.scala` for you to generate data in different size.
 
@@ -181,7 +183,7 @@ cloudtik submit /path/to/your-cluster-config.yaml ./tools/spark/benchmark/script
 ```
 Replace the cluster configuration file, the paths, spark.driver.scale, spark.driver.fsdir values in the above command for your case.
 
-#### 3. Run TPC-DS power test
+##### 3. Run TPC-DS power test
 
 We provided the power test scala script which can be found from CloudTik's `./tools/spark/benchmark/scripts/tpcds-power-test.scala` for users to run TPC-DS power test with Cloudtik cluster.
 
