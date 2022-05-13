@@ -18,26 +18,8 @@ cloudtik monitor /path/to/your-cluster-config.yaml
 cloudtik debug-status /path/to/your-cluster-config.yaml
 cloudtik health-check  /path/to/your-cluster-config.yaml
 ```
-```
-# Check cluster status with:
-cloudtik status /path/to/your-cluster-config.yaml
-# Show cluster summary information and useful links to connect to cluster web UI.
-cloudtik info /path/to/your-cluster-config.yaml
-# Execute command on cluster with:
-cloudtik exec /path/to/your-cluster-config.yaml [command]
-# Connect to a terminal on the cluster head:
-cloudtik attach /path/to/your-cluster-config.yaml
-# Upload files or folders to cluster:
-cloudtik rsync-up /path/to/your-cluster-config.yaml [source] [target]
-# Download files or folders from cluster:
-cloudtik rsync-down /path/to/your-cluster-config.yaml [source] [target]
-# Submit job to cluster to run with:
-cloudtik submit /path/to/your-cluster-config.yaml [job-file.(py|sh|scala)]
-# Monitor cluster with:
-cloudtik monitor /path/to/your-cluster-config.yaml
-```
-Here are examples to execute these CloudTik CLI commands on GCP clusters.
 
+Here are examples to execute these CloudTik CLI commands on GCP clusters.
 
 ```
 $ cloudtik status /path/to/your-cluster-config.yaml
