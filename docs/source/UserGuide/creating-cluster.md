@@ -1,8 +1,9 @@
 # Creating Cluster
 
-The cluster configuration is defined within a YAML file that will be used by CloudTik to launch nodes.
+The cluster configuration is defined within a YAML file that will be used by CloudTik to launch nodes and its cluster
+controller on head node to launch worker nodes.
 
-CloudTik offers cluster configuration yaml examples, which is located in CloudTik's `example/cluster/` directory.
+CloudTik offers cluster configuration yaml examples, which are located under CloudTik's `example/cluster/` directory.
  
 Please follow instructions below to customize your cluster configuration.
 
@@ -49,18 +50,16 @@ runtime:
 
 CloudTik will install and config Conda, Python, selected Runtimes and other requirements to your head and workers on setup step.
 
-If you want to add more integrations to your clusters within the setup steps, such as integrating OAP, 
-please add the following `bootstrap_commands` section to your cluster yaml file, which will install OAP packages by Conda
+If you want to add more integrations to your clusters within the setup steps, such as adding required tools to run TPC-DS, 
+please add the following `bootstrap_commands` section to your cluster yaml file, which will install TPC-DS and required packages
 with specified scripts to set up nodes after all common setup commands finish.
 
 ```buildoutcfg
+
 bootstrap_commands:
-    - wget -P ~/ https://raw.githubusercontent.com/oap-project/cloudtik/main/tools/integrations/oap/bootstrap_oap.sh &&
-        bash ~/bootstrap_oap.sh
+    - wget -P ~/ https://raw.githubusercontent.com/oap-project/cloudtik/main/tools/spark/benchmark/scripts/bootstrap-benchmark.sh &&
+        bash ~/bootstrap-benchmark.sh  --tpcds
 ```
-
-Then OAP packages will be installed under `$HOME/runtime/oap` on your cluster nodes.
-
 
 
 ## Using Templates to Simplify Node Configuration
