@@ -1,9 +1,7 @@
 # Introduction
 
 CloudTik is a cloud scaling platform to scale your distributed analytics and AI cluster on public cloud providers including AWS, Azure, GCP, and so on. 
-CloudTik's target is to enable any user easily create and manage analytics and AI clusters, provide out-of-box optimized Spark and other runtimes for your Analytics and AI needs,
-and go quickly to focus on your workload and business need instead of taking a lot of time constructing the cluster and platform.
-
+ 
 ## Why use CloudTik
 
 Key challenges of the existing solutions for Analytics + AI platform: 
@@ -34,7 +32,49 @@ A cloud scaling platform for distributed analytics and AI integration.
 
 - Open and Flexible: Open architecture and user in full control, fully open-source and user transparent. 
 
-## CloudTik Architecture
+## How to use CloudTik
 
 ![High Level Architecture](../../image/high-level-architecture.png)
 
+**Getting Started**
+
+[Quick Start](./quick-start.md)
+
+
+**User Guide**
+
+[Key Concepts](../UserGuide/key-concepts.md)
+
+[Architecture Overview](../UserGuide/architecture-overview.md)
+
+[Installation](../UserGuide/installation.md)
+
+[Login to Cloud](../UserGuide/login-to-cloud.md)
+
+[Creating Workspace](../UserGuide/creating-workspace.md)
+
+[Creating Cluster](../UserGuide/creating-cluster.md)
+
+[Managing Cluster](../UserGuide/managing-cluster.md)
+
+[Advanced Tasks](../UserGuide/advanced-tasks.md)
+
+
+**Reference**
+
+[Configuration](../Reference/configuration.rst)
+
+[Command Reference](../Reference/command-reference.md)
+
+[Providers](../Reference/providers.md)
+
+[Runtimes](../Reference/runtimes.md)
+
+[API Reference](../Reference/api-reference.md)
+
+  
+**Developer Guide**
+
+[Building Cloudtik](../DeveloperGuide/building-cloudtik.md)
+
+[Developer API](../DeveloperGuide/developer-api.md)
