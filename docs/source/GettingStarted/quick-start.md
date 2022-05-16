@@ -30,7 +30,6 @@ pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/
 ```
 
 Replace `cloudtik[aws]` with `clouditk[azure]` or `cloudtik[gcp]` if you want to create clusters on Azure or GCP.
-
 Use `cloudtik[all]` if you want to manage clusters with all supported Cloud providers.
 
 You can install the latest CloudTik wheels via the following links. These daily releases do not go through the full release process.
@@ -43,21 +42,32 @@ You can install the latest CloudTik wheels via the following links. These daily 
 | Python 3.6 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp36-cp36m-manylinux2014_x86_64.whl" `    |
 
 
-### 3. Authentication in Cloud Providers
+### 3. Authentication to Cloud Providers API
 
 You need to configure or log into your Cloud account to gain access to your cloud provider API.
 
 #### AWS
 
-Please follow the instructions described in [the AWS docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) for configuring AWS credentials.
+First, install boto (`pip install boto3`) and configure your AWS credentials in `~/.aws/credentials` as described in 
+the [boto docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) on your working machine.
 
 #### Azure
 
-Use "az login" to log into your Azure cloud account at the machine.
+First, install the Azure CLI (`pip install azure-cli azure-identity`) then login using (`az login`).
+
+Then set the subscription to use from the command line (`az account set -s <subscription_id>`) on your working machine.
+
+Once the Azure CLI is configured to manage resources on your Azure account, then you can use cluster config yaml to
+launch cluster with CloudTik.
 
 #### GCP
 
-Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in [the GCP docs](https://cloud.google.com/docs/authentication/getting-started).
+You need to configure or log into your Cloud account to gain access to your cloud provider API.
+
+Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
+[the GCP docs](https://cloud.google.com/docs/authentication/getting-started) on your working machine.
+
+After created a service account key, A JSON file should be safely downloaded and kept by you.
 
 ### 4. Creating a Workspace for Clusters.
 
