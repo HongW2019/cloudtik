@@ -2,8 +2,9 @@
 
 ### 1. Preparing Python environment
 
-CloudTik requires a Python environment to run. We suggest you use Conda to manage Python environments and packages. 
-If you don't have Conda installed, you can refer to `dev/install-conda.sh` to install Conda on Linux.
+CloudTik requires a Python environment to run. We recommend using Conda to manage Python environments and packages.
+
+If you don't have Conda installed, please refer to `dev/install-conda.sh` to install Conda on Linux.
 
 ```
 git clone https://github.com/oap-project/cloudtik.git && cd cloudtik
@@ -14,13 +15,14 @@ Once Conda is installed, create an environment with a specific Python version as
 CloudTik currently supports Python 3.6, 3.7, 3.8, 3.9. Here we take Python 3.7 as example.
 
 ```
-conda create -n cloudtik -y python=3.7;
-conda activate cloudtik;
+conda create -n cloudtik -y python=3.7
+conda activate cloudtik
 ```
 ### 2. Installing CloudTik
 
-Installation of CloudTik is simple. Execute the below `pip` commands to install CloudTik to the working machine
-for specific cloud providers. For AWS example,
+Execute the following `pip` commands to install CloudTik to the working machine for specific cloud providers. 
+
+Here we take AWS for example.
 
 ```
 # if running CloudTik on aws
@@ -31,8 +33,7 @@ Replace `cloudtik[aws]` with `clouditk[azure]` or `cloudtik[gcp]` if you want to
 
 Use `cloudtik[all]` if you want to manage clusters with all supported Cloud providers.
 
-You can install the latest CloudTik wheels via the following links. These daily releases do not go through the full release process. 
-To install these wheels, use the following `pip` command and wheels on different Cloud providers:
+You can install the latest CloudTik wheels via the following links. These daily releases do not go through the full release process.
 
 | Linux      | Installation                                                                                                                                       |
 |:-----------|:---------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -42,7 +43,7 @@ To install these wheels, use the following `pip` command and wheels on different
 | Python 3.6 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp36-cp36m-manylinux2014_x86_64.whl" `    |
 
 
-### 3. Credentials for Cloud Providers
+### 3. Authentication in Cloud Providers
 
 You need to configure or log into your Cloud account to gain access to your cloud provider API.
 

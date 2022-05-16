@@ -15,7 +15,7 @@ Login to [AWS](https://console.aws.amazon.com/)
 First, install boto (`pip install boto3`) and configure your AWS credentials in `~/.aws/credentials` as described in 
 the [boto docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) on your working machine.
 
-Once boto is configured to manage resources on your AWS account, you should be ready to launch your cluster.
+Once boto is configured to manage resources on your AWS account, then you can use cluster config yaml to launch cluster with CloudTik.
 
 ### Creating a bucket
 
@@ -26,17 +26,23 @@ Please refer to S3 [guides](https://docs.aws.amazon.com/AmazonS3/latest/userguid
 
 ### Login to Azure
 
-Login to [Azure](Azure: https://portal.azure.com/)
+Login to [Azure](https://portal.azure.com/)
 
-### Set Credentials
+### Credentials
 
 First, install the Azure CLI (`pip install azure-cli azure-identity`) then login using (`az login`).
 
 Then set the subscription to use from the command line (`az account set -s <subscription_id>`) on your working machine.
 
-Once the Azure CLI is configured to manage resources on your Azure account, you should be ready to launch your cluster. 
+Once the Azure CLI is configured to manage resources on your Azure account, then you can use cluster config yaml to
+launch cluster with CloudTik.
 
 ### Configuring Cloud Storage
+
+Create an Azure Storage Account if you don't have one.
+
+Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by CloudTik. Please refer to Azure related 
+[guides](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) for details.
 
 ## GCP
 
