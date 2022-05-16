@@ -36,5 +36,5 @@ A cloud scaling platform for distributed analytics and AI integration.
 
 ## CloudTik Architecture
 
-![high-level-architecture](../../image/high-level-architecture.png)
+![High Level Architecture](../../image/high-level-architecture.png)
 

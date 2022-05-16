@@ -29,14 +29,14 @@ CloudTik will help you create and configure:
 Cloudtik helps users quickly create and manage analytics and AI clusters, 
 which enables adding or removing compute, storage, and network services easily to meet the demands on prem and cloud providers.
 
-![cluster_architecture](../../image/cluster-architecture.png)
+![Cluster Architecture](../../image/cluster-architecture.png)
 
 
 ## Provider
 
 CloudTik supports node providers of your analytics and AI clusters both on prem and cloud such as AWS, Azure and GCP.
 
-![provider](../../image/provider.png)
+![Provider](../../image/provider.png)
 
 ## Runtime
 
@@ -51,7 +51,7 @@ Runtime is an abstraction and extension point to support various of *services* o
 
 CloudTik provides powerful common infrastructure for Runtime to implement and deploy easily. 
 
-![runtime-analytics](../../image/runtime-analytics.png)
+![Runtimes for Analytics](../../image/runtime-analytics.png)
 
 - **Spark**,  a multi-language engine for executing data engineering, data science, and machine learning.
 
