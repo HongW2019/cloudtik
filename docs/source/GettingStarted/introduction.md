@@ -39,43 +39,22 @@ A cloud scaling platform for distributed analytics and AI integration.
 
 **Getting Started**
 
-[Quick Start](./quick-start.md)
-
+* [Quick Start](./quick-start.md)
 
 **User Guide**
 
-[Key Concepts](../UserGuide/key-concepts.md)
+* [Key Concepts](../UserGuide/key-concepts.md)
 
-[Architecture Overview](../UserGuide/architecture-overview.md)
+* [Architecture Overview](../UserGuide/architecture-overview.md)
 
-[Installation](../UserGuide/installation.md)
+* [Installation](../UserGuide/installation.md)
 
-[Login to Cloud](../UserGuide/login-to-cloud.md)
+* [Login to Cloud](../UserGuide/login-to-cloud.md)
 
-[Creating Workspace](../UserGuide/creating-workspace.md)
+* [Creating Workspace](../UserGuide/creating-workspace.md)
 
-[Creating Cluster](../UserGuide/creating-cluster.md)
+* [Creating Cluster](../UserGuide/creating-cluster.md)
 
-[Managing Cluster](../UserGuide/managing-cluster.md)
+* [Managing Cluster](../UserGuide/managing-cluster.md)
 
-[Advanced Tasks](../UserGuide/advanced-tasks.md)
-
-
-**Reference**
-
-[Configuration](../Reference/configuration.rst)
-
-[Command Reference](../Reference/command-reference.md)
-
-[Providers](../Reference/providers.md)
-
-[Runtimes](../Reference/runtimes.md)
-
-[API Reference](../Reference/api-reference.md)
-
-  
-**Developer Guide**
-
-[Building Cloudtik](../DeveloperGuide/building-cloudtik.md)
-
-[Developer API](../DeveloperGuide/developer-api.md)
+* [Advanced Tasks](../UserGuide/advanced-tasks.md)
