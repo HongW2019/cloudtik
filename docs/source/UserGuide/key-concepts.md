@@ -9,21 +9,49 @@ This section overviews CloudTik’s key concepts.
 
 ## Workspace
 
-CloudTik uses **Workspace** concept to manage your Cloud network and other resources. 
-Within one workspace, you can start one or multiple clusters.
+**Workspace** provides the concept to make it easy for managing shared Cloud resources such as your Cloud VPC, network,
+identity resources, firewall or security groups. Users start to work with Cloud by creating a Workspace on the Cloud provider.
+CloudTik will help you create and configure: 
+
+-  VPC shared by all the clusters of the workspace. 
+
+-  A private subnet for workers and a Public Subnet for head node. 
+
+-  Firewall rules for SSH access to head node and internal communication. 
+
+-  A NAT gateway for Internet access. 
+
+-  An identity for head node to Cloud API. 
+
 
 ## Cluster
 
 Cloudtik helps users quickly create and manage analytics and AI clusters, 
 which enables adding or removing compute, storage, and network services easily to meet the demands on prem and cloud providers.
 
+![cluster_architecture](../../image/cluster-architecture.png)
+
+
 ## Provider
 
 CloudTik supports node providers of your analytics and AI clusters both on prem and cloud such as AWS, Azure and GCP.
 
+![provider](../../image/provider.png)
+
 ## Runtime
 
-CloudTik introduces **Runtime** concept to integrate different analytics and AI framework to deploy into clusters.
+Runtime is an abstraction and extension point to support various of *services* or *frameworks*.  
+
+- Distributed: A distributed service in nature by design 
+
+- Composable: User can choose what Runtimes to be installed, configured and run in a cluster.  
+
+- Discoverable: A runtime can discover and utilize its dependent services running either within the cluster 
+  or as another cluster in the same workspace. 
+
+CloudTik provides powerful common infrastructure for Runtime to implement and deploy easily. 
+
+![runtime-analytics](../../image/runtime-analytics.png)
 
 - **Spark**,  a multi-language engine for executing data engineering, data science, and machine learning.
 

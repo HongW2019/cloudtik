@@ -7,6 +7,39 @@ CloudTik offers cluster configuration yaml examples, which are located under Clo
  
 Please follow instructions below to customize your cluster configuration.
 
+### Execution Mode
+
+CloudTik supports to run services with two Execution Modes: 
+
+- Host Mode: All the services will run on (VM) host. 
+
+- Container Mode: All the service will run in Docker container on (VM) host. 
+    - CloudTik handles all the docker stuff transparently (Installing, command execution  
+        bridge). Users see little difference on operations. 
+
+Host mode is set to configure yaml file as below
+
+```
+# This executes all commands on all nodes in the docker container,
+# and opens all the necessary ports to support the cluster.
+# Turn on or off container by set enabled to True or False.
+docker:
+    enabled: False
+
+```
+
+Container mode is set as below.
+
+```
+# Enable container
+docker:
+    enabled: True
+    image: "cloudtik/spark-runtime:latest"
+    container_name: "cloudtik-spark"
+    disable_shm_size_detection: True
+```
+
+
 ## Controlling the Number of Workers
 
 The minimum number of worker nodes to launch. Default number is 1, you can change it according to your use case by 
