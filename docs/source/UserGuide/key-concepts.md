@@ -23,20 +23,34 @@ CloudTik will help you create and configure:
 
 -  An identity for head node to Cloud API. 
 
+More details please refer to the guide below.
+
+* [Creating Workspace](./creating-workspace.md)
+
 
 ## Cluster
 
 Cloudtik helps users quickly create and manage analytics and AI clusters, 
 which enables adding or removing compute, storage, and network services easily to meet the demands on prem and cloud providers.
 
-![Cluster Architecture](../../image/cluster-architecture.png)
+![](../../image/cluster-architecture.png)
 
+More details please refer to the guides below.
+
+* [Creating Cluster](./creating-cluster.md)
+* [Managing Cluster](./managing-cluster.md)
 
 ## Provider
 
 CloudTik supports node providers of your analytics and AI clusters both on prem and cloud such as AWS, Azure and GCP.
 
-![Provider](../../image/provider.png)
+![](../../image/provider.png)
+
+More details please refer to the guides below.
+
+* [Login to Cloud](./login-to-cloud.md)
+* [Providers](../Reference/providers.md)
+
 
 ## Runtime
 
@@ -51,7 +65,7 @@ Runtime is an abstraction and extension point to support various of *services* o
 
 CloudTik provides powerful common infrastructure for Runtime to implement and deploy easily. 
 
-![Runtimes for Analytics](../../image/runtime-analytics.png)
+![](../../image/runtime-analytics.png)
 
 - **Spark**,  a multi-language engine for executing data engineering, data science, and machine learning.
 
@@ -66,3 +80,8 @@ CloudTik provides powerful common infrastructure for Runtime to implement and de
 - **ZooKeeper**, a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.
 
 - **Kafka**, a community distributed event streaming platform capable of handling trillions of events a day.
+
+
+More details please refer to the guide below.
+
+* [Runtimes](../Reference/runtimes.md)

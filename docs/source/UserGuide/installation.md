@@ -9,7 +9,7 @@ git clone https://github.com/oap-project/cloudtik.git && cd cloudtik
 bash dev/install-conda.sh
 ```
 
-Once Conda is installed, create an environment specify a Python version as below. 
+Once Conda is installed, create an environment with a specific Python version as below.
 CloudTik currently supports Python 3.6, 3.7, 3.8, 3.9. Here we take Python 3.7 as example.
 
 ```
@@ -23,7 +23,6 @@ conda activate cloudtik;
 
 You can install the latest CloudTik wheels via the following links. These daily releases do not go through the full release process. 
 To install these wheels, use the following `pip` command and wheels on different Cloud providers:
-
 
 
 | Linux      | Installation                                                                                                                                       |

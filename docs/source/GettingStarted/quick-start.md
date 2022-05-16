@@ -2,27 +2,45 @@
 
 ### 1. Preparing Python environment
 
-CloudTik requires a Python environment to run. We suggest you use Conda to manage Python environments and packages. If you don't have Conda , you can refer ```dev/install-conda.sh``` to install conda on Ubuntu systems. 
+CloudTik requires a Python environment to run. We suggest you use Conda to manage Python environments and packages. 
+If you don't have Conda installed, you can refer to `dev/install-conda.sh` to install Conda on Linux.
+
 ```
 git clone https://github.com/oap-project/cloudtik.git && cd cloudtik
 bash dev/install-conda.sh
 ```
-Once Conda is installed, create an environment specify a python version as below.
+
+Once Conda is installed, create an environment with a specific Python version as below.
+CloudTik currently supports Python 3.6, 3.7, 3.8, 3.9. Here we take Python 3.7 as example.
+
 ```
 conda create -n cloudtik -y python=3.7;
 conda activate cloudtik;
 ```
 ### 2. Installing CloudTik
 
-Installation of CloudTik is simple. Execute the below pip commands to install CloudTik to the working machine
+Installation of CloudTik is simple. Execute the below `pip` commands to install CloudTik to the working machine
 for specific cloud providers. For AWS example,
 
 ```
 # if running CloudTik on aws
 pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp37-cp37m-manylinux2014_x86_64.whl"
 ```
-Replace "cloudtik[aws]" with "clouditk[azure]" or "cloudtik[gcp]" if you want to use Azure or GCP.
-Use "cloudtik[all]" if you want to manage clusters with all supported Cloud providers.
+
+Replace `cloudtik[aws]` with `clouditk[azure]` or `cloudtik[gcp]` if you want to create clusters on Azure or GCP.
+
+Use `cloudtik[all]` if you want to manage clusters with all supported Cloud providers.
+
+You can install the latest CloudTik wheels via the following links. These daily releases do not go through the full release process. 
+To install these wheels, use the following `pip` command and wheels on different Cloud providers:
+
+| Linux      | Installation                                                                                                                                       |
+|:-----------|:---------------------------------------------------------------------------------------------------------------------------------------------------|
+| Python 3.9 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp39-cp39-manylinux2014_x86_64.whl" `     |
+| Python 3.8 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp38-cp38-manylinux2014_x86_64.whl" `     |
+| Python 3.7 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp37-cp37m-manylinux2014_x86_64.whl" `    |
+| Python 3.6 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp36-cp36m-manylinux2014_x86_64.whl" `    |
+
 
 ### 3. Credentials for Cloud Providers
 
@@ -30,7 +48,7 @@ You need to configure or log into your Cloud account to gain access to your clou
 
 #### AWS
 
-Please follow the instructions described in [the AWS docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) for configuring AWS credentials needed to acccess AWS.
+Please follow the instructions described in [the AWS docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) for configuring AWS credentials.
 
 #### Azure
 
@@ -60,6 +78,7 @@ provider:
     region: us-west-2
     security_group:
         # Use IpPermissions to allow SSH access from your working node
+        # Remember to restrict IpRanges for security 
         IpPermissions:
         - FromPort: 22
           ToPort: 22
@@ -67,15 +86,23 @@ provider:
           IpRanges:
           - CidrIp: 0.0.0.0/0
 ```
-Check example/cluster folder for more Workspace configuration file examples.
+Check `example/cluster` folder for more Workspace configuration file examples.
 
 ### 5. Configuring Cloud Storage
 
-Running Spark on Cloud needs a Cloud storage to store staging and events data.
+If you choose cloud storage as file system or to store stage and event data, cloud storage account is needed.
 
 #### AWS
 
+Every object in Amazon S3 is stored in a bucket. Before you can store data in Amazon S3, you must create a bucket.
+Please refer to S3 [guides](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html) for instructions.
+
 #### Azure
+
+Create an Azure Storage Account if you don't have one.
+
+Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by CloudTik. Please refer to Azure related 
+[guides](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) for details.
 
 #### GCP
 

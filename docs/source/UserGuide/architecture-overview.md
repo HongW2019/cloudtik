@@ -14,12 +14,12 @@ CloudTik: a cloud scaling platform for distributed analytics and AI integration.
 
 - Open and Flexible: Open architecture and user in full control, fully open-source and user transparent. 
 
-![High Level Architecture](../../image/high-level-architecture.png)
+![](../../image/high-level-architecture.png)
 
 **Workspace** makes it easy to manage shared Cloud resources such as your Cloud VPC, network, identity resources,
 firewall or security groups. Users start to work with CloudTik by creating a workspace on the Cloud provider.
 
-![Cluster Architecture](../../image/cluster-architecture.png)
+![](../../image/cluster-architecture.png)
 
 During the process of cluster creation, there are mainly 4 steps.
 
@@ -30,7 +30,7 @@ During the process of cluster creation, there are mainly 4 steps.
 
 ### Head Node: the Brain of the cluster
 
-![Head Node](../../image/head-node.png)
+![](../../image/head-node.png)
 
 Head node is the brain of the cluster, responsible for scaling (up & down) clusters.
 
@@ -40,7 +40,7 @@ Head node is the brain of the cluster, responsible for scaling (up & down) clust
 - *Redis Shards*: Multiple Redis instances for serving shared cluster state.
 - *Node Controller*: Heart beating and monitoring node and services health.
 
-![Cluster Controller](../../image/cluster-controller.png)
+![](../../image/cluster-controller.png)
 
 **Runtime Services**
 
@@ -49,7 +49,7 @@ Head node is the brain of the cluster, responsible for scaling (up & down) clust
 
 ### Worker Nodes
 
-![Worker Nodes](../../image/worker-node.png)
+![](../../image/worker-node.png)
 
 **Core Services**
 
@@ -70,7 +70,7 @@ CloudTik supports to run services with two Execution Modes:
     - CloudTik handles all the docker stuff transparently (Installing, command execution  
         bridge). Users see little difference on operations. 
     
-![Execution Mode](../../image/execution-mode.png)
+![](../../image/execution-mode.png)
 
 ### Runtimes
 
@@ -85,6 +85,6 @@ CloudTik supports to run services with two Execution Modes:
 
 CloudTik provides powerful common infrastructure for Runtime to implement and deploy easily. 
 
-![Runtime Implementation](../../image/runtime-implementation.png)
+![](../../image/runtime-implementation.png)
 
 

@@ -32,7 +32,7 @@ A cloud scaling platform for distributed analytics and AI integration.
 
 - Open and Flexible: Open architecture and user in full control, fully open-source and user transparent. 
 
-![High Level Architecture](../../image/high-level-architecture.png)
+![](../../image/high-level-architecture.png)
 
 ## How to use CloudTik
 
