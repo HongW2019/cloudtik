@@ -1,6 +1,22 @@
 # Creating Workspace
 
-CloudTik uses **Workspace** concept to manage your Cloud network and other resources. Within one workspace, you can start one or multiple clusters.
+CloudTik uses **Workspace** concept to easily manage shared Cloud resources such as VPC, network, identity resources, 
+firewall or security groups. Within one workspace, you can start one or multiple clusters.
+
+![](../../image/high-level-architecture.png)
+
+CloudTik will help users quickly create and configure:
+
+- VPC shared by all the clusters of the workspace. 
+
+- A private subnet for workers and a public subnet for head node. 
+
+- Firewall rules for SSH access to head node and internal communication. 
+
+- A NAT gateway for Internet access. 
+
+- An identity for head node to Cloud API.
+
 
 Use the following command to create and provision a workspace:
 
@@ -11,8 +27,7 @@ cloudtik workspace create /path/to/<your-workspace-config>.yaml
 A typical workspace configuration file is usually very simple. Specify the unique workspace name, cloud provider type
 and a few provider-specific properties. 
 
-Here take AWS for example.
-
+Here take AWS for example. 
 ```
 # A unique identifier for the workspace.
 workspace_name: example-workspace
@@ -31,5 +46,7 @@ provider:
           IpRanges:
           - CidrIp: 0.0.0.0/0
 ```
+
+For VPC Network Firewall Rules, you need restrict IpRanges for TCP port 22.
 
 Check `./example/cluster` folder for more Workspace configuration file examples.
