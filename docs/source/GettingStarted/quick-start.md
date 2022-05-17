@@ -88,13 +88,13 @@ firewall or security groups. In a Workspace, you can start one or more clusters.
 Use the following command to create and provision a Workspace:
 
 ```
-cloudtik workspace create your-workspace-config.yaml
+cloudtik workspace create /path/to/your-workspace-config.yaml
 ```
 
 A typical workspace configuration file is usually very simple. Specify the unique workspace name, cloud provider type
 and a few cloud provider specific properties. 
 
-Take AWS as example.
+Take AWS as an example.
 
 ```
 # A unique identifier for the workspace.
