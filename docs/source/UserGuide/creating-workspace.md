@@ -47,6 +47,12 @@ provider:
           - CidrIp: 0.0.0.0/0
 ```
 
-For VPC Network Firewall Rules, you need restrict IpRanges for TCP port 22.
+You need restrict IpRanges `CidrIp` above for TCP port 22 for VPC network firewall rules.
+
+Use the following command to delete a workspace:
+
+```
+cloudtik workspace delete /path/to/<your-workspace-config>.yaml
+```
 
 Check `./example/cluster` folder for more Workspace configuration file examples.

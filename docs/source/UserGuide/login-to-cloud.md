@@ -8,9 +8,9 @@
 
 ### Login to AWS
 
-Login to [AWS](https://console.aws.amazon.com/)
+After created an AWS account, Login to [AWS](https://console.aws.amazon.com/)
 
-### Authentication to Cloud Providers API
+### Authentication to boto
 
 First, install boto (`pip install boto3`) and configure your AWS credentials in `~/.aws/credentials` as described in 
 the [boto docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) on your working machine.
@@ -26,9 +26,9 @@ Please refer to S3 [guides](https://docs.aws.amazon.com/AmazonS3/latest/userguid
 
 ### Login to Azure
 
-Login to [Azure](https://portal.azure.com/)
+After created an Azure account, Login to [Azure](https://portal.azure.com/) to get subscription for your account.
 
-### Authentication to Cloud Providers API
+### Authentication to Azure CLI
 
 First, install the Azure CLI (`pip install azure-cli azure-identity`) then login using (`az login`).
 
@@ -36,6 +36,7 @@ Then set the subscription to use from the command line (`az account set -s <subs
 
 Once the Azure CLI is configured to manage resources on your Azure account, then you can use cluster config yaml to
 launch cluster with CloudTik.
+
 
 ### Configuring Cloud Storage
 
@@ -48,14 +49,18 @@ Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by Cloud
 
 ### Login to GCP
 
-Login to [GCP](https://console.cloud.google.com/)
+After created an GCP account, Login to [GCP](https://console.cloud.google.com/).
 
-### Authentication to Cloud Providers API
+### Authentication to GCP API
 
 Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
 [the GCP docs](https://cloud.google.com/docs/authentication/getting-started) on your working machine.
 
 After created a service account key, A JSON file should be safely downloaded and kept by you.
+
+### Creating a GCP Project
+
+Create a GCP Project with your GCP account.
 
 ### Configuring Cloud Storage
 
