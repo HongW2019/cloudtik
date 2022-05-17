@@ -1,14 +1,14 @@
 # Login to Cloud
 
-- [AWS](#AWS)
-- [Azure](#Azure)
-- [GCP](#GCP)
+- [AWS](#aws)
+- [Azure](#azure)
+- [GCP](#gcp)
 
 ## AWS
 
 ### Login to AWS
 
-After created an AWS account, Login to [AWS](https://console.aws.amazon.com/)
+Create an AWS account if you don't have one, then login to [AWS](https://console.aws.amazon.com/).
 
 ### Authentication to boto
 
@@ -26,7 +26,8 @@ Please refer to S3 [guides](https://docs.aws.amazon.com/AmazonS3/latest/userguid
 
 ### Login to Azure
 
-After created an Azure account, Login to [Azure](https://portal.azure.com/) to get subscription for your account.
+Create an Azure account if you don't have one, then login to [Azure](https://portal.azure.com/) to get
+subscription for your account.
 
 ### Authentication to Azure CLI
 
@@ -49,18 +50,18 @@ Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by Cloud
 
 ### Login to GCP
 
-After created an GCP account, Login to [GCP](https://console.cloud.google.com/).
+Created an GCP account if you don't have one, then login to [GCP](https://console.cloud.google.com/).
 
-### Authentication to GCP API
+### Creating a GCP Project
+
+Create a GCP Project within your GCP account.
+
+### Authentication calls to Google Cloud APIs.
 
 Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
 [the GCP docs](https://cloud.google.com/docs/authentication/getting-started) on your working machine.
 
 After created a service account key, A JSON file should be safely downloaded and kept by you.
-
-### Creating a GCP Project
-
-Create a GCP Project with your GCP account.
 
 ### Configuring Cloud Storage
 
