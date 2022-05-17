@@ -65,7 +65,7 @@ for instructions.
 ### Creating a Google Cloud Project
 
 Google Cloud projects form the basis for creating, enabling, and using all Google Cloud services.
-Create a GCP Project within your Google Cloud account. 
+Create a project within your Google Cloud account. 
 
 Please refer to 
 [Google Cloud Guide](https://cloud.google.com/resource-manager/docs/creating-managing-projects) for instructions.
