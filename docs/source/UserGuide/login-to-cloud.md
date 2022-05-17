@@ -15,7 +15,7 @@ for instructions.
 
 ### Authentication to AWS CLI
 
-Install or update the AWS CLI on your working machine with the following commands.
+Follow these steps from the command line to install the AWS CLI on your working Linux machine.
 
 ```
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -23,9 +23,13 @@ unzip awscliv2.zip
 sudo ./aws/install
 aws configure
 ```
-Then fill out your *AWS Access Key ID*, *AWS Secret Access Key* and *Default region name* to the command prompt.
+After you enter this command `aws configure`, the AWS CLI prompts you for four pieces of information: *AWS Access Key ID*,
+*AWS Secret Access Key*,  *Default region name* and *Default output format* to the command prompt.
+Fill them out then AWS CLI will be installed and authenticated.
 
-Please refer to [AWS docs](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) for more details.
+[AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
+and [CLI Configure Guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) provide more details. 
+
 
 ### Creating a bucket
 
