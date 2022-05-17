@@ -66,18 +66,19 @@ and [CLI Configure Guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-c
 
 #### Azure
 
-Login Azure on your working machine using `az login`, then set the subscription to use from the command 
-line (`az account set -s <subscription_id>`).
-
-Once the Azure CLI is configured to manage resources on your Azure account, then you can use cluster config yaml to
-launch cluster with CloudTik.
+Login to Azure on your working machine using `az login`, then set the subscription to use from the command 
+line (`az account set -s <subscription_id>`). Then the Azure CLI is configured to manage resources on your Azure account.
 
 #### GCP
 
-Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
-[the GCP docs](https://cloud.google.com/docs/authentication/getting-started) on your working machine.
+First, follow the [Google Cloud docs](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) 
+to create a service account on Google Cloud, A JSON file should be safely downloaded and kept by you after the
+service account created.
 
-After created a service account key, A JSON file should be safely downloaded and kept by you.
+Then set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
+[GCP docs](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable) on your working machine.
+
+
 
 ### 4. Creating a Workspace for Clusters.
 
