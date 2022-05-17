@@ -2,7 +2,9 @@
 
 ## Preparing Python Environment
 
-CloudTik requires a Python environment to run. We suggest you use Conda to manage Python environments and packages. If you don't have Conda , you can refer ```dev/install-conda.sh``` to install conda on Ubuntu systems.
+CloudTik requires a Python environment on Linux. We recommend using Conda to manage Python environments and packages.
+
+If you don't have Conda installed, please refer to `dev/install-conda.sh` to install Conda on Linux.
 
 ```
 git clone https://github.com/oap-project/cloudtik.git && cd cloudtik
@@ -10,7 +12,7 @@ bash dev/install-conda.sh
 ```
 
 Once Conda is installed, create an environment with a specific Python version as below.
-CloudTik currently supports Python 3.6, 3.7, 3.8, 3.9. Here we take Python 3.7 as example.
+CloudTik currently supports Python 3.7, 3.8, 3.9. Here we take Python 3.7 as an example.
 
 ```
 conda create -n cloudtik -y python=3.7;
@@ -30,10 +32,8 @@ To install these wheels, use the following `pip` command and wheels on different
 | Python 3.9 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp39-cp39-manylinux2014_x86_64.whl" `     |
 | Python 3.8 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp38-cp38-manylinux2014_x86_64.whl" `     |
 | Python 3.7 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp37-cp37m-manylinux2014_x86_64.whl" `    |
-| Python 3.6 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp36-cp36m-manylinux2014_x86_64.whl" `    |
 
 Replace `cloudtik[aws]` with `clouditk[azure]` or `cloudtik[gcp]` if you want to create clusters on Azure or GCP.
-
 Use `cloudtik[all]` if you want to manage clusters with all supported Cloud providers.
 
 ## Building CloudTik from Source and Installing
@@ -58,4 +58,17 @@ Then install your built wheel above.
 
 ```
 pip install ./python/dist/<your-built-wheel>.whl 
+```
+
+If you want to install the CloudTik built above into the clusters to be created, and you have it uploaded to cloud or servers where can be visited. 
+
+Add `cloudtik_wheel_url` to your cluster config yaml file as below.
+
+```
+workspace_name: ...
+
+cluster_name: ...
+
+cloudtik_wheel_url: "/link/to/cloudtik-*.whl"
+
 ```

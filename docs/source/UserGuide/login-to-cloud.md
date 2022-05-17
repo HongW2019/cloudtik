@@ -13,12 +13,19 @@ Create an AWS account if you don't have one, then login to [AWS](https://console
 Please refer to related [AWS documentation](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/)
 for instructions.
 
-### Authentication to boto
+### Authentication to AWS CLI
 
-First, install boto (`pip install boto3`) and configure your AWS credentials in `~/.aws/credentials` as described in 
-the [boto docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) on your working machine.
+Install or update the AWS CLI on your working machine with the following commands.
 
-Once boto is configured to manage resources on your AWS account, then you can use cluster config yaml to launch cluster with CloudTik.
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws configure
+```
+Then fill out your *AWS Access Key ID*, *AWS Secret Access Key* and *Default region name* to the command prompt.
+
+Please refer to [AWS docs](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) for more details.
 
 ### Creating a bucket
 

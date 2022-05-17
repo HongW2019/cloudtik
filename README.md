@@ -51,7 +51,7 @@ Use the following command to create and provision a Workspace:
 cloudtik workspace create your-workspace-config.yaml
 ```
 A typical workspace configuration file is usually very simple. Specific the unique workspace name, cloud provider type
-and a few cloud provider specific properties. Take AWS for example,
+and a few cloud provider specific properties. take AWS as an example,
 ```
 # A unique identifier for the workspace.
 workspace_name: example-workspace

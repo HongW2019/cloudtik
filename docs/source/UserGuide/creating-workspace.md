@@ -27,7 +27,7 @@ cloudtik workspace create /path/to/<your-workspace-config>.yaml
 A typical workspace configuration file is usually very simple. Specify the unique workspace name, cloud provider type
 and a few provider-specific properties. 
 
-Here take AWS for example. 
+Here take AWS as an example. 
 ```
 # A unique identifier for the workspace.
 workspace_name: example-workspace
