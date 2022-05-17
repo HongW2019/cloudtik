@@ -10,7 +10,7 @@
 
 Login to [AWS](https://console.aws.amazon.com/)
 
-### Credentials
+### Authentication to Cloud Providers API
 
 First, install boto (`pip install boto3`) and configure your AWS credentials in `~/.aws/credentials` as described in 
 the [boto docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) on your working machine.
@@ -28,7 +28,7 @@ Please refer to S3 [guides](https://docs.aws.amazon.com/AmazonS3/latest/userguid
 
 Login to [Azure](https://portal.azure.com/)
 
-### Credentials
+### Authentication to Cloud Providers API
 
 First, install the Azure CLI (`pip install azure-cli azure-identity`) then login using (`az login`).
 
@@ -50,9 +50,7 @@ Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by Cloud
 
 Login to [GCP](https://console.cloud.google.com/)
 
-### Credentials
-
-You need to configure or log into your Cloud account to gain access to your cloud provider API.
+### Authentication to Cloud Providers API
 
 Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
 [the GCP docs](https://cloud.google.com/docs/authentication/getting-started) on your working machine.

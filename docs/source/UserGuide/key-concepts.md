@@ -9,13 +9,13 @@ This section overviews CloudTik’s key concepts.
 
 ## Workspace
 
-**Workspace** provides the concept to make it easy for managing shared Cloud resources such as your Cloud VPC, network,
-identity resources, firewall or security groups. Users start to work with Cloud by creating a Workspace on the Cloud provider.
-CloudTik will help you create and configure: 
+**Workspace** provides the concept to easily manage shared Cloud resources such as VPC, network, identity resources, 
+firewall or security groups. Users start to work with Cloud by creating a Workspace on the Cloud provider.
+CloudTik will help users quickly create and configure: 
 
 -  VPC shared by all the clusters of the workspace. 
 
--  A private subnet for workers and a Public Subnet for head node. 
+-  A private subnet for workers and a public subnet for head node. 
 
 -  Firewall rules for SSH access to head node and internal communication. 
 

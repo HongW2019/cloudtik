@@ -20,7 +20,7 @@ conda activate cloudtik
 ```
 ### 2. Installing CloudTik
 
-Execute the following `pip` commands to install CloudTik to the working machine for specific cloud providers. 
+Execute the following `pip` commands to install CloudTik on your working machine for specific cloud providers. 
 
 Here we take AWS for example.
 
@@ -44,25 +44,22 @@ You can install the latest CloudTik wheels via the following links. These daily 
 
 ### 3. Authentication to Cloud Providers API
 
-You need to configure or log into your Cloud account to gain access to your cloud provider API.
+You need to configure or log into your Cloud account to gain access to your cloud provider API for your working machine.
 
 #### AWS
 
 First, install boto (`pip install boto3`) and configure your AWS credentials in `~/.aws/credentials` as described in 
-the [boto docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html) on your working machine.
+the [boto docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html).
 
 #### Azure
 
 First, install the Azure CLI (`pip install azure-cli azure-identity`) then login using (`az login`).
-
 Then set the subscription to use from the command line (`az account set -s <subscription_id>`) on your working machine.
 
 Once the Azure CLI is configured to manage resources on your Azure account, then you can use cluster config yaml to
 launch cluster with CloudTik.
 
 #### GCP
-
-You need to configure or log into your Cloud account to gain access to your cloud provider API.
 
 Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
 [the GCP docs](https://cloud.google.com/docs/authentication/getting-started) on your working machine.
@@ -71,14 +68,20 @@ After created a service account key, A JSON file should be safely downloaded and
 
 ### 4. Creating a Workspace for Clusters.
 
-CloudTik uses Workspace concept to manage your Cloud network and other resources. In a Workspace, you can start one or more clusters.
+CloudTik uses **Workspace** concept to easily manage shared Cloud resources such as VPC, network, identity resources, 
+firewall or security groups. In a Workspace, you can start one or more clusters.
+
 Use the following command to create and provision a Workspace:
 
 ```
 cloudtik workspace create your-workspace-config.yaml
 ```
-A typical workspace configuration file is usually very simple. Specific the unique workspace name, cloud provider type
-and a few cloud provider specific properties. Take AWS as example,
+
+A typical workspace configuration file is usually very simple. Specify the unique workspace name, cloud provider type
+and a few cloud provider specific properties. 
+
+Take AWS as example.
+
 ```
 # A unique identifier for the workspace.
 workspace_name: example-workspace
@@ -103,10 +106,28 @@ Check `example/cluster` folder for more Workspace configuration file examples.
 
 If you choose cloud storage as file system or to store stage and event data, cloud storage account is needed.
 
+After follow the guides below for specific cloud provider, you will be able to fill out the corresponding storage filed 
+of your cluster configuration yaml. 
+
 #### AWS
 
 Every object in Amazon S3 is stored in a bucket. Before you can store data in Amazon S3, you must create a bucket.
 Please refer to S3 [guides](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html) for instructions.
+
+Then fill out the `aws_s3_storage` field.
+
+```
+# Cloud-provider specific configuration.
+provider:
+    type: aws
+    region: us-west-2
+    # S3 configurations for storage
+    aws_s3_storage:
+        s3.bucket: your_s3_bucket
+        s3.access.key.id: your_s3_access_key_id
+        s3.secret.access.key: your_s3_secret_access_key
+
+```
 
 #### Azure
 
@@ -115,10 +136,45 @@ Create an Azure Storage Account if you don't have one.
 Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by CloudTik. Please refer to Azure related 
 [guides](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) for details.
 
+Then fill out the `azure_cloud_storage` field.
+
+```
+# Cloud-provider specific configuration.
+provider:
+    type: azure
+    location: westus
+    subscription_id: your_subscription_id
+    azure_cloud_storage:
+        # Choose cloud storage type: blob (Azure Blob Storage) or datalake (Azure Data Lake Storage Gen 2).
+        azure.storage.type: datalake
+        azure.storage.account: your_storage_account
+        azure.container: your_container
+        azure.account.key: your_account_key
+
+```
+
 #### GCP
 
 If you do not already have a GCS bucket, create one and configure its permission for your service account.
-More details, please refer to [gcs bucket guide](gcs-bucket.md).
+Please refer to [gcs bucket guide](gcs-bucket.md) for more details.
+
+Then fill out the `gcp_cloud_storage` field.
+
+```
+# Cloud-provider specific configuration.
+provider:
+    type: gcp
+    region: us-central1
+    availability_zone: us-central1-a
+    project_id: your_project_id
+    # GCS configurations for storage
+    gcp_cloud_storage:
+        gcs.bucket: your_gcs_bucket
+        gcs.service.account.client.email: your_service_account_client_email
+        gcs.service.account.private.key.id: your_service_account_private_key_id
+        gcs.service.account.private.key: your_service_account_private_key
+
+```
 
 ### 6. Starting a cluster
 
@@ -128,10 +184,14 @@ Now you can start a cluster:
 cloudtik start your-cluster-config.yaml
 ```
 
-A typical cluster configuration file is usually very simple thanks to CloudTik hierarchy templates design. Take AWS
-for example,
+A typical cluster configuration file is usually very simple thanks to CloudTik hierarchy templates design.
+
+Take AWS for example, this example can be found from CloudTik's `example/cluster/aws/example-standard.yaml`,
+inheriting AWS standard template which locates in `python/cloudtik/templates/aws/standard.yaml`
+
 ```
 # An example of standard 1 + 3 nodes cluster with standard instance type
+# Inherits AWS standard template which locates in CloudTik's "python/cloudtik/templates/aws/standard.yaml"
 from: aws/standard
 
 # Workspace into which to launch the cluster
@@ -166,7 +226,8 @@ available_node_types:
 ```
 
 You need the cloud storage access information in Step 5 and only a few additional key settings in the configuration file to launch a cluster.
-Refer to example/cluster folder for more cluster configurations examples.
+
+Refer to `example/cluster` for more cluster configurations examples.
 
 ### 7. Managing clusters
 
@@ -177,19 +238,28 @@ CloudTik provides very powerful capability to monitor and manage the cluster.
 Use the following commands to show various cluster information.
 
 ```
+# Check cluster status with:
 cloudtik status /path/to/your-cluster-config.yaml
+# Show cluster summary information and useful links to connect to cluster web UI.
 cloudtik info /path/to/your-cluster-config.yaml
 cloudtik head-ip /path/to/your-cluster-config.yaml
 cloudtik worker-ips /path/to/your-cluster-config.yaml
 cloudtik process-status /path/to/your-cluster-config.yaml
 cloudtik monitor /path/to/your-cluster-config.yaml
+cloudtik debug-status /path/to/your-cluster-config.yaml
+cloudtik health-check  /path/to/your-cluster-config.yaml
 ```
 #### Attach to the cluster head (or specific node)
 
+Connect to a terminal of cluster head node.
+
 ```
-cloudtik attach your-cluster-config.yaml
+cloudtik attach /path/to/your-cluster-config.yaml
 ```
+
 #### Execute and Submit Jobs
+
+Execute a command via SSH on a cluster or a specified node.
 
 ```
 cloudtik exec /path/to/your-cluster-config.yaml
@@ -197,29 +267,34 @@ cloudtik exec /path/to/your-cluster-config.yaml
 
 #### Manage Files
 
-###### Copy local files to cluster head (or to all nodes)
+Upload files or directories to cluster:
 
-```
+``` 
 cloudtik rsync-up /path/to/your-cluster-config.yaml [source] [target]
 ```
+  
+Download files or directories from cluster
 
-###### Copyfile from cluster to local
 ```
 cloudtik rsync-down /path/to/your-cluster-config.yaml [source] [target]
 ```
 
-#### Start or Stop Cluster
-
-###### Start a cluster
+#### Start or Stop Runtime Services
 
 ```
-cloudtik start /path/to/your-cluster-config.yaml -y
+cloudtik runtime start /path/to/your-cluster-config.yaml
+cloudtik runtime stop /path/to/your-cluster-config.yaml
 ```
 
-###### Stop a cluster
+#### Scale Up or Scale Down Cluster
+
+Scale up the cluster with a specific number cpus or nodes.
+
+Try with `--cpus` or `--nodes`.
 
 ```
-cloudtik stop your-cluster-config.yaml -y
+cloudtik scale --cpus xx /path/to/your-cluster-config.yaml
+cloudtik scale --nodes x /path/to/your-cluster-config.yaml
 ```
 
 For more information as to the commands, you can use `cloudtik --help` or `cloudtik [command] --help` to get detailed instructions.
