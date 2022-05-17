@@ -6,9 +6,12 @@
 
 ## AWS
 
-### Login to AWS
+### AWS Account
 
 Create an AWS account if you don't have one, then login to [AWS](https://console.aws.amazon.com/).
+
+Please refer to related [AWS documentation](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/)
+for instructions.
 
 ### Authentication to boto
 
@@ -24,10 +27,14 @@ Please refer to S3 [guides](https://docs.aws.amazon.com/AmazonS3/latest/userguid
 
 ## Azure
 
-### Login to Azure
+### Azure Account
 
-Create an Azure account if you don't have one, then login to [Azure](https://portal.azure.com/) to get
-subscription for your account.
+Create an Azure account if you don't have one, then login to [Microsoft Azure portal](https://portal.azure.com/) to get
+[Subscription ID](https://docs.microsoft.com/en-us/azure/azure-portal/get-subscription-tenant-id#find-your-azure-subscription)
+of your account.
+
+Please refer to related [Azure documentation](https://docs.microsoft.com/en-us/learn/modules/create-an-azure-account/)
+for instructions.
 
 ### Authentication to Azure CLI
 
@@ -48,13 +55,20 @@ Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by Cloud
 
 ## GCP
 
-### Login to GCP
+### Google Cloud Account
 
-Created an GCP account if you don't have one, then login to [GCP](https://console.cloud.google.com/).
+Created a Google Cloud account if you don't have one, then login to [GCP](https://console.cloud.google.com/).
 
-### Creating a GCP Project
+Please refer to related [GCP documentation](https://cloud.google.com/apigee/docs/hybrid/v1.3/precog-gcpaccount)
+for instructions.
 
-Create a GCP Project within your GCP account.
+### Creating a Google Cloud Project
+
+Google Cloud projects form the basis for creating, enabling, and using all Google Cloud services.
+Create a GCP Project within your Google Cloud account. 
+
+Please refer to 
+[Google Cloud Guide](https://cloud.google.com/resource-manager/docs/creating-managing-projects) for instructions.
 
 ### Authentication calls to Google Cloud APIs.
 
