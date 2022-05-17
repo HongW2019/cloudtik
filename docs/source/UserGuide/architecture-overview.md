@@ -1,7 +1,5 @@
 # Architecture Overview
 
-## CloudTik Architecture
-
 CloudTik: a cloud scaling platform for distributed analytics and AI integration.
 
 - Built upon Cloud compute engines and Cloud storages 
@@ -16,10 +14,23 @@ CloudTik: a cloud scaling platform for distributed analytics and AI integration.
 
 ![](../../image/high-level-architecture.png)
 
+### CloudTik Architecture
+
+- [Workspace](#workspace)
+- [Cluster](#cluster)
+   - Head 
+   - Worker
+   - Execution Mode
+- [Runtime](#runtime)
+
+#### Workspace
+
 **Workspace** makes it easy to manage shared Cloud resources such as your Cloud VPC, network, identity resources,
 firewall or security groups. Users start to work with CloudTik by creating a workspace on the Cloud provider.
 
 ![](../../image/cluster-architecture.png)
+
+#### Cluster
 
 During the process of cluster creation, there are mainly 4 steps.
 
@@ -28,7 +39,7 @@ During the process of cluster creation, there are mainly 4 steps.
 3. Create worker nodes(Provider)
 4. Set up workers(Core services + Runtimes)
 
-### Head Node: the Brain of the cluster
+##### Head Node: the Brain of the cluster
 
 ![](../../image/head-node.png)
 
@@ -47,7 +58,7 @@ Head node is the brain of the cluster, responsible for scaling (up & down) clust
 - Head services of Runtimes (depending on what Runtimes are enabled)
 
 
-### Worker Nodes
+##### Worker Nodes
 
 ![](../../image/worker-node.png)
 
@@ -60,7 +71,7 @@ Head node is the brain of the cluster, responsible for scaling (up & down) clust
 - Worker services of Runtimes (depending on what Runtimes are enabled)
 
 
-### Execution Mode
+##### Execution Mode
 
 CloudTik supports to run services with two Execution Modes: 
 
@@ -72,7 +83,7 @@ CloudTik supports to run services with two Execution Modes:
     
 ![](../../image/execution-mode.png)
 
-### Runtimes
+#### Runtime
 
 **Runtime** is an abstraction and extension point to support various of *services* or *frameworks*.  
 
