@@ -28,3 +28,18 @@ Run the following command to start the build.
 bash build.sh
 ```
 Then under `./python/dist` directory, you will find the `*.whl` which is your current Python version's CloudTik wheel for Linux.
+
+### Installing CloudTik
+
+If you want to install the CloudTik built above into the clusters to create, and you have it uploaded to cloud or servers where can be visited. 
+
+Add `cloudtik_wheel_url` to your cluster config yaml file as below.
+
+```
+workspace_name: ...
+
+cluster_name: ...
+
+cloudtik_wheel_url: "/link/to/cloudtik-*.whl"
+
+```

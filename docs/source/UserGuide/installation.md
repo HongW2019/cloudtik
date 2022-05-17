@@ -9,7 +9,7 @@ git clone https://github.com/oap-project/cloudtik.git && cd cloudtik
 bash dev/install-conda.sh
 ```
 
-Once Conda is installed, create an environment specify a Python version as below. 
+Once Conda is installed, create an environment with a specific Python version as below.
 CloudTik currently supports Python 3.6, 3.7, 3.8, 3.9. Here we take Python 3.7 as example.
 
 ```
@@ -25,13 +25,12 @@ You can install the latest CloudTik wheels via the following links. These daily 
 To install these wheels, use the following `pip` command and wheels on different Cloud providers:
 
 
-
-| Linux      | Installation                                                                                                                                        |
-|:-----------|:----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Python 3.9 | `pip install -U "cloudtik[aws] @ https://s3-us-west-2.amazonaws.com/cloudtik/downloads/wheels/cloudtik-0.9.0-cp39-cp39-manylinux2014_x86_64.whl" `  |
-| Python 3.8 | `pip install -U "cloudtik[aws] @ https://s3-us-west-2.amazonaws.com/cloudtik/downloads/wheels/cloudtik-0.9.0-cp38-cp38-manylinux2014_x86_64.whl" `  |
-| Python 3.7 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp37-cp37m-manylinux2014_x86_64.whl" ` |
-| Python 3.6 | `pip install -U "cloudtik[aws] @ https://s3-us-west-2.amazonaws.com/cloudtik/downloads/wheels/cloudtik-0.9.0-cp36-cp36m-manylinux2014_x86_64.whl" ` |
+| Linux      | Installation                                                                                                                                       |
+|:-----------|:---------------------------------------------------------------------------------------------------------------------------------------------------|
+| Python 3.9 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp39-cp39-manylinux2014_x86_64.whl" `     |
+| Python 3.8 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp38-cp38-manylinux2014_x86_64.whl" `     |
+| Python 3.7 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp37-cp37m-manylinux2014_x86_64.whl" `    |
+| Python 3.6 | `pip install -U "cloudtik[aws] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.0-cp36-cp36m-manylinux2014_x86_64.whl" `    |
 
 Replace `cloudtik[aws]` with `clouditk[azure]` or `cloudtik[gcp]` if you want to create clusters on Azure or GCP.
 
