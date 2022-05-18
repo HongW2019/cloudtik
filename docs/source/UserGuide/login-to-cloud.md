@@ -83,10 +83,12 @@ Please refer to
 
 ### Authentication calls to Google Cloud APIs.
 
-Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
-[the GCP docs](https://cloud.google.com/docs/authentication/getting-started) on your working machine.
+First, follow the [Google Cloud docs](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) 
+to create a service account on Google Cloud, A JSON file should be safely downloaded and kept by you after the
+service account created.
 
-After created a service account key, A JSON file should be safely downloaded and kept by you.
+Then set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
+[GCP docs](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable) on your working machine.
 
 ### Configuring Cloud Storage
 
