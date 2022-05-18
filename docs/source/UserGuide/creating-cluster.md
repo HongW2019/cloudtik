@@ -7,7 +7,7 @@ CloudTik offers cluster configuration yaml examples, which are located under Clo
  
 Please follow instructions below to customize your cluster configuration.
 
-### Execution Mode
+## Execution Mode
 
 CloudTik supports to run services with two Execution Modes: 
 
@@ -82,7 +82,26 @@ runtime:
 
 CloudTik will install and config Conda, Python, selected Runtimes and other requirements to your head and workers on setup step.
 
-If you want to add more integrations to your clusters within the setup steps, such as adding required tools to run TPC-DS, 
+You can customize the commands during cluster setup steps.
+
+```
+# List of commands that will be run before `setup_commands`.
+initialization_commands: []
+
+# Commands running when each node setting up.
+setup_commands: []
+
+# Commands running when head node setting up.
+head_setup_commands:[]
+
+# Commands running when worker nodes setting up.
+worker_setup_commands:[]
+
+# Commands running after common setup commands
+bootstrap_commands: []
+```
+
+For example, If you want to add more integrations to your clusters within the setup steps, such as adding required tools to run TPC-DS, 
 please add the following `bootstrap_commands` section to your cluster yaml file, which will install TPC-DS and required packages
 with specified scripts to set up nodes after all common setup commands finish.
 
@@ -93,6 +112,46 @@ bootstrap_commands:
         bash ~/bootstrap-benchmark.sh  --tpcds
 ```
 
+
+## Customizing Startup and Stop Steps
+
+
+```
+# Commands running when each node starting up.
+startup_commands: []
+
+# Commands running when head node starting up.
+head_startup_commands:[]
+
+# Commands running when worker nodes starting up.
+worker_startup_commands:[]
+
+# Commands running when each node stops.
+stop_commands: []
+
+# Commands running when head node stops.
+head_stop_commands:[]
+
+# Commands running when worker nodes stop.
+worker_stop_commands:[]
+
+```
+
+
+## Mounting Files or Directories to Each Node
+
+To mount files or directories to each node when cluster starting up, add the following to cluster configuration file.
+
+```
+# Files or directories to copy to the head and worker nodes. The format is a
+# dictionary from REMOTE_PATH: LOCAL_PATH, e.g.
+
+file_mounts: {
+#    "/path1/on/remote/machine": "/path1/on/local/machine",
+#    "/path2/on/remote/machine": "/path2/on/local/machine",
+     "~/.ssh/id_rsa.pub": "~/.ssh/id_rsa.pub"
+}
+```
 
 ## Using Templates to Simplify Node Configuration
 

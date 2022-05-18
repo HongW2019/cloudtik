@@ -95,7 +95,7 @@ $ cloudtik attach /path/to/your-cluster-config.yaml
 (base) ubuntu@cloudtik-example-head-a7xxxxxx-compute:~$
 ```
 
-Log in to worker node with `--node-ip` as below
+Log in to worker node with `--node-ip` as below.
 
 ```
 $ cloudtik attach --node-ip 10.0.x.x /path/to/your-cluster-config.yaml
@@ -115,6 +115,18 @@ For example, list the items under $USER directory as below.
 ```
 $ cloudtik exec /path/to/your-cluster-config.yaml ls
 anaconda3  cloudtik_bootstrap_config.yaml  cloudtik_bootstrap_key.pem  jupyter  runtime
+```
+
+Execute commands on specified worker node 
+
+```
+cloudtik exec your-cluster-config.yaml --node-ip=x.x.x.x 
+```
+
+Execute commands on all nodes
+
+```
+cloudtik exec your-cluster-config.yaml --all-nodes
 ```
 
 Submit job to cluster to run.
