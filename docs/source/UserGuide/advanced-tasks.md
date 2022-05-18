@@ -1,4 +1,2 @@
 # Advanced Tasks
 
-## Tmux
-
