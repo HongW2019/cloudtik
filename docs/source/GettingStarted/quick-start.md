@@ -54,13 +54,11 @@ First, install AWS CLI(command line interface). Please refer to
 [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
 for detailed instructions.
 
-After AWS CLI is installed, you need to tell it about your AWS credentials. Please refer to 
+After AWS CLI is installed, then you need configure AWS CLI about credentials. Please refer to 
 [Configuring the AWS CLI](https://github.com/aws/aws-cli/tree/v2#getting-started) for detailed instructions.
 
-The quickest way to get started is to run `aws configure` command as below, fill these items out then AWS CLI will 
-be configured and authenticated. 
-
-*AWS Access Key ID* and *AWS Secret Access Key* can be found from the AWS guide of
+The quickest way to configure is to run `aws configure` command as below, fill these items out then AWS CLI will 
+be configured and authenticated. *AWS Access Key ID* and *AWS Secret Access Key* can be found from the AWS guide of
 [managing access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
 
 ```
@@ -160,6 +158,8 @@ provider:
 
 `s3.secret.access.key`:  your AWS Secret Access Key.
 
+ *AWS Access Key ID* and *AWS Secret Access Key* can be found from the AWS guide of
+[managing access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
 
 #### Azure
 
