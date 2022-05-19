@@ -50,7 +50,7 @@ gain access to cloud provider API on this machine.
 #### AWS
 
 First, install AWS CLI(command line interface), please refer to
-[AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
+[AWS CLI installation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
 for detailed instructions.
 
 After AWS CLI is installed, then you need configure AWS CLI about credentials, the quickest way to configure 
@@ -71,12 +71,12 @@ Then the Azure CLI is configured to manage resources on your Azure account.
 
 #### GCP
 
-First, follow the [Google Cloud docs](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) 
+First, follow the [Google Cloud guide](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) 
 to create a service account on Google Cloud, A JSON file should be safely downloaded and kept by you after the
 service account created.
 
 Then set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
-[GCP docs](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable) on your working machine.
+[GCP guide](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable) on your working machine.
 
 ### 4. Creating a Workspace for Clusters.
 
@@ -205,7 +205,7 @@ As for `aws_s3_storage` above:
 > `s3.secret.access.key`:  your AWS Secret Access Key.
 
  *AWS Access Key ID* and *AWS Secret Access Key* can be found from the AWS guide of
-[managing access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
+[managing access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey).
 
 As for `auth` above, if your working node is using corporation network, please set proxy as below.
 
