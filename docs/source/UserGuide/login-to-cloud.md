@@ -22,17 +22,9 @@ for detailed instructions.
 After AWS CLI is installed, then you need configure AWS CLI about credentials. Please refer to 
 [Configuring the AWS CLI](https://github.com/aws/aws-cli/tree/v2#getting-started) for detailed instructions.
 
-The quickest way to configure is to run `aws configure` command as below, fill these items out then AWS CLI will 
+The quickest way to configure is to run `aws configure` command, fill these items out then AWS CLI will 
 be configured and authenticated. *AWS Access Key ID* and *AWS Secret Access Key* can be found from the AWS guide of
 [managing access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
-
-```
-$ aws configure
-AWS Access Key ID [None]: ...
-AWS Secret Access Key [None]: ...
-Default region name [None]: ...
-Default output format [None]:
-```
 
 ### Creating a bucket
 
