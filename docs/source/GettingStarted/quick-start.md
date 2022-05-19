@@ -45,7 +45,7 @@ You can install the latest CloudTik wheels via the following links. These daily 
 ### 3. Authentication to Cloud Providers API
 
 After CloudTik is installed on your working machine, you need to configure or log into your Cloud account to 
-authenticate these cloud provider CLIs on this machine.
+authenticate the cloud provider CLI on this machine.
 
 #### AWS
 
@@ -72,9 +72,9 @@ to find your Azure subscription id.
 First, follow the [guide](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) 
 to create a service account on Google Cloud. 
 
-A JSON file should be safely downloaded and kept by you after the service account is created, and then set the 
-`GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in the
-[guide](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable) on your working machine.
+A JSON file should be safely downloaded and kept by you, and then set the `GOOGLE_APPLICATION_CREDENTIALS` environment 
+variable as described in the [guide](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable)
+on your working machine.
 
 ### 4. Creating a Workspace for Clusters.
 
@@ -123,7 +123,7 @@ If you choose cloud storage as file system or to store stage and event data, a c
 Every object in Amazon S3 is stored in a bucket. Before you can store data in Amazon S3, you must create a bucket.
 
 Please refer to the S3 [guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html) for instructions.
-The name of S3 bucket will be used in next step.
+The name of S3 bucket will be used in the next step.
 
 #### Azure
 
