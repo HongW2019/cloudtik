@@ -50,7 +50,7 @@ gain access to cloud provider API on this machine.
 #### AWS
 
 First, install AWS CLI(command line interface), please refer to
-[AWS CLI installation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
+[installing AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
 for detailed instructions.
 
 After AWS CLI is installed, then you need configure AWS CLI about credentials, the quickest way to configure 
