@@ -52,7 +52,7 @@ bash build.sh
 ```
 Then under `./python/dist` directory, you will find the `*.whl` which is your current Python version's CloudTik wheel for Linux.
 
-#### Installing CloudTik 
+### Installing CloudTik
 
 Then install your built wheel above.
 
