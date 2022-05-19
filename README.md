@@ -63,16 +63,16 @@ gain access to cloud provider API on this machine.
 
 #### AWS
 
-First, install AWS CLI(command line interface). Please refer to
+First, install AWS CLI(command line interface), please refer to
 [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
 for detailed instructions.
 
 After AWS CLI is installed, then you need configure AWS CLI about credentials, the quickest way to configure 
-is to run `aws configure` command.
-Please refer to [Configuring the AWS CLI](https://github.com/aws/aws-cli/tree/v2#getting-started) for detailed instructions.
+is to run `aws configure` command, you can refer to
+[managing access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey) 
+to get *AWS Access Key ID* and *AWS Secret Access Key*.
 
-During the configuring CLI process, *AWS Access Key ID* and *AWS Secret Access Key* can be found from the AWS guide of
-[managing access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey).
+More ways to configure AWS CLI can be found from the [guide](https://github.com/aws/aws-cli/tree/v2#getting-started).
 
 #### Azure
 
