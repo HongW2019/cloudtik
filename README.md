@@ -142,8 +142,7 @@ of your cluster configuration yaml.
 Every object in Amazon S3 is stored in a bucket. Before you can store data in Amazon S3, you must create a bucket.
 
 Please refer to the S3 [guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html) for instructions.
-
-The name of S3 will be used in Step 6.
+The name of S3 bucket will be used in next step.
 
 #### Azure
 
@@ -160,15 +159,14 @@ If you do not already have a GCS bucket, create one by following the
 [guide](https://cloud.google.com/storage/docs/creating-buckets#create_a_new_bucket).
 
 Then set its permission for this bucket, please refer to [gcs bucket guide](gcs-bucket.md) for more details.
-
-The name of bucket will be used when configuring GCS cluster yaml.
+The name of bucket will be used when configuring GCP cluster yaml.
 
 ### 6. Starting a cluster
 
 Now you can start a cluster:
 
 ```
-cloudtik start your-cluster-config.yaml
+cloudtik start /path/to/your-cluster-config.yaml
 ```
 
 A typical cluster configuration file is usually very simple thanks to CloudTik hierarchy templates design.
@@ -212,31 +210,23 @@ available_node_types:
 
 You need the cloud storage access information in Step 5 and only a few additional key settings in the configuration file to launch a cluster.
 
-```
-    aws_s3_storage:
-        s3.bucket: your_s3_bucket
-        s3.access.key.id: your_s3_access_key_id
-        s3.secret.access.key: your_s3_secret_access_key
-```
-
 As for `aws_s3_storage` above: 
 
-`s3.bucket`: name of S3 bucket that you created.
-
-`s3.access.key.id`:  your AWS Access Key ID.
-
-`s3.secret.access.key`:  your AWS Secret Access Key.
+> `s3.bucket`: name of S3 bucket that you created.
+> 
+> `s3.access.key.id`:  your AWS Access Key ID.
+> 
+> `s3.secret.access.key`:  your AWS Secret Access Key.
 
  *AWS Access Key ID* and *AWS Secret Access Key* can be found from the AWS guide of
 [managing access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
 
-As for `auth`, if your working node is using corporation network, please set proxy as below.
+As for `auth` above, if your working node is using corporation network, please set proxy as below.
 
 ```
 auth:
     ssh_user: ubuntu
-    # Set proxy if you are in corporation network. For example,
-    ssh_proxy_command: "ncat --proxy-type socks5 --proxy your_proxy_host:your_proxy_port %h %p"
+    ssh_proxy_command: "ncat --proxy-type socks5 --proxy <your_proxy_host>:<your_proxy_port> %h %p"
 ```
 
 Refer to `example/cluster` for more cluster configurations examples.
