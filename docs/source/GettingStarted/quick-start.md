@@ -120,9 +120,6 @@ Check `example/cluster` folder for more Workspace configuration file examples.
 
 If you choose cloud storage as file system or to store stage and event data, cloud storage account is needed.
 
-After follow the guides below for specific cloud provider, you will be able to fill out the corresponding storage filed 
-of your cluster configuration yaml. 
-
 #### AWS
 
 Every object in Amazon S3 is stored in a bucket. Before you can store data in Amazon S3, you must create a bucket.
@@ -135,17 +132,16 @@ The name of S3 bucket will be used in next step.
 Create an Azure storage account, and a storage container within this storage account.
 
 Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by CloudTik. Please refer to Azure related 
-[guides](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) for details.
-
-The name of storage account and storage container will be used when configuring Azure cluster yaml.
+[guides](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) for details,
+the name of storage account and storage container will be used when configuring Azure cluster yaml.
 
 #### GCP
 
 If you do not already have a GCS bucket, create one by following the 
 [guide](https://cloud.google.com/storage/docs/creating-buckets#create_a_new_bucket).
 
-Then set its permission for this bucket, please refer to [gcs bucket guide](gcs-bucket.md) for more details.
-The name of bucket will be used when configuring GCP cluster yaml.
+Then set its permission for this bucket, please refer to [gcs bucket guide](gcs-bucket.md) for more details. 
+the name of bucket will be used when configuring GCP cluster yaml.
 
 ### 6. Starting a cluster
 
