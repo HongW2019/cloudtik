@@ -16,11 +16,14 @@ CloudTik will help users quickly create and configure:
 - An identity for head node to Cloud API.
 
 
-## Create a Workspace Configuration File
+## Creating a Workspace Configuration File
+
+A typical workspace configuration file is simple. Specify the unique workspace name, cloud provider type
+and a few provider-specific properties. 
 
 ### AWS
 
-Here is an AWS workspace configuration yaml example, which can find at CloudTik's `example/cluster/aws/example-workspace.yaml` 
+Here is an AWS workspace configuration yaml example, which is located at CloudTik's `example/cluster/aws/example-workspace.yaml` 
 
 ```
 # A unique identifier for the workspace.
@@ -41,12 +44,29 @@ provider:
           - CidrIp: 0.0.0.0/0
 ```
 
-*NOTE:* Remember to change `CidrIp` from `0.0.0.0/0` to restricted IpRanges for TCP port 22 security
+*NOTE:* Remember to change `CidrIp` from `0.0.0.0/0` to restricted IpRanges for TCP port 22 security as below. Replace 
+`x.x.x.x/x` with your specific working node IPs.
 
+```
+    security_group:
+        # Use IpPermissions to allow SSH access from your working node
+        IpPermissions:
+        - FromPort: 22
+          ToPort: 22
+          IpProtocol: TCP
+          IpRanges:
+          - CidrIp: x.x.x.x/x
+        - FromPort: 22
+          ToPort: 22
+          IpProtocol: TCP
+          IpRanges:
+          - CidrIp: x.x.x.x/x
+
+```
 
 ### Azure
 
-Here is an Azure workspace configuration yaml example, which can find at CloudTik's `example/cluster/azure/example-workspace.yaml`
+Here is an Azure workspace configuration yaml example, which is located at CloudTik's `example/cluster/azure/example-workspace.yaml`
 
 ```
 # A unique identifier for the workspace.
@@ -59,8 +79,9 @@ provider:
     subscription_id: your_subscription_id
     # Use securityRules to allow SSH access from your working node
     securityRules:
-      - priority: 1000
-        protocol: Tcp
+      - properties:
+        protocol: TCP
+        priority: 1000
         access: Allow
         direction: Inbound
         source_address_prefixes:
@@ -71,8 +92,23 @@ provider:
 
 ```
 
-*NOTE:* Remember
+*NOTE:* Remember to restrict `source_address_prefixes` above to restricted range as below. Replace 
+`x.x.x.x/x` with your specific working node IPs.
 
+```
+securityRules:
+      - properties:
+        protocol: TCP
+        priority: 1000
+        access: Allow
+        direction: Inbound
+        source_address_prefixes:
+          - x.x.x.x/x
+          - x.x.x.x/x
+        source_port_range: "*"
+        destination_address_prefix: "*"
+        destination_port_range: 22
+```
 
 ### GCP
 
@@ -88,6 +124,7 @@ provider:
     project_id: your_project_id
     firewalls:
         # Use firewall_rules to allow SSH access from your working node
+        # Restrict sourRanges for security
         firewall_rules:
           - allowed:
               - IPProtocol: tcp
@@ -98,9 +135,24 @@ provider:
 
 ```
 
-*NOTE:* Remember
+*NOTE:* Remember restrict `sourceRanges` above to restricted range according to your working node IP as below. Replace 
+`x.x.x.x/x` with your specific working node IP.
 
-### Create or Delete a Workspace
+```
+    firewalls:
+        # Use firewall_rules to allow SSH access from your working node
+        # Restrict sourRanges for security
+        firewall_rules:
+          - allowed:
+              - IPProtocol: tcp
+                ports:
+                  - 22
+            sourceRanges:
+              - x.x.x.x/x
+              - x.x.x.x/x
+```
+
+## Creating or Deleting a Workspace
 
 Use the following command to create and provision a workspace:
 
@@ -108,9 +160,8 @@ Use the following command to create and provision a workspace:
 cloudtik workspace create /path/to/<your-workspace-config>.yaml
 ```
 
-A typical workspace configuration file is usually very simple. Specify the unique workspace name, cloud provider type
-and a few provider-specific properties. 
-
+After the workspace is created, shared cloud resources such as VPC, network, identity resources, firewall or security 
+groups are configured.
 
 Use the following command to delete a workspace:
 
