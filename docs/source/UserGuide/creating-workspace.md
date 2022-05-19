@@ -3,8 +3,6 @@
 CloudTik uses **Workspace** concept to easily manage shared Cloud resources such as VPC, network, identity resources, 
 firewall or security groups. Within one workspace, you can start one or multiple clusters.
 
-![](../../image/high-level-architecture.png)
-
 CloudTik will help users quickly create and configure:
 
 - VPC shared by all the clusters of the workspace. 
@@ -18,16 +16,12 @@ CloudTik will help users quickly create and configure:
 - An identity for head node to Cloud API.
 
 
-Use the following command to create and provision a workspace:
+## Create a Workspace Configuration File
 
-```
-cloudtik workspace create /path/to/<your-workspace-config>.yaml
-```
+### AWS
 
-A typical workspace configuration file is usually very simple. Specify the unique workspace name, cloud provider type
-and a few provider-specific properties. 
+Here is an AWS workspace configuration yaml example, which can find at CloudTik's `example/cluster/aws/example-workspace.yaml` 
 
-Here take AWS as an example. 
 ```
 # A unique identifier for the workspace.
 workspace_name: example-workspace
@@ -47,7 +41,76 @@ provider:
           - CidrIp: 0.0.0.0/0
 ```
 
-You need restrict IpRanges `CidrIp` above for TCP port 22 for VPC network firewall rules.
+*NOTE:* Remember to change `CidrIp` from `0.0.0.0/0` to restricted IpRanges for TCP port 22 security
+
+
+### Azure
+
+Here is an Azure workspace configuration yaml example, which can find at CloudTik's `example/cluster/azure/example-workspace.yaml`
+
+```
+# A unique identifier for the workspace.
+workspace_name: example-workspace
+
+# Cloud-provider specific configuration.
+provider:
+    type: azure
+    location: westus
+    subscription_id: your_subscription_id
+    # Use securityRules to allow SSH access from your working node
+    securityRules:
+      - priority: 1000
+        protocol: Tcp
+        access: Allow
+        direction: Inbound
+        source_address_prefixes:
+          - 0.0.0.0/0
+        source_port_range: "*"
+        destination_address_prefix: "*"
+        destination_port_range: 22
+
+```
+
+*NOTE:* Remember
+
+
+### GCP
+
+```
+# A unique identifier for the workspace.
+workspace_name: example-workspace
+
+# Cloud-provider specific configuration.
+provider:
+    type: gcp
+    region: us-central1
+    availability_zone: us-central1-a
+    project_id: your_project_id
+    firewalls:
+        # Use firewall_rules to allow SSH access from your working node
+        firewall_rules:
+          - allowed:
+              - IPProtocol: tcp
+                ports:
+                  - 22
+            sourceRanges:
+              - 0.0.0.0/0
+
+```
+
+*NOTE:* Remember
+
+### Create or Delete a Workspace
+
+Use the following command to create and provision a workspace:
+
+```
+cloudtik workspace create /path/to/<your-workspace-config>.yaml
+```
+
+A typical workspace configuration file is usually very simple. Specify the unique workspace name, cloud provider type
+and a few provider-specific properties. 
+
 
 Use the following command to delete a workspace:
 
