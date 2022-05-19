@@ -71,12 +71,12 @@ Then the Azure CLI is configured to manage resources on your Azure account.
 
 #### GCP
 
-First, follow the [Google Cloud guide](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) 
+First, follow the [guide](https://cloud.google.com/docs/authentication/getting-started#creating_a_service_account) 
 to create a service account on Google Cloud, A JSON file should be safely downloaded and kept by you after the
 service account created.
 
-Then set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in
-[GCP guide](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable) on your working machine.
+Then set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable as described in the
+[guide](https://cloud.google.com/docs/authentication/getting-started#setting_the_environment_variable) on your working machine.
 
 ### 4. Creating a Workspace for Clusters.
 
@@ -129,11 +129,12 @@ The name of S3 bucket will be used in next step.
 
 #### Azure
 
-Create an Azure storage account, and a storage container within this storage account.
+Create an Azure storage account, and a storage container within this storage account,
+Please refer to Azure related [guide](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal)
+for instructions.
 
-Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by CloudTik. Please refer to Azure related 
-[guides](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) for details,
-the name of storage account and storage container will be used when configuring Azure cluster yaml.
+Azure **Blob storage** or **Data Lake Storage Gen2** are both supported by CloudTik, the name of storage account 
+and storage container will be used when configuring Azure cluster yaml.
 
 #### GCP
 
