@@ -33,7 +33,7 @@ Every object in Amazon S3 is stored in a bucket. Before you can store data in Am
 Please refer to the S3 [guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html) for instructions.
 
 You will be able to fill out the `aws_s3_storage` for your AWS cluster configuration yaml file, which is introduced
-at [starting a cluster](../GettingStarted/quick-start.md#6-starting-a-cluster)
+at [starting a cluster](../GettingStarted/quick-start.md)
 
 ```
 # Cloud-provider specific configuration.
