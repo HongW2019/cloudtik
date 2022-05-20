@@ -38,29 +38,29 @@ Use `cloudtik[all]` if you want to manage clusters with all supported Cloud prov
 
 ## Building CloudTik from Source and Installing
 
-### Building for Linux
+### Building CloudTik on Linux
 
-After create a Python environment as above, then build cloudtik wheel for Linux.
+After created a Python environment as above, you can build wheel for CloudTik on Linux.
 
-#### Building CloudTik wheels with our provided script
-
-Run the following command to start the build.
+Run the following command to start the building CloudTik with provided scripts.
 
 ```
 git clone https://github.com/oap-project/cloudtik.git && cd cloudtik
 bash build.sh
 ```
-Then under `./python/dist` directory, you will find the `*.whl` which is your current Python version's CloudTik wheel for Linux.
+
+You will find the `*.whl` under `./python/dist` directory, which is your current Python version's CloudTik wheel for Linux.
 
 ### Installing CloudTik
 
-Then install your built wheel above.
+Install your built wheel above.
 
 ```
 pip install ./python/dist/<your-built-wheel>.whl 
 ```
 
-If you want to install the CloudTik built above into the clusters to be created, and you have it uploaded to cloud or servers where can be visited. 
+If you want to install the built CloudTik above into the clusters to be created when running
+`cloudtik start /path/to/<your-cluster-configuration>.yaml`, you need to upload the wheel to cloud or servers where can be visited via Internet. 
 
 Add `cloudtik_wheel_url` to your cluster config yaml file as below.
 
