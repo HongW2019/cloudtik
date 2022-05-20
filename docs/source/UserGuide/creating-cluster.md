@@ -1,23 +1,22 @@
 # Creating Cluster
 
-The cluster configuration is defined within a YAML file that will be used by CloudTik to launch nodes and its cluster
+The cluster configuration is defined within a YAML file. It will be used by CloudTik to launch head node, and its cluster
 controller on head node to launch worker nodes.
 
-CloudTik offers cluster configuration yaml examples, which are located under CloudTik's `example/cluster/` directory.
+CloudTik provides cluster configuration yaml examples, which are located under CloudTik's `example/cluster/` directory.
  
 Please follow instructions below to customize your cluster configuration.
 
 ## Execution Mode
 
-CloudTik supports to run services with two Execution Modes: 
+CloudTik supports to run services with two execution modes: 
 
 - Host Mode: All the services will run on (VM) host. 
 
 - Container Mode: All the service will run in Docker container on (VM) host. 
-    - CloudTik handles all the docker stuff transparently (Installing, command execution  
-        bridge). Users see little difference on operations. 
+    - CloudTik handles all the docker stuffs transparently (installation, command execution bridge). Users see little difference on operations. 
 
-Host mode is set to configure yaml file as below
+Host mode is set as below
 
 ```
 # This executes all commands on all nodes in the docker container,
@@ -42,8 +41,8 @@ docker:
 
 ## Controlling the Number of Workers
 
-The minimum number of worker nodes to launch. Default number is 1, you can change it according to your use case by 
-adding configuration to the cluster configuration yaml file to overwrite default as below, which sets minimum number of worker nodes to 3.
+The minimum number of worker nodes to launch, and the default number is 1. You can change it according to your use case
+to overwrite default value as below, which sets minimum number of worker nodes to 3.
 
 ```
 available_node_types:
@@ -53,7 +52,7 @@ available_node_types:
 
 ## Choosing Runtimes for Cluster
 
-CloudTik introduces **Runtime** concept to integrate different analytics and AI framework to deploy into clusters.
+CloudTik introduces **Runtime** concept to integrate different analytics and AI frameworks to deploy into clusters.
 
 - **Spark**,  a multi-language engine for executing data engineering, data science, and machine learning.
 
@@ -80,7 +79,7 @@ runtime:
 
 ## Customizing Setup Steps
 
-CloudTik will install and config Conda, Python, selected Runtimes and other requirements to your head and workers on setup step.
+CloudTik will install and configure Conda, Python, selected Runtimes and other requirements to your head and workers on setup step.
 
 You can customize the commands during cluster setup steps.
 
@@ -111,32 +110,6 @@ bootstrap_commands:
     - wget -P ~/ https://raw.githubusercontent.com/oap-project/cloudtik/main/tools/spark/benchmark/scripts/bootstrap-benchmark.sh &&
         bash ~/bootstrap-benchmark.sh  --tpcds
 ```
-
-
-## Customizing Startup and Stop Steps
-
-
-```
-# Commands running when each node starting up.
-startup_commands: []
-
-# Commands running when head node starting up.
-head_startup_commands:[]
-
-# Commands running when worker nodes starting up.
-worker_startup_commands:[]
-
-# Commands running when each node stops.
-stop_commands: []
-
-# Commands running when head node stops.
-head_stop_commands:[]
-
-# Commands running when worker nodes stop.
-worker_stop_commands:[]
-
-```
-
 
 ## Mounting Files or Directories to Each Node
 
@@ -198,12 +171,11 @@ available_node_types:
 
 You can find `available_node_types` section providing with instances type examples for different cluster from small to very large cluster.
 
-Then we also offer cluster configuration yaml example, which is located in CloudTik's `example/cluster/` directory.
+We also provide cluster configuration yaml examples, which are located in CloudTik's `example/cluster/` directory.
 
-It takes AWS standard cluster for example, locating in CloudTik's `./example/cluster/aws/example-standard.yaml`, it inherits
+Here takes AWS standard cluster for example, locating in CloudTik's `./example/cluster/aws/example-standard.yaml`. It inherits
 AWS standard template, which is set by `from: AWS/standard` as below.
-Then it can inherit the `available_node_types` of AWS standard template, which will select the same node configuration, 
-needless to set them again.
+It inherits the `available_node_types` of AWS standard template, which will select the same node configuration.
 
 ```
 # An example of standard 1 + 3 nodes cluster with standard instance type
