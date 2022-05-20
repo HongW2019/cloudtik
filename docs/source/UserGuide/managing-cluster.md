@@ -95,7 +95,7 @@ $ cloudtik attach /path/to/your-cluster-config.yaml
 (base) ubuntu@cloudtik-example-head-a7xxxxxx-compute:~$
 ```
 
-Log in to worker node with `--node-ip` as below.
+Log in to a worker node with `--node-ip` as below.
 
 ```
 $ cloudtik attach --node-ip 10.0.x.x /path/to/your-cluster-config.yaml
