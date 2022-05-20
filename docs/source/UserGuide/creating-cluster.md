@@ -173,7 +173,7 @@ You can find `available_node_types` section providing with instances type exampl
 
 We also provide cluster configuration yaml examples, which are located in CloudTik's `example/cluster/` directory.
 
-Here takes AWS standard cluster for example, locating in CloudTik's `./example/cluster/aws/example-standard.yaml`. It inherits
+Here takes AWS standard cluster as an example. You can find it in CloudTik's `./example/cluster/aws/example-standard.yaml`. It inherits
 AWS standard template, which is set by `from: AWS/standard` as below.
 It inherits the `available_node_types` of AWS standard template, which will select the same node configuration.
 
