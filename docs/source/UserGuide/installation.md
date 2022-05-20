@@ -21,8 +21,6 @@ conda activate cloudtik
 
 ## Installing CloudTik from Daily Releases
 
-### Daily Releases for different Python versions
-
 You can install the latest CloudTik wheels via the following links. These daily releases do not go through the full release process. 
 To install these wheels, use the following `pip` command and wheels on different Cloud providers:
 
@@ -69,6 +67,6 @@ workspace_name: ...
 
 cluster_name: ...
 
-cloudtik_wheel_url: "/link/to/cloudtik-*.whl"
+cloudtik_wheel_url: "</link/to/cloudtik-*>.whl"
 
 ```
