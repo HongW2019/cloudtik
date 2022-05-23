@@ -265,6 +265,8 @@ cloudtik stop /path/to/your-cluster-config.yaml
 
 #### Delete a Workspace
 
+Delete the workspace and all the network resources within it.
+
 ```
 cloudtik workspace delete /path/to/your-workspace-config.yaml
 ```
