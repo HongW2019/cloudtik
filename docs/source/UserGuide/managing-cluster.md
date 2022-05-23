@@ -107,7 +107,7 @@ $ cloudtik attach --node-ip 10.0.x.x /path/to/your-cluster-config.yaml
 Execute a command via SSH on head node.
 
 ```
-cloudtik exec /path/to/your-cluster-config.yaml <CMD>
+cloudtik exec /path/to/your-cluster-config.yaml [CMD]
 ```
 
 For example, list the items under $USER directory as below.  
@@ -120,13 +120,13 @@ anaconda3  cloudtik_bootstrap_config.yaml  cloudtik_bootstrap_key.pem  jupyter  
 Execute commands on specified worker node 
 
 ```
-cloudtik exec --node-ip x.x.x.x /path/to/your-cluster-config.yaml <CMD>
+cloudtik exec --node-ip x.x.x.x /path/to/your-cluster-config.yaml [CMD]
 ```
 
 Execute commands on all nodes
 
 ```
-cloudtik exec --all-nodes /path/to/your-cluster-config.yaml <CMD>
+cloudtik exec --all-nodes /path/to/your-cluster-config.yaml [CMD]
 ```
 
 Submit job to cluster to run.
