@@ -147,8 +147,8 @@ If you do not already have a GCS bucket, create one by following the
 To control access to the bucket, please refer to [Google cloud bucket](gcs-bucket.md) for instructions. 
 The name of bucket will be used when configuring GCP cluster yaml.
 
-You will also need `project_id`, `client_email`, `private_key_id` and `gcs.service.account.private.key` in the Json file
-downloaded in Step 3 in the next step when configuring a GCP cluster yaml, which grants the access to the created GCP bucket.
+You will also need the previously downloaded Json file's `project_id`, `client_email`, `private_key_id` and 
+`gcs.service.account.private.key` for the next step when configuring a GCP cluster yaml, which grants the access to the created GCP bucket.
 
 ### 6. Starting a cluster
 
