@@ -92,7 +92,7 @@ class Archive:
     """
 
     def __init__(self, file: Optional[str] = None):
-        self.file = file or tempfile.mktemp(
+        self.file = file or tempfile.mkstemp(
             prefix="cloudtik_logs_", suffix=".tar.gz")
         self.tar = None
         self._lock = threading.Lock()
@@ -458,7 +458,7 @@ def create_and_get_archive_from_remote_node(remote_node: Node,
     cat = "node" if not remote_node.is_head else "head"
 
     cli_logger.verbose(f"Collecting data from remote node: {remote_node.host}")
-    tmp = tempfile.mktemp(
+    tmp = tempfile.mkstemp(
         prefix=f"cloudtik_{cat}_{remote_node.host}_", suffix=".tar.gz")
     with open(tmp, "wb") as fp:
         try:
@@ -648,7 +648,7 @@ def create_and_get_archive_from_head_node(head_node: Node,
     cat = "cluster"
 
     cli_logger.print(f"Collecting cluster data from head node: {head_node.host}")
-    tmp = tempfile.mktemp(
+    tmp = tempfile.mkstemp(
         prefix=f"cloudtik_{cat}_{head_node.host}_", suffix=".tar.gz")
     with open(tmp, "wb") as fp:
         try:

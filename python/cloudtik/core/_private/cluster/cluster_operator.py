@@ -1328,7 +1328,7 @@ def _rsync(config: Dict[str, Any],
             cli_logger.abort("Need to specify both source and target when rsync with specific node")
 
         target_base = os.path.basename(target)
-        target_on_head = tempfile.mktemp(prefix=f"{target_base}_")
+        target_on_head = tempfile.mkstemp(prefix=f"{target_base}_")
         if down:
             # first run rsync on head
             rsync_to_node_from_head(config,
