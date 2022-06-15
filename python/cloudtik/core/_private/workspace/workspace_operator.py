@@ -295,7 +295,7 @@ def _bootstrap_workspace_config(config: Dict[str, Any],
     config = prepare_workspace_config(config)
     # Note: delete workspace only need to contain workspace_name
 
-    hasher = hashlib.sha1()
+    hasher = hashlib.sha256()
     hasher.update(json.dumps([config], sort_keys=True).encode("utf-8"))
     cache_key = os.path.join(tempfile.gettempdir(),
                              "cloudtik-workspace-config-{}".format(hasher.hexdigest()))

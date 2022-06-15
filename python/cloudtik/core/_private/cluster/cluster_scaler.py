@@ -867,7 +867,7 @@ class ClusterScaler:
         if node_type is None:
             node_type = ""
 
-        hasher = hashlib.sha1()
+        hasher = hashlib.sha256()
         if runtime_config:
             runtime_config_str = json.dumps(runtime_config, sort_keys=True)
         else:
@@ -1346,7 +1346,7 @@ class ClusterScaler:
     def _publish_nodes_info(self, node_type: str, nodes_info, minimal_nodes_info):
         nodes_info_str = json.dumps(nodes_info, sort_keys=True)
 
-        hasher = hashlib.sha1()
+        hasher = hashlib.sha256()
         hasher.update(nodes_info_str.encode("utf-8"))
         new_nodes_info_hash = hasher.hexdigest()
 

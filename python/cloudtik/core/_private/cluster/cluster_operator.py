@@ -338,7 +338,7 @@ def _bootstrap_config(config: Dict[str, Any],
     config = prepare_config(config)
     # NOTE: multi-node-type cluster scaler is guaranteed to be in use after this.
 
-    hasher = hashlib.sha1()
+    hasher = hashlib.sha256()
     hasher.update(json.dumps([config], sort_keys=True).encode("utf-8"))
     cache_key = os.path.join(tempfile.gettempdir(),
                              "cloudtik-config-{}".format(hasher.hexdigest()))

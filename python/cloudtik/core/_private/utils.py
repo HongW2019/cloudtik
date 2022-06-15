@@ -1607,7 +1607,7 @@ def with_node_ip_environment_variables(
 
 
 def hash_launch_conf(node_conf, auth):
-    hasher = hashlib.sha1()
+    hasher = hashlib.sha256()
     # For hashing, we replace the path to the key with the
     # key itself. This is to make sure the hashes are the
     # same even if keys live at different locations on different
@@ -1668,8 +1668,8 @@ def hash_runtime_conf(file_mounts,
     cluster_synced_files contents have changed. It is used at monitor time to
     determine if additional file syncing is needed.
     """
-    runtime_hasher = hashlib.sha1()
-    contents_hasher = hashlib.sha1()
+    runtime_hasher = hashlib.sha256()
+    contents_hasher = hashlib.sha256()
 
     file_mounts_str = json.dumps(file_mounts, sort_keys=True).encode("utf-8")
     conf_str = (file_mounts_str +
@@ -1746,11 +1746,11 @@ def hash_runtime_conf_for_node_types(
                               json.dumps(node_type_runtime_conf, sort_keys=True).encode("utf-8"))
         if node_type_conf_str not in _hash_cache:
             if head_node_contents_hash is None:
-                contents_hasher = hashlib.sha1()
+                contents_hasher = hashlib.sha256()
                 head_node_contents_hash = hash_contents(
                     contents_hasher, file_mounts)
 
-            node_type_runtime_hasher = hashlib.sha1()
+            node_type_runtime_hasher = hashlib.sha256()
             node_type_runtime_hasher.update(node_type_conf_str)
             node_type_runtime_hasher.update(head_node_contents_hash.encode("utf-8"))
 
