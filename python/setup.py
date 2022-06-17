@@ -2,9 +2,7 @@ import logging
 import os
 import re
 import shutil
-import sys
 
-from enum import Enum
 from itertools import chain
 
 logger = logging.getLogger(__name__)
@@ -30,60 +28,22 @@ def find_version(*filepath):
         raise RuntimeError("Unable to find version string.")
 
 
-class SetupType(Enum):
-    CLOUDTIK = 1
-
-
-class BuildType(Enum):
-    DEFAULT = 1
-    DEBUG = 2
-    ASAN = 3
-    TSAN = 4
-
-
 class SetupSpec:
-    def __init__(self, type: SetupType, name: str, description: str,
-                 build_type: BuildType):
-        self.type: SetupType = type
+    def __init__(self, name: str, description: str):
         self.name: str = name
-        version = find_version("cloudtik", "__init__.py")
-        # add .dbg suffix if debug mode is on.
-        if build_type == BuildType.DEBUG:
-            self.version: str = f"{version}+dbg"
-        elif build_type == BuildType.ASAN:
-            self.version: str = f"{version}+asan"
-        elif build_type == BuildType.TSAN:
-            self.version: str = f"{version}+tsan"
-        else:
-            self.version = version
+        self.version = find_version("cloudtik", "__init__.py")
         self.description: str = description
-        self.build_type: BuildType = build_type
         self.files_to_include: list = []
         self.install_requires: list = []
         self.extras: dict = {}
 
     def get_packages(self):
-        if self.type == SetupType.CLOUDTIK:
-            return setuptools.find_packages()
-        else:
-            return []
+        return setuptools.find_packages()
 
-
-build_type = os.getenv("CLOUDTIK_DEBUG_BUILD")
-if build_type == "debug":
-    BUILD_TYPE = BuildType.DEBUG
-elif build_type == "asan":
-    BUILD_TYPE = BuildType.ASAN
-elif build_type == "tsan":
-    BUILD_TYPE = BuildType.TSAN
-else:
-    BUILD_TYPE = BuildType.DEFAULT
 
 # "cloudtik" primary wheel package.
-setup_spec = SetupSpec(
-    SetupType.CLOUDTIK, "cloudtik", "CloudTik is a cloud scaling infrastructure for "
-                                    "scaling your distributed analytics and AI cluster such as Spark easily on "
-                                    "public Cloud environment including AWS, Azure, GCP and so on. ", BUILD_TYPE)
+setup_spec = SetupSpec("cloudtik", "CloudTik is a cloud scaling platform for scaling your distributed analytics and "
+                                   "AI cluster easily on public Cloud providers including AWS, Azure, GCP and so on. ")
 
 # NOTE: The lists below must be kept in sync with cloudtik build(.sh)
 cloudtik_files = [
@@ -98,56 +58,47 @@ cloudtik_files += [
 
 # If you're adding dependencies for cloudtik extras, please
 # also update the matching section of requirements.txt.
-
-if setup_spec.type == SetupType.CLOUDTIK:
-    setup_spec.extras = {
-        "aws": [
-            "boto3==1.22.13",
-            "botocore",
-        ],
-        "azure": [
-            "azure-cli==2.35.0",
-            "azure-storage-blob==12.11.0",
-            "azure-storage-file-datalake==12.6.0",
-        ],
-        "gcp": [
-            "google-api-python-client==2.48.0",
-            "google-cloud-storage==2.3.0",
-        ],
-        "k8s": [
-            "kubernetes",
-            "urllib3",
-        ],
-    }
-
-setup_spec.extras["all"] = list(
-        set(chain.from_iterable(setup_spec.extras.values())))
+setup_spec.extras = {"aws": [
+    "boto3==1.22.13",
+    "botocore",
+], "azure": [
+    "azure-cli==2.35.0",
+    "azure-storage-blob==12.11.0",
+    "azure-storage-file-datalake==12.6.0",
+], "gcp": [
+    "google-api-python-client==2.48.0",
+    "google-cloud-storage==2.3.0",
+], "k8s": [
+    "kubernetes",
+    "urllib3",
+], "all": list(
+    set(chain.from_iterable(setup_spec.extras.values())))}
 
 # These are the main dependencies for users of cloudtik. This list
 # should be carefully curated. If you change it, please reflect
 # the change in the matching section of requirements/requirements.txt
-if setup_spec.type == SetupType.CLOUDTIK:
-    setup_spec.install_requires = [
-        "attrs",
-        "colorama",
-        "click >= 7.0",
-        "cryptography>=3.0.0",
-        "dataclasses; python_version < '3.7'",
-        "filelock",
-        "jsonschema",
-        "numpy >= 1.16; python_version < '3.9'",
-        "numpy >= 1.19.3; python_version >= '3.9'",
-        "prometheus_client >= 0.7.1",
-        "psutil",
-        "pyyaml",
-        "redis >= 3.5.0",
-        "requests",
-        "six",
-        "smart_open",
-        "prettytable",
-        "ipaddr",
-        "pycryptodomex"
-    ]
+
+setup_spec.install_requires = [
+    "attrs",
+    "colorama",
+    "click >= 7.0",
+    "cryptography>=3.0.0",
+    "dataclasses; python_version < '3.7'",
+    "filelock",
+    "jsonschema",
+    "numpy >= 1.16; python_version < '3.9'",
+    "numpy >= 1.19.3; python_version >= '3.9'",
+    "prometheus_client >= 0.7.1",
+    "psutil",
+    "pyyaml",
+    "redis >= 3.5.0",
+    "requests",
+    "six",
+    "smart_open",
+    "prettytable",
+    "ipaddr",
+    "pycryptodomex"
+]
 
 
 def walk_directory(directory, exclude_python: bool = False):
@@ -169,31 +120,26 @@ def copy_file(target_dir, filename, rootdir):
     # Create the target directory if it doesn't already exist.
     os.makedirs(os.path.dirname(destination), exist_ok=True)
     if not os.path.exists(destination):
-        if sys.platform == "win32":
-            # Does not preserve file mode (needed to avoid read-only bit)
-            shutil.copyfile(source, destination, follow_symlinks=True)
-        else:
-            # Preserves file mode (needed to copy executable bit)
-            shutil.copy(source, destination, follow_symlinks=True)
+        # Preserves file mode (needed to copy executable bit)
+        shutil.copy(source, destination, follow_symlinks=True)
         return 1
     return 0
 
 
 def pip_run(build_ext):
-    if setup_spec.type == SetupType.CLOUDTIK:
-        setup_spec.files_to_include += cloudtik_files
-        # Include all non-python files in provider directory
-        provider_dir = os.path.join(ROOT_DIR, PROVIDER_SUBDIR)
-        setup_spec.files_to_include += walk_directory(provider_dir, True)
-        # Include all the thirdparty files
-        thirdparty_dir = os.path.join(ROOT_DIR, THIRDPARTY_SUBDIR)
-        setup_spec.files_to_include += walk_directory(thirdparty_dir)
-        # Include all the configuration template files
-        templates_dir = os.path.join(ROOT_DIR, TEMPLATES_SUBDIR)
-        setup_spec.files_to_include += walk_directory(templates_dir)
-        # Include all the runtime conf and scripts files
-        runtime_dir = os.path.join(ROOT_DIR, RUNTIME_SUBDIR)
-        setup_spec.files_to_include += walk_directory(runtime_dir, True)
+    setup_spec.files_to_include += cloudtik_files
+    # Include all non-python files in provider directory
+    provider_dir = os.path.join(ROOT_DIR, PROVIDER_SUBDIR)
+    setup_spec.files_to_include += walk_directory(provider_dir, True)
+    # Include all the thirdparty files
+    thirdparty_dir = os.path.join(ROOT_DIR, THIRDPARTY_SUBDIR)
+    setup_spec.files_to_include += walk_directory(thirdparty_dir)
+    # Include all the configuration template files
+    templates_dir = os.path.join(ROOT_DIR, TEMPLATES_SUBDIR)
+    setup_spec.files_to_include += walk_directory(templates_dir)
+    # Include all the runtime conf and scripts files
+    runtime_dir = os.path.join(ROOT_DIR, RUNTIME_SUBDIR)
+    setup_spec.files_to_include += walk_directory(runtime_dir, True)
 
     copied_files = 0
     for filename in setup_spec.files_to_include:
