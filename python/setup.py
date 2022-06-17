@@ -15,7 +15,7 @@ from itertools import chain
 
 logger = logging.getLogger(__name__)
 
-SUPPORTED_PYTHONS = [(3, 6), (3, 7), (3, 8), (3, 9)]
+SUPPORTED_PYTHONS = [(3, 7), (3, 8), (3, 9)]
 
 ROOT_DIR = os.path.dirname(__file__)
 
@@ -331,10 +331,11 @@ setuptools.setup(
     url="https://github.com/Intel-bigdata/cloudtik",
     keywords="CloudTik package",
     classifiers=[
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3 :: Only",
     ],
     packages=setup_spec.get_packages(),
     cmdclass={"build_ext": BuildExt},
