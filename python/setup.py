@@ -1,14 +1,8 @@
-import argparse
-import errno
 import logging
 import os
 import re
 import shutil
-import subprocess
 import sys
-import urllib.error
-import urllib.parse
-import urllib.request
 
 from enum import Enum
 from itertools import chain
@@ -24,8 +18,6 @@ THIRDPARTY_SUBDIR = os.path.join("cloudtik", "thirdparty_files")
 TEMPLATES_SUBDIR = os.path.join("cloudtik", "templates")
 
 RUNTIME_SUBDIR = os.path.join("cloudtik", "runtime")
-
-exe_suffix = ".exe" if sys.platform == "win32" else ""
 
 
 def find_version(*filepath):
@@ -95,7 +87,7 @@ setup_spec = SetupSpec(
 
 # NOTE: The lists below must be kept in sync with cloudtik build(.sh)
 cloudtik_files = [
-    "cloudtik/core/thirdparty/redis/redis-server" + exe_suffix,
+    "cloudtik/core/thirdparty/redis/redis-server",
 ]
 
 # cloudtik default yaml files
@@ -158,37 +150,6 @@ if setup_spec.type == SetupType.CLOUDTIK:
     ]
 
 
-def download(url):
-    try:
-        result = urllib.request.urlopen(url).read()
-    except urllib.error.URLError:
-        # This fallback is necessary on Python 3.5 on macOS due to TLS 1.2.
-        curl_args = ["curl", "-s", "-L", "-f", "-o", "-", url]
-        result = subprocess.check_output(curl_args)
-    return result
-
-
-def build(build_python):
-    if tuple(sys.version_info[:2]) not in SUPPORTED_PYTHONS:
-        msg = ("Detected Python version {}, which is not supported. "
-               "Only Python {} are supported.").format(
-            ".".join(map(str, sys.version_info[:2])),
-            ", ".join(".".join(map(str, v)) for v in SUPPORTED_PYTHONS))
-        raise RuntimeError(msg)
-    # Note: We are passing in sys.executable so that we use the same
-    # version of Python to build packages inside the build.sh script. Note
-    # that certain flags will not be passed along such as --user or sudo.
-    # TODO: Fix this.
-    if not os.getenv("SKIP_THIRDPARTY_INSTALL"):
-        pip_packages = ["psutil", "setproctitle==1.2.2", "colorama"]
-        subprocess.check_call(
-            [
-                sys.executable, "-m", "pip", "install", "-q",
-                "--target=" + os.path.join(ROOT_DIR, THIRDPARTY_SUBDIR)
-            ] + pip_packages,
-            env=dict(os.environ, CC="gcc"))
-
-
 def walk_directory(directory, exclude_python: bool = False):
     file_list = []
     for (root, dirs, filenames) in os.walk(directory):
@@ -218,19 +179,6 @@ def copy_file(target_dir, filename, rootdir):
     return 0
 
 
-def add_system_dlls(dlls, target_dir):
-    """
-    Copy any required dlls required by the c-extension module and not already
-    provided by python. They will end up in the wheel next to the c-extension
-    module which will guarantee they are available at runtime.
-    """
-    for dll in dlls:
-        # Installing Visual Studio will copy the runtime dlls to system32
-        src = os.path.join(r"c:\Windows\system32", dll)
-        assert os.path.exists(src)
-        shutil.copy(src, target_dir)
-
-
 def pip_run(build_ext):
     if setup_spec.type == SetupType.CLOUDTIK:
         setup_spec.files_to_include += cloudtik_files
@@ -251,56 +199,6 @@ def pip_run(build_ext):
     for filename in setup_spec.files_to_include:
         copied_files += copy_file(build_ext.build_lib, filename, ROOT_DIR)
 
-
-def api_main(program, *args):
-    parser = argparse.ArgumentParser()
-    choices = ["build", "python_versions", "clean", "help"]
-    parser.add_argument("command", type=str, choices=choices)
-    parser.add_argument(
-        "-l",
-        "--language",
-        default="python",
-        type=str,
-        help="A list of languages to build native libraries. "
-             "Supported languages now only include \"python\". "
-             "If not specified, only the Python library will be built.")
-    parsed_args = parser.parse_args(args)
-
-    result = None
-
-    if parsed_args.command == "build":
-        kwargs = dict(build_python=False)
-        for lang in parsed_args.language.split(","):
-            if "python" in lang:
-                kwargs.update(build_python=True)
-            else:
-                raise ValueError("invalid language: {!r}".format(lang))
-        result = build(**kwargs)
-    elif parsed_args.command == "python_versions":
-        for version in SUPPORTED_PYTHONS:
-            # NOTE: On Windows this will print "\r\n" on the command line.
-            # Strip it out by piping to tr -d "\r".
-            print(".".join(map(str, version)))
-    elif parsed_args.command == "clean":
-        def onerror(function, path, excinfo):
-            nonlocal result
-            if excinfo[1].errno != errno.ENOENT:
-                msg = excinfo[1].strerror
-                logger.error("cannot remove {}: {}".format(path, msg))
-                result = 1
-
-        for subdir in THIRDPARTY_SUBDIR:
-            shutil.rmtree(os.path.join(ROOT_DIR, subdir), onerror=onerror)
-    elif parsed_args.command == "help":
-        parser.print_help()
-    else:
-        raise ValueError("Invalid command: {!r}".format(parsed_args.command))
-
-    return result
-
-
-if __name__ == "__api__":
-    api_main(*sys.argv)
 
 if __name__ == "__main__":
     import setuptools
