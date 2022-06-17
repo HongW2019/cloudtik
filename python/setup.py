@@ -168,11 +168,11 @@ if os.path.isdir(build_dir):
 setuptools.setup(
     name=setup_spec.name,
     version=setup_spec.version,
-    author="Intel Corporation",
+    author="CloudTik Team",
     author_email="cloudtik-dev@intel.com",
     description=setup_spec.description,
     long_description="CloudTik",
-    url="https://github.com/Intel-bigdata/cloudtik",
+    url="https://github.com/oap-project/cloudtik.git",
     keywords="CloudTik package",
     classifiers=[
         "Programming Language :: Python :: 3",
