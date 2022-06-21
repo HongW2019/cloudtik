@@ -299,7 +299,7 @@ SMALL_CLUSTER = {
     "target_utilization_fraction": 0.8,
     "idle_timeout_minutes": 5,
     "provider": {
-        "type": "mock",
+        "type": "aws",
         "region": "us-east-1",
         "availability_zone": "us-east-1a",
     },
@@ -473,27 +473,6 @@ class CloudTikTest(unittest.TestCase):
             f.write(yaml.dump(new_config))
         return path
 
-    def testClusterscalerConfigValidationFailNotFatal(self):
-        invalid_config = {**SMALL_CLUSTER, "invalid_property_12345": "test"}
-        # First check that this config is actually invalid
-        with pytest.raises(ValidationError):
-            validate_config(invalid_config)
-        config_path = self.write_config(invalid_config)
-        self.provider = MockProvider()
-        runner = MockProcessRunner()
-        clusterscaler = MockClusterscaler(
-            config_path,
-            ClusterMetrics(),
-            max_failures=0,
-            process_runner=runner,
-            update_interval_s=0,
-        )
-        assert len(self.provider.non_terminated_nodes({})) == 0
-        clusterscaler.update()
-        self.waitForNodes(2)
-        clusterscaler.update()
-        self.waitForNodes(2)
-
     def testValidateDefaultConfig(self):
         config = {"provider": {
             "type": "aws",
@@ -505,6 +484,23 @@ class CloudTikTest(unittest.TestCase):
             validate_config(config)
         except ValidationError:
             self.fail("Default config did not pass validation test!")
+
+    def testValidation(self):
+        """Ensures that schema validation is working."""
+        config = copy.deepcopy(SMALL_CLUSTER)
+        try:
+            validate_config(config)
+        except Exception:
+            self.fail("Test config did not pass validation test!")
+
+        config["blah"] = "blah"
+        with pytest.raises(ValidationError):
+            validate_config(config)
+        del config["blah"]
+
+        del config["provider"]
+        with pytest.raises(ValidationError):
+            validate_config(config)
 
     def testGetRunningHeadNode(self):
         config = copy.deepcopy(SMALL_CLUSTER)
