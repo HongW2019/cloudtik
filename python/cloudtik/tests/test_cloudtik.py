@@ -530,7 +530,7 @@ class CloudTikTest(unittest.TestCase):
         self.waitForNodes(1)
         runner.assert_has_call("1.2.3.4", "init_cmd")
         runner.assert_has_call("1.2.3.4", "head_setup_cmd")
-        runner.assert_has_call("1.2.3.4", "start_ray_head")
+        runner.assert_has_call("1.2.3.4", "start_cloudtik_head")
         self.assertEqual(self.provider.mock_nodes[0].node_type, None)
         runner.assert_has_call("1.2.3.4", pattern="docker run")
         runner.assert_has_call("1.2.3.4", pattern=head_run_option)
@@ -540,14 +540,14 @@ class CloudTikTest(unittest.TestCase):
             SMALL_CLUSTER["cluster_name"]
         )
         runner.assert_not_has_call(
-            "1.2.3.4", pattern=f"-v {docker_mount_prefix}/~/ray_bootstrap_config"
+            "1.2.3.4", pattern=f"-v {docker_mount_prefix}/~/cloudtik_bootstrap_config"
         )
         common_container_copy = f"rsync -e.*docker exec -i.*{docker_mount_prefix}/~/"
         runner.assert_has_call(
-            "1.2.3.4", pattern=common_container_copy + "ray_bootstrap_key.pem"
+            "1.2.3.4", pattern=common_container_copy + "cloudtik_bootstrap_key.pem"
         )
         runner.assert_has_call(
-            "1.2.3.4", pattern=common_container_copy + "ray_bootstrap_config.yaml"
+            "1.2.3.4", pattern=common_container_copy + "cloudtik_bootstrap_config.yaml"
         )
         return config
 
