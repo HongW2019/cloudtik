@@ -9,7 +9,7 @@ import time
 import unittest
 import yaml
 
-
+from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
 from cloudtik.core._private.utils import prepare_config, validate_config
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
@@ -19,9 +19,7 @@ from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS,
      CLOUDTIK_TAG_USER_NODE_TYPE, CLOUDTIK_TAG_CLUSTER_NAME
 from cloudtik.core.node_provider import NodeProvider
 from jsonschema.exceptions import ValidationError
-from typing import Dict, Callable, List, Optional
-
-
+from typing import Dict, Callable, List, Optional, Any
 
 
 class MockNode:
@@ -89,7 +87,7 @@ class MockProcessRunner:
                     break
             if key_to_shrink:
                 self.call_response[key_to_shrink] = self.call_response[
-                    key_to_shrink][1:]
+                                                        key_to_shrink][1:]
                 if len(self.call_response[key_to_shrink]) == 0:
                     del self.call_response[key_to_shrink]
 
@@ -180,6 +178,12 @@ class MockProvider(NodeProvider):
         self.lock = threading.Lock()
         super().__init__(None, None)
 
+    def get_node_info(self, node_id: str) -> Dict[str, str]:
+        pass
+
+    def with_environment_variables(self, node_type_config: Dict[str, Any], node_id: str):
+        pass
+
     def non_terminated_nodes(self, tag_filters):
         with self.lock:
             if self.throw:
@@ -187,7 +191,7 @@ class MockProvider(NodeProvider):
             return [
                 n.node_id for n in self.mock_nodes.values()
                 if n.matches(tag_filters)
-                and n.state not in ["stopped", "terminated"]
+                   and n.state not in ["stopped", "terminated"]
             ]
 
     def non_terminated_node_ips(self, tag_filters):
@@ -265,6 +269,27 @@ class MockProvider(NodeProvider):
                     node.state = "running"
 
 
+class MockClusterscaler(ClusterScaler):
+    """Test cluster scaler constructed to verify the property that each
+    Clusterscaler update issues at most one provider.non_terminated_nodes call.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fail_to_find_ip_during_drain = False
+
+    def _update(self):
+        # Only works with MockProvider
+        assert isinstance(self.provider, MockProvider)
+        start_calls = self.provider.num_non_terminated_nodes_calls
+        super()._update()
+        end_calls = self.provider.num_non_terminated_nodes_calls
+
+        # Strict inequality if update is called twice within the throttling
+        # interval `self.update_interval_s`
+        assert end_calls <= start_calls + 1
+
+
 SMALL_CLUSTER = {
     "cluster_name": "default",
     "min_workers": 2,
@@ -305,7 +330,7 @@ MOCK_DEFAULT_CONFIG = {
     "max_workers": 2,
     "idle_timeout_minutes": 5,
     "provider": {
-        "type": "mock",
+        "type": "aws",
         "region": "us-east-1",
         "availability_zone": "us-east-1a",
     },
@@ -418,14 +443,6 @@ class CloudTikTest(unittest.TestCase):
         self.provider = None
         self.tmpdir = tempfile.mkdtemp()
 
-    def waitFor(self, condition, num_retries=50, fail_msg=None):
-        for _ in range(num_retries):
-            if condition():
-                return
-            time.sleep(.1)
-        fail_msg = fail_msg or "Timed out waiting for {}".format(condition)
-        raise CloudTikTestTimeoutException(fail_msg)
-
     def waitForNodes(self, expected, comparison=None, tag_filters=None):
         if tag_filters is None:
             tag_filters = {}
@@ -456,6 +473,26 @@ class CloudTikTest(unittest.TestCase):
             f.write(yaml.dump(new_config))
         return path
 
+    def testClusterscalerConfigValidationFailNotFatal(self):
+        invalid_config = {**SMALL_CLUSTER, "invalid_property_12345": "test"}
+        # First check that this config is actually invalid
+        with pytest.raises(ValidationError):
+            validate_config(invalid_config)
+        config_path = self.write_config(invalid_config)
+        self.provider = MockProvider()
+        runner = MockProcessRunner()
+        clusterscaler = MockClusterscaler(
+            config_path,
+            ClusterMetrics(),
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+        )
+        assert len(self.provider.non_terminated_nodes({})) == 0
+        clusterscaler.update()
+        self.waitForNodes(2)
+        clusterscaler.update()
+        self.waitForNodes(2)
 
     def testValidateDefaultConfig(self):
         config = {"provider": {
@@ -468,7 +505,6 @@ class CloudTikTest(unittest.TestCase):
             validate_config(config)
         except ValidationError:
             self.fail("Default config did not pass validation test!")
-
 
     def testGetRunningHeadNode(self):
         config = copy.deepcopy(SMALL_CLUSTER)
@@ -512,7 +548,6 @@ class CloudTikTest(unittest.TestCase):
 
         assert optionally_failed == 1
 
-
     def testDefaultMinMaxWorkers(self):
         config = copy.deepcopy(MOCK_DEFAULT_CONFIG)
         config = prepare_config(config)
@@ -524,4 +559,5 @@ class CloudTikTest(unittest.TestCase):
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(pytest.main(["-v", __file__]))
