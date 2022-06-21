@@ -269,34 +269,10 @@ class MockProvider(NodeProvider):
                     node.state = "running"
 
 
-class MockClusterscaler(ClusterScaler):
-    """Test cluster scaler constructed to verify the property that each
-    Clusterscaler update issues at most one provider.non_terminated_nodes call.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fail_to_find_ip_during_drain = False
-
-    def _update(self):
-        # Only works with MockProvider
-        assert isinstance(self.provider, MockProvider)
-        start_calls = self.provider.num_non_terminated_nodes_calls
-        super()._update()
-        end_calls = self.provider.num_non_terminated_nodes_calls
-
-        # Strict inequality if update is called twice within the throttling
-        # interval `self.update_interval_s`
-        assert end_calls <= start_calls + 1
-
-
 SMALL_CLUSTER = {
     "cluster_name": "default",
     "min_workers": 2,
     "max_workers": 2,
-    "initial_workers": 0,
-    "autoscaling_mode": "default",
-    "target_utilization_fraction": 0.8,
     "idle_timeout_minutes": 5,
     "provider": {
         "type": "aws",
