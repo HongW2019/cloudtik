@@ -300,6 +300,7 @@ SMALL_CLUSTER = {
     "worker_setup_commands": ["worker_setup_cmd"],
     "head_start_commands": ["head_start_cmd"],
     "worker_start_commands": ["worker_start_cmd"],
+    "merged_commands": [],
 }
 
 MOCK_DEFAULT_CONFIG = {
@@ -530,7 +531,7 @@ class CloudTikTest(unittest.TestCase):
         self.waitForNodes(1)
         runner.assert_has_call("1.2.3.4", "init_cmd")
         runner.assert_has_call("1.2.3.4", "head_setup_cmd")
-        runner.assert_has_call("1.2.3.4", "start_cloudtik_head")
+        runner.assert_has_call("1.2.3.4", "head_start_commands")
         self.assertEqual(self.provider.mock_nodes[0].node_type, None)
         runner.assert_has_call("1.2.3.4", pattern="docker run")
         runner.assert_has_call("1.2.3.4", pattern=head_run_option)
