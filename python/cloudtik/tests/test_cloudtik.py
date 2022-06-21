@@ -1,5 +1,6 @@
-from enum import Enum
+import copy
 import os
+import pytest
 import re
 from subprocess import CalledProcessError
 import tempfile
@@ -7,9 +8,7 @@ import threading
 import time
 import unittest
 import yaml
-import copy
-from jsonschema.exceptions import ValidationError
-from typing import Dict, Callable, List, Optional
+
 
 from cloudtik.core._private.utils import prepare_config, validate_config
 from cloudtik.core._private.cluster import cluster_operator
@@ -19,45 +18,10 @@ from cloudtik.core._private.providers import (
 from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, \
      CLOUDTIK_TAG_USER_NODE_TYPE, CLOUDTIK_TAG_CLUSTER_NAME
 from cloudtik.core.node_provider import NodeProvider
+from jsonschema.exceptions import ValidationError
+from typing import Dict, Callable, List, Optional
 
 
-import grpc
-import pytest
-
-
-class DrainNodeOutcome(str, Enum):
-    """Potential outcomes of DrainNode calls, each of which is handled
-    differently by the clusterscaler.
-    """
-    # Return a reponse indicating all nodes were succesfully drained.
-    Succeeded = "Succeeded"
-    # Return response indicating at least one node failed to be drained.
-    NotAllDrained = "NotAllDrained"
-    # Return an unimplemented gRPC error, indicating an old GCS.
-    Unimplemented = "Unimplemented"
-    # Raise a generic unexpected RPC error.
-    GenericRpcError = "GenericRpcError"
-    # Raise a generic unexpected exception.
-    GenericException = "GenericException"
-
-
-class MockRpcException(grpc.RpcError):
-    """Mock RpcError with a specified status code.
-
-    Note: It might be possible to do this already with standard tools
-    in the `grpc` module, but how wasn't immediately obvious to me.
-    """
-
-    def __init__(self, status_code: grpc.StatusCode):
-        self.status_code = status_code
-
-    def code(self):
-        return self.status_code
-
-
-class CloudTikTestTimeoutException(Exception):
-    """Exception used to identify timeouts from test utilities."""
-    pass
 
 
 class MockNode:
@@ -439,7 +403,7 @@ MULTI_WORKER_CLUSTER = dict(
 class ClusterMetricsTest(unittest.TestCase):
     def testHeartbeat(self):
         cluster_metrics = ClusterMetrics()
-        cluster_metrics.update("1.1.1.1", b'\xb6\x80\xbdw\xbd\x1c\xee\xf6@\x11', {"CPU": 2}, {"CPU": 1}, {})
+        cluster_metrics.update("1.1.1.1", b'\xb6\x80\xbdw\xbd\x1c\xee\xf6@\x11', None, {"CPU": 2}, {"CPU": 1}, {})
         cluster_metrics.mark_active("2.2.2.2")
         assert "1.1.1.1" in cluster_metrics.last_heartbeat_time_by_ip
         assert "2.2.2.2" in cluster_metrics.last_heartbeat_time_by_ip
