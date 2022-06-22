@@ -31,7 +31,7 @@ def test_terminate_nodes(num_on_demand_nodes, num_spot_nodes, stop):
     }
     node_ids = list(on_demand_nodes.union(spot_nodes))
 
-    with patch("from cloudtik.providers._private.aws.utils.make_ec2_client"):
+    with patch("cloudtik.providers._private.aws.utils.make_ec2_client"):
         provider = AWSNodeProvider(
             provider_config={
                 "region": "nowhere",
