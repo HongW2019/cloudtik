@@ -300,7 +300,7 @@ SMALL_CLUSTER = {
     "worker_setup_commands": ["worker_setup_cmd"],
     "head_start_commands": ["head_start_cmd"],
     "worker_start_commands": ["worker_start_cmd"],
-    "merged_commands": [],
+    "merged_commands": {},
 }
 
 MOCK_DEFAULT_CONFIG = {
