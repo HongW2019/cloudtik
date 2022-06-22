@@ -1,30 +1,15 @@
-import copy
-
 import pytest
 from unittest.mock import Mock, patch
 
-from cloudtik.providers._private.aws.config import _configure_subnet, \
-    _get_vpc_id_or_die, bootstrap_aws_default, log_to_cli, \
-    DEFAULT_AMI
 from cloudtik.providers._private.aws.node_provider import AWSNodeProvider
-from cloudtik.core._private.providers import _get_node_provider
-import cloudtik.tests.aws.utils.stubs as stubs
-import cloudtik.tests.aws.utils.helpers as helpers
-from cloudtik.tests.aws.utils.constants import AUX_SUBNET, DEFAULT_SUBNET, \
-    DEFAULT_SG_AUX_SUBNET, DEFAULT_SG, DEFAULT_SG_DUAL_GROUP_RULES, \
-    DEFAULT_SG_WITH_RULES_AUX_SUBNET, AUX_SG, \
-    DEFAULT_SG_WITH_RULES, DEFAULT_SG_WITH_NAME, \
-    DEFAULT_SG_WITH_NAME_AND_RULES, CUSTOM_IN_BOUND_RULES, \
-    DEFAULT_KEY_PAIR, DEFAULT_INSTANCE_PROFILE, DEFAULT_CLUSTER_NAME, \
-    DEFAULT_LT
 
 @pytest.mark.parametrize("num_on_demand_nodes", [0, 1001, 9999])
 @pytest.mark.parametrize("num_spot_nodes", [0, 1001, 9999])
 @pytest.mark.parametrize("stop", [True, False])
 def test_terminate_nodes(num_on_demand_nodes, num_spot_nodes, stop):
-    # This node makes sure that we stop or terminate all the nodes we're
+    # This test makes sure that we stop or terminate all the nodes we're
     # supposed to stop or terminate when we call "terminate_nodes". This test
-    # alse makes sure that we don't try to stop or terminate too many nodes in
+    # also makes sure that we don't try to stop or terminate too many nodes in
     # a single EC2 request. By default, only 1000 nodes can be
     # stopped/terminated in one request. To terminate more nodes, we must break
     # them up into multiple smaller requests.
@@ -46,7 +31,7 @@ def test_terminate_nodes(num_on_demand_nodes, num_spot_nodes, stop):
     }
     node_ids = list(on_demand_nodes.union(spot_nodes))
 
-    with patch("cloudtik.providers._private.aws.node_provider.make_ec2_client"):
+    with patch("from cloudtik.providers._private.aws.utils.make_ec2_client"):
         provider = AWSNodeProvider(
             provider_config={
                 "region": "nowhere",
@@ -88,7 +73,7 @@ def test_terminate_nodes(num_on_demand_nodes, num_spot_nodes, stop):
         assert nodes_to_include_in_call == nodes_included_in_call
 
 
-
 if __name__ == "__main__":
     import sys
+
     sys.exit(pytest.main(["-v", __file__]))
