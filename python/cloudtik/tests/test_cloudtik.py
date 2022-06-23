@@ -9,18 +9,17 @@ import time
 import unittest
 import yaml
 
-from cloudtik.core._private.call_context import CallContext
+from jsonschema.exceptions import ValidationError
+from typing import Dict, Callable, List, Optional
+
 from cloudtik.core._private.utils import prepare_config, validate_config
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
 from cloudtik.core._private.providers import (
     _NODE_PROVIDERS, _DEFAULT_CONFIGS)
-from cloudtik.core.api import get_docker_host_mount_location
 from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, \
-     CLOUDTIK_TAG_USER_NODE_TYPE, CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UNINITIALIZED
+     CLOUDTIK_TAG_USER_NODE_TYPE, CLOUDTIK_TAG_CLUSTER_NAME
 from cloudtik.core.node_provider import NodeProvider
-from jsonschema.exceptions import ValidationError
-from typing import Dict, Callable, List, Optional, Any
 
 
 class MockNode:

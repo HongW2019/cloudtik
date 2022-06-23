@@ -73,6 +73,27 @@ def test_terminate_nodes(num_on_demand_nodes, num_spot_nodes, stop):
         assert nodes_to_include_in_call == nodes_included_in_call
 
 
+def test_network_interface_conflict_keys():
+    # If NetworkInterfaces are defined, SubnetId and SecurityGroupIds
+    # can't be specified in the same node type config.
+    conflict_kv_pairs = [
+        ("SubnetId", "subnet-0000000"),
+        ("SubnetIds", ["subnet-0000000", "subnet-1111111"]),
+        ("SecurityGroupIds", ["sg-1234abcd", "sg-dcba4321"]),
+    ]
+    expected_error_msg = (
+        "If NetworkInterfaces are defined, subnets and "
+        "security groups must ONLY be given in each "
+        "NetworkInterface."
+    )
+    for conflict_kv_pair in conflict_kv_pairs:
+        config = helpers.load_aws_example_config_file("example-network-interfaces.yaml")
+        head_name = config["head_node_type"]
+        head_node_cfg = config["available_node_types"][head_name]["node_config"]
+        head_node_cfg[conflict_kv_pair[0]] = conflict_kv_pair[1]
+        with pytest.raises(ValueError, match=expected_error_msg):
+            helpers.bootstrap_aws_config(config)
+
 if __name__ == "__main__":
     import sys
 
