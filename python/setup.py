@@ -42,7 +42,7 @@ class SetupSpec:
 
 
 # "cloudtik" primary wheel package.
-setup_spec = SetupSpec("cloudtiktest", "CloudTest is a cloud scaling platform for scaling your distributed analytics and "
+setup_spec = SetupSpec("cloudtest", "CloudTest is a cloud scaling platform for scaling your distributed analytics and "
                                    "AI cluster easily on public Cloud providers including AWS, Azure, GCP and so on. ")
 
 # NOTE: The lists below must be kept in sync with cloudtik build(.sh)
@@ -179,7 +179,7 @@ setuptools.setup(
     author="CloudTest Team",
     description=setup_spec.description,
     url="https://github.com/HongW2019/cloudtik.git",
-    keywords="Distributed Cloud Analytic AI Spark",
+    keywords="Distributed Cloud Analytics AI Spark",
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
