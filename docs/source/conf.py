@@ -17,12 +17,12 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'CloudTik'
+project = 'CloudTest'
 copyright = '2022, Intel Corporation'
-author = 'CloudTik Developers'
+author = 'CloudTest Developers'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.0'
+release = '0.0.0'
 
 # -- General configuration ---------------------------------------------------
 
