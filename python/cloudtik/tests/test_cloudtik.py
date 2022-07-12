@@ -13,8 +13,9 @@ import yaml
 from jsonschema.exceptions import ValidationError
 from subprocess import CalledProcessError
 from typing import Dict, Callable, List, Optional
+from unittest.mock import Mock
 
-
+import cloudtik
 from cloudtik.core._private.utils import prepare_config, validate_config
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
@@ -540,6 +541,110 @@ class CloudTikTest(unittest.TestCase):
             validate_config(config)
         except Exception:
             self.fail("Config did not pass validation test!")
+
+    def testRsyncCommandWithDocker(self):
+        assert SMALL_CLUSTER["docker"]["container_name"]
+        config_path = self.write_config(SMALL_CLUSTER)
+        self.provider = MockProvider(unique_ips=True)
+        self.provider.create_node(
+            {}, {CLOUDTIK_TAG_NODE_KIND: "head", CLOUDTIK_TAG_NODE_STATUS: "up-to-date"}, 1
+        )
+        self.provider.create_node(
+            {}, {CLOUDTIK_TAG_NODE_KIND: "worker", CLOUDTIK_TAG_NODE_STATUS: "up-to-date"}, 10
+        )
+        self.provider.finish_starting_nodes()
+        cloudtik.core._private.providers._get_node_provider = Mock(
+            return_value=self.provider
+        )
+        cluster_operator._bootstrap_config = Mock(
+            return_value=SMALL_CLUSTER
+        )
+        runner = MockProcessRunner()
+        cluster_operator.rsync_node_on_head(
+            config_path,
+            source=config_path,
+            target="/tmp/test_path",
+            down=True,
+            _runner=runner,
+        )
+        runner.assert_has_call("1.2.3.0", pattern="rsync -e.*docker exec -i")
+        runner.assert_has_call("1.2.3.0", pattern="rsync --rsh")
+        runner.clear_history()
+
+        cluster_operator.rsync_node_on_head(
+            config_path,
+            source=config_path,
+            target="/tmp/test_path",
+            down=True,
+            ip_address="1.2.3.5",
+            _runner=runner,
+        )
+        runner.assert_has_call("1.2.3.5", pattern="rsync -e.*docker exec -i")
+        runner.assert_has_call("1.2.3.5", pattern="rsync --rsh")
+        runner.clear_history()
+
+        cluster_operator.rsync_node_on_head(
+            config_path,
+            source=config_path,
+            target="/tmp/test_path",
+            ip_address="172.0.0.4",
+            down=True,
+            use_internal_ip=True,
+            _runner=runner,
+        )
+        runner.assert_has_call("172.0.0.4", pattern="rsync -e.*docker exec -i")
+        runner.assert_has_call("172.0.0.4", pattern="rsync --rsh")
+
+    def testRsyncCommandWithoutDocker(self):
+        cluster_cfg = SMALL_CLUSTER.copy()
+        cluster_cfg["docker"] = {}
+        config_path = self.write_config(cluster_cfg)
+        self.provider = MockProvider(unique_ips=True)
+        self.provider.create_node(
+            {}, {CLOUDTIK_TAG_NODE_KIND: "head", CLOUDTIK_TAG_NODE_STATUS: "up-to-date"}, 1
+        )
+        self.provider.create_node(
+            {}, {CLOUDTIK_TAG_NODE_KIND: "worker", CLOUDTIK_TAG_NODE_STATUS: "up-to-date"}, 10
+        )
+        self.provider.finish_starting_nodes()
+        runner = MockProcessRunner()
+        cluster_operator._get_node_provider = Mock(
+            return_value=self.provider
+        )
+        cluster_operator._bootstrap_config = Mock(
+            return_value=SMALL_CLUSTER
+        )
+        cluster_operator.rsync_node_on_head(
+            config_path,
+            source=config_path,
+            target="/tmp/test_path",
+            down=True,
+            _runner=runner,
+        )
+        runner.assert_has_call("1.2.3.0", pattern="rsync")
+
+        cluster_operator.rsync_node_on_head(
+            config_path,
+            source=config_path,
+            target="/tmp/test_path",
+            down=True,
+            ip_address="1.2.3.5",
+            _runner=runner,
+        )
+        runner.assert_has_call("1.2.3.5", pattern="rsync")
+        runner.clear_history()
+
+        cluster_operator.rsync_node_on_head(
+            config_path,
+            source=config_path,
+            target="/tmp/test_path",
+            down=True,
+            ip_address="172.0.0.4",
+            use_internal_ip=True,
+            _runner=runner,
+        )
+        runner.assert_has_call("172.0.0.4", pattern="rsync")
+        runner.clear_history()
 
 
 if __name__ == "__main__":
