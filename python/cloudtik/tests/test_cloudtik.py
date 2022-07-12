@@ -527,9 +527,8 @@ class CloudTikTest(unittest.TestCase):
         assert head_node_config["max_workers"] == 0
 
     def testValidateNetworkConfig(self):
-        web_yaml = (
-            "https://raw.githubusercontent.com/oap-project/cloudtik/main/python/cloudtik/providers/aws/defaults.yaml"
-        )
+        web_yaml = ("https://raw.githubusercontent.com/oap-project/cloudtik/main/python/cloudtik/templates/aws/small"
+                    ".yaml")
         response = urllib.request.urlopen(web_yaml, timeout=5)
         content = response.read()
         with tempfile.TemporaryFile() as f:
