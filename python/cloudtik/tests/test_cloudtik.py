@@ -16,6 +16,7 @@ from typing import Dict, Callable, List, Optional
 from unittest.mock import Mock
 
 import cloudtik
+from cloudtik.core._private import call_context
 from cloudtik.core._private.utils import prepare_config, validate_config
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
@@ -560,37 +561,36 @@ class CloudTikTest(unittest.TestCase):
             return_value=SMALL_CLUSTER
         )
         runner = MockProcessRunner()
-        cluster_operator.rsync_node_on_head(
+        cluster_operator.rsync_to_node_from_head(
             config_path,
+            call_context,
             source=config_path,
             target="/tmp/test_path",
             down=True,
-            _runner=runner,
         )
         runner.assert_has_call("1.2.3.0", pattern="rsync -e.*docker exec -i")
         runner.assert_has_call("1.2.3.0", pattern="rsync --rsh")
         runner.clear_history()
 
-        cluster_operator.rsync_node_on_head(
+        cluster_operator.rsync_to_node_from_head(
             config_path,
+            call_context,
             source=config_path,
             target="/tmp/test_path",
             down=True,
             ip_address="1.2.3.5",
-            _runner=runner,
         )
         runner.assert_has_call("1.2.3.5", pattern="rsync -e.*docker exec -i")
         runner.assert_has_call("1.2.3.5", pattern="rsync --rsh")
         runner.clear_history()
 
-        cluster_operator.rsync_node_on_head(
+        cluster_operator.rsync_to_node_from_head(
             config_path,
+            call_context,
             source=config_path,
             target="/tmp/test_path",
             ip_address="172.0.0.4",
             down=True,
-            use_internal_ip=True,
-            _runner=runner,
         )
         runner.assert_has_call("172.0.0.4", pattern="rsync -e.*docker exec -i")
         runner.assert_has_call("172.0.0.4", pattern="rsync --rsh")
@@ -614,34 +614,33 @@ class CloudTikTest(unittest.TestCase):
         cluster_operator._bootstrap_config = Mock(
             return_value=SMALL_CLUSTER
         )
-        cluster_operator.rsync_node_on_head(
+        cluster_operator.rsync_to_node_from_head(
             config_path,
+            call_context,
             source=config_path,
             target="/tmp/test_path",
             down=True,
-            _runner=runner,
         )
         runner.assert_has_call("1.2.3.0", pattern="rsync")
 
-        cluster_operator.rsync_node_on_head(
+        cluster_operator.rsync_to_node_from_head(
             config_path,
+            call_context,
             source=config_path,
             target="/tmp/test_path",
             down=True,
             ip_address="1.2.3.5",
-            _runner=runner,
         )
         runner.assert_has_call("1.2.3.5", pattern="rsync")
         runner.clear_history()
 
-        cluster_operator.rsync_node_on_head(
+        cluster_operator.rsync_to_node_from_head(
             config_path,
+            call_context,
             source=config_path,
             target="/tmp/test_path",
             down=True,
             ip_address="172.0.0.4",
-            use_internal_ip=True,
-            _runner=runner,
         )
         runner.assert_has_call("172.0.0.4", pattern="rsync")
         runner.clear_history()
