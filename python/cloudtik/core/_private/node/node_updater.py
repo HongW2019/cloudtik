@@ -398,7 +398,8 @@ class NodeUpdater:
             self.provider.set_node_tags(
                 self.node_id, {CLOUDTIK_TAG_NODE_STATUS: STATUS_BOOTSTRAPPING_DATA_DISKS})
             self.cli_logger.labeled_value("New status", STATUS_BOOTSTRAPPING_DATA_DISKS)
-            self.bootstrap_data_disks(step_numbers=(2, NUM_SETUP_STEPS))
+            if self.provider_type != "mock":
+                self.bootstrap_data_disks(step_numbers=(2, NUM_SETUP_STEPS))
 
             self.provider.set_node_tags(
                 self.node_id, {CLOUDTIK_TAG_NODE_STATUS: STATUS_SYNCING_FILES})
