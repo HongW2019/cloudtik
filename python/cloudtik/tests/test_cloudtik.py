@@ -18,7 +18,9 @@ from typing import Dict, Callable, List, Optional, Any
 from cloudtik.core._private.call_context import CallContext
 from cloudtik.core._private.cluster.cluster_operator import get_or_create_head_node
 from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
-from cloudtik.core._private.utils import prepare_config, validate_config
+from cloudtik.core._private.docker import validate_docker_config
+from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, merge_cluster_config, \
+    fill_node_type_min_max_workers
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
 from cloudtik.core._private.providers import (
@@ -443,8 +445,7 @@ class ClusterMetricsTest(unittest.TestCase):
 
 class CloudTikTest(unittest.TestCase):
     def setUp(self):
-        _NODE_PROVIDERS["mock"] = \
-            lambda config: self.create_provider
+        _NODE_PROVIDERS["mock"] = lambda config: self.create_provider
         _DEFAULT_CONFIGS["mock"] = _DEFAULT_CONFIGS["aws"]
         self.provider = None
         self.tmpdir = tempfile.mkdtemp()
@@ -473,7 +474,11 @@ class CloudTikTest(unittest.TestCase):
     def write_config(self, config, call_prepare_config=True):
         new_config = copy.deepcopy(config)
         if call_prepare_config:
-            new_config = prepare_config(new_config)
+            with_defaults = fillout_defaults(config)
+            merge_cluster_config(with_defaults)
+            validate_docker_config(with_defaults)
+            fill_node_type_min_max_workers(with_defaults)
+            new_config = with_defaults
         path = os.path.join(self.tmpdir, "simple.yaml")
         with open(path, "w") as f:
             f.write(yaml.dump(new_config))
