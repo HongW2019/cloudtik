@@ -875,8 +875,10 @@ def prepare_config(config: Dict[str, Any]) -> Dict[str, Any]:
     - Has a valid Docker configuration if provided.
     - Has max_worker set for each node type.
     """
-    provider_cls = _get_node_provider_cls(config["provider"])
-    config = provider_cls.prepare_config(config)
+    is_local = config.get("provider", {}).get("type") == "local"
+    if is_local:
+        provider_cls = _get_node_provider_cls(config["provider"])
+        config = provider_cls.prepare_config(config)
 
     with_defaults = fillout_defaults(config)
     merge_cluster_config(with_defaults)

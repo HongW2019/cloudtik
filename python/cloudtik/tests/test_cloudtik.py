@@ -1,6 +1,7 @@
 import copy
 import os
 import urllib
+from unittest.mock import Mock
 
 import pytest
 import re
@@ -16,6 +17,7 @@ from typing import Dict, Callable, List, Optional, Any
 
 from cloudtik.core._private.call_context import CallContext
 from cloudtik.core._private.cluster.cluster_operator import get_or_create_head_node
+from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
 from cloudtik.core._private.utils import prepare_config, validate_config
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
@@ -32,7 +34,7 @@ class MockNode:
                  unique_ips=False):
         self.node_id = node_id
         self.state = "pending"
-        self.tags = {**tags, CLOUDTIK_TAG_USER_NODE_TYPE: "cloudtik.head.default"}
+        self.tags = {**tags, CLOUDTIK_TAG_USER_NODE_TYPE: "head.default"}
         self.external_ip = "1.2.3.4"
         self.internal_ip = "172.0.0.{}".format(self.node_id)
         if unique_ips:
@@ -180,6 +182,7 @@ class MockProvider(NodeProvider):
         # Many of these functions are called by node_launcher or updater in
         # different threads. This can be treated as a global lock for
         # everything.
+        self.num_non_terminated_nodes_calls = 0
         self.lock = threading.Lock()
         super().__init__(None, None)
 
@@ -269,6 +272,27 @@ class MockProvider(NodeProvider):
 
     def with_environment_variables(self, node_type_config: Dict[str, Any], node_id: str):
         return {}
+
+
+class MockClusterScaler(ClusterScaler):
+    """Test ClusterScaler constructed to verify the property that each
+    ClusterScaler update issues at most one provider.non_terminated_nodes call.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fail_to_find_ip_during_drain = False
+
+    def _update(self):
+        # Only works with MockProvider
+        assert isinstance(self.provider, MockProvider)
+        start_calls = self.provider.num_non_terminated_nodes_calls
+        super()._update()
+        end_calls = self.provider.num_non_terminated_nodes_calls
+
+        # Strict inequality if update is called twice within the throttling
+        # interval `self.update_interval_s`
+        assert end_calls <= start_calls + 1
 
 
 SMALL_CLUSTER = {
@@ -442,7 +466,7 @@ class CloudTikTest(unittest.TestCase):
                     raise
             time.sleep(.1)
 
-    def create_provider(self):
+    def create_provider(self, config, cluster_name):
         assert self.provider
         return self.provider
 
@@ -483,6 +507,27 @@ class CloudTikTest(unittest.TestCase):
         del config["provider"]
         with pytest.raises(ValidationError):
             validate_config(config)
+
+    def testClusterScalerConfigValidationFailNotFatal(self):
+        invalid_config = {**SMALL_CLUSTER, "invalid_property_12345": "test"}
+        # First check that this config is actually invalid
+        with pytest.raises(ValidationError):
+            validate_config(invalid_config)
+        config_path = self.write_config(invalid_config)
+        self.provider = MockProvider()
+        runner = MockProcessRunner()
+        autoscaler = MockClusterScaler(
+            config_path,
+            ClusterMetrics(),
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+        )
+        assert len(self.provider.non_terminated_nodes({})) == 0
+        autoscaler.update()
+        self.waitForNodes(2)
+        autoscaler.update()
+        self.waitForNodes(2)
 
     def testGetRunningHeadNode(self):
         config = copy.deepcopy(SMALL_CLUSTER)
