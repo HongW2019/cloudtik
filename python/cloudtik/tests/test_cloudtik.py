@@ -1,5 +1,4 @@
 import copy
-import json
 import os
 import urllib
 from unittest.mock import Mock
@@ -19,6 +18,7 @@ from typing import Dict, Callable, List, Optional, Any
 
 from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
 from cloudtik.core._private.docker import validate_docker_config
+from cloudtik.core._private.prometheus_metrics import ClusterPrometheusMetrics
 from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, fill_node_type_min_max_workers
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
@@ -602,6 +602,22 @@ class CloudTikTest(unittest.TestCase):
             validate_config(config)
         except Exception:
             self.fail("Config did not pass validation test!")
+
+    def testProviderException(self):
+        config_path = self.write_config(SMALL_CLUSTER)
+        self.provider = MockProvider()
+        self.provider.error_creates = True
+        runner = MockProcessRunner()
+        mock_metrics = Mock(spec=ClusterPrometheusMetrics())
+        autoscaler = MockClusterScaler(
+            config_path,
+            ClusterMetrics(),
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+            prometheus_metrics=mock_metrics,
+        )
+        autoscaler.update()
 
 
 if __name__ == "__main__":
