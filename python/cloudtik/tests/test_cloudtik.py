@@ -1,8 +1,6 @@
 import copy
-import json
 import os
 import urllib
-from unittest.mock import Mock
 
 import pytest
 import re
@@ -16,18 +14,33 @@ from jsonschema.exceptions import ValidationError
 from subprocess import CalledProcessError
 from typing import Dict, Callable, List, Optional, Any
 
-
 from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
 from cloudtik.core._private.docker import validate_docker_config
-from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, fill_node_type_min_max_workers
+from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, \
+    fill_node_type_min_max_workers
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
 from cloudtik.core._private.providers import (
     _NODE_PROVIDERS, _DEFAULT_CONFIGS)
 
 from cloudtik.core.node_provider import NodeProvider
-from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, \
-    CLOUDTIK_TAG_USER_NODE_TYPE, CLOUDTIK_TAG_CLUSTER_NAME
+from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, CLOUDTIK_TAG_USER_NODE_TYPE, \
+    CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UP_TO_DATE, NODE_KIND_HEAD, NODE_KIND_WORKER
+
+
+def mock_node_id() -> bytes:
+    """Random node id to pass to cluster_metrics.update."""
+    return os.urandom(10)
+
+
+def fill_in_node_ids(provider, cluster_metrics) -> None:
+    """Node ids for each ip are usually obtained by polling the GCS
+    in monitor.py. For test purposes, we sometimes need to manually fill
+    these fields with mocks.
+    """
+    for node in provider.non_terminated_nodes({}):
+        ip = provider.internal_ip(node)
+        cluster_metrics.node_id_by_ip[ip] = mock_node_id()
 
 
 class MockNode:
@@ -602,6 +615,44 @@ class CloudTikTest(unittest.TestCase):
             validate_config(config)
         except Exception:
             self.fail("Config did not pass validation test!")
+
+    def testClusterMetricsUpdate(self):
+        config = SMALL_CLUSTER.copy()
+        config["min_workers"] = 1
+        config["max_workers"] = 10
+        config["target_utilization_fraction"] = 0.5
+        config_path = self.write_config(config)
+        self.provider = MockProvider()
+        cm = ClusterMetrics()
+        runner = MockProcessRunner()
+        runner.respond_to_call("json .Config.Env", ["[]" for i in range(6)])
+        self.provider.create_node(
+            {},
+            {
+                CLOUDTIK_TAG_NODE_KIND: NODE_KIND_HEAD,
+                CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE,
+                CLOUDTIK_TAG_USER_NODE_TYPE: "head.default",
+            },
+            1,
+        )
+        cm.update("172.0.0.0", mock_node_id(), {"CPU": 1}, {"CPU": 0}, {}, {})
+        clusterscaler = MockClusterScaler(
+            config_path,
+            cm,
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+        )
+        assert (
+                len(
+                    self.provider.non_terminated_nodes(
+                        {CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER, }
+                    )
+                )
+                == 0
+        )
+        clusterscaler.update()
+        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER})
 
 
 if __name__ == "__main__":
