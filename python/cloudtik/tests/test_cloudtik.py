@@ -481,7 +481,6 @@ class CloudTikTest(unittest.TestCase):
         new_config = copy.deepcopy(config)
         if call_prepare_config:
             with_defaults = fillout_defaults(config)
-            merge_cluster_config(with_defaults)
             validate_docker_config(with_defaults)
             fill_node_type_min_max_workers(with_defaults)
             new_config = with_defaults

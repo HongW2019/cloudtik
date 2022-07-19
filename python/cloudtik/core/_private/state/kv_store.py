@@ -80,7 +80,6 @@ def kv_put(key: Union[str, bytes],
         value = value.encode()
     assert isinstance(key, bytes) and isinstance(value, bytes) and isinstance(
         overwrite, bool)
-    # if global_state_client:
     return global_state_client.kv_put(key, value, overwrite,
                                              namespace) == 0
 
@@ -91,7 +90,6 @@ def kv_del(key: Union[str, bytes],
     if isinstance(key, str):
         key = key.encode()
     assert isinstance(key, bytes)
-    # if global_state_client:
     return global_state_client.kv_del(key, namespace)
 
 
