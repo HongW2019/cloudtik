@@ -19,8 +19,7 @@ from typing import Dict, Callable, List, Optional, Any
 
 from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
 from cloudtik.core._private.docker import validate_docker_config
-from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, merge_cluster_config, \
-    fill_node_type_min_max_workers
+from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, fill_node_type_min_max_workers
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
 from cloudtik.core._private.providers import (
