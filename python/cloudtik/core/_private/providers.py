@@ -323,6 +323,8 @@ def _get_provider_config_object(provider_config, object_name: str):
     # For external provider, from the shared config object it there is one
     if provider_config["type"] == "external":
         return {"from": object_name}
+    if provider_config["type"] == 'mock':
+        return {}
 
     if not object_name.endswith(".yaml"):
         object_name += ".yaml"
