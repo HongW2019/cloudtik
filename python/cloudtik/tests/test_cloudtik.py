@@ -1,33 +1,32 @@
 import copy
-import json
 import os
-import urllib
-from unittest.mock import Mock
-
-import pytest
 import re
 import tempfile
 import threading
 import time
+import urllib
 import unittest
+
+import pytest
 import yaml
 
 from jsonschema.exceptions import ValidationError
+from unittest.mock import Mock
 from subprocess import CalledProcessError
 from typing import Dict, Callable, List, Optional, Any
 
-
 from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
 from cloudtik.core._private.docker import validate_docker_config
-from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, fill_node_type_min_max_workers
+from cloudtik.core._private.prometheus_metrics import ClusterPrometheusMetrics
+from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, \
+    fill_node_type_min_max_workers
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
-from cloudtik.core._private.providers import (
-    _NODE_PROVIDERS, _DEFAULT_CONFIGS)
+from cloudtik.core._private.providers import _NODE_PROVIDERS, _DEFAULT_CONFIGS
 
 from cloudtik.core.node_provider import NodeProvider
-from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, \
-    CLOUDTIK_TAG_USER_NODE_TYPE, CLOUDTIK_TAG_CLUSTER_NAME
+from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, CLOUDTIK_TAG_USER_NODE_TYPE, \
+    CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UNINITIALIZED, STATUS_UPDATE_FAILED
 
 
 class MockNode:
@@ -602,6 +601,59 @@ class CloudTikTest(unittest.TestCase):
             validate_config(config)
         except Exception:
             self.fail("Config did not pass validation test!")
+
+    def ScaleUpHelper(self, disable_node_updaters):
+        config = copy.deepcopy(SMALL_CLUSTER)
+        config["provider"]["disable_node_updaters"] = disable_node_updaters
+        config_path = self.write_config(config)
+        self.provider = MockProvider()
+        runner = MockProcessRunner()
+        mock_metrics = Mock(spec=ClusterPrometheusMetrics())
+        cluster_scaler = MockClusterScaler(
+            config_path,
+            ClusterMetrics(),
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+            prometheus_metrics=mock_metrics,
+        )
+        assert len(self.provider.non_terminated_nodes({})) == 0
+        cluster_scaler.update()
+        self.waitForNodes(2)
+
+        # started_nodes metric should have been incremented by 2
+        assert mock_metrics.started_nodes.inc.call_count == 2
+        mock_metrics.started_nodes.inc.assert_called_with(1)
+        assert mock_metrics.worker_create_node_time.observe.call_count == 2
+        cluster_scaler.update()
+        # The two autoscaler update iterations in this test led to two
+        # observations of the update time.
+        assert mock_metrics.update_time.observe.call_count == 2
+        self.waitForNodes(2)
+
+        # running_workers metric should be set to 2
+        mock_metrics.running_workers.set.assert_called_with(2)
+
+        if disable_node_updaters:
+            # Node Updaters have NOT been invoked because they were explicitly
+            # disabled.
+            time.sleep(1)
+            assert len(runner.calls) == 0
+            # Nodes were created in uninitialized and not updated.
+            self.waitForNodes(
+                2, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UNINITIALIZED}
+            )
+        else:
+            # Node Updaters have been invoked.
+            self.waitFor(lambda: len(runner.calls) > 0)
+            # The updates failed. Key thing is that the updates completed.
+            self.waitForNodes(
+                2, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UPDATE_FAILED}
+            )
+        assert mock_metrics.drain_node_exceptions.inc.call_count == 0
+
+    def testScaleUpNoUpdaters(self):
+        self.ScaleUpHelper(disable_node_updaters=True)
 
 
 if __name__ == "__main__":
