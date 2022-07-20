@@ -1,17 +1,17 @@
 import copy
 import os
-import urllib
-from unittest.mock import Mock
-
-import pytest
 import re
 import tempfile
 import threading
 import time
+import urllib
 import unittest
+
+import pytest
 import yaml
 
 from jsonschema.exceptions import ValidationError
+from unittest.mock import Mock
 from subprocess import CalledProcessError
 from typing import Dict, Callable, List, Optional, Any
 
@@ -22,8 +22,7 @@ from cloudtik.core._private.utils import prepare_config, validate_config, fillou
     fill_node_type_min_max_workers
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
-from cloudtik.core._private.providers import (
-    _NODE_PROVIDERS, _DEFAULT_CONFIGS)
+from cloudtik.core._private.providers import _NODE_PROVIDERS, _DEFAULT_CONFIGS
 
 from cloudtik.core.node_provider import NodeProvider
 from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, CLOUDTIK_TAG_USER_NODE_TYPE, \
@@ -622,7 +621,6 @@ class CloudTikTest(unittest.TestCase):
         cluster_scaler.update()
         self.waitForNodes(2)
 
-        # started_nodes metric should have been incremented by 2
         assert mock_metrics.started_nodes.inc.call_count == 2
         mock_metrics.started_nodes.inc.assert_called_with(1)
         assert mock_metrics.worker_create_node_time.observe.call_count == 2
@@ -640,7 +638,7 @@ class CloudTikTest(unittest.TestCase):
             # disabled.
             time.sleep(1)
             assert len(runner.calls) == 0
-            # Nodes were create in uninitialized and not updated.
+            # Nodes were created in uninitialized and not updated.
             self.waitForNodes(
                 2, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UNINITIALIZED}
             )
