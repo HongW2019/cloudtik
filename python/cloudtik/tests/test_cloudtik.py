@@ -1,6 +1,7 @@
 import copy
 import os
 import urllib
+from unittest.mock import Mock
 
 import pytest
 import re
@@ -16,6 +17,7 @@ from typing import Dict, Callable, List, Optional, Any
 
 from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
 from cloudtik.core._private.docker import validate_docker_config
+from cloudtik.core._private.prometheus_metrics import ClusterPrometheusMetrics
 from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, \
     fill_node_type_min_max_workers
 from cloudtik.core._private.cluster import cluster_operator
@@ -25,22 +27,7 @@ from cloudtik.core._private.providers import (
 
 from cloudtik.core.node_provider import NodeProvider
 from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, CLOUDTIK_TAG_USER_NODE_TYPE, \
-    CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UP_TO_DATE, NODE_KIND_HEAD, NODE_KIND_WORKER
-
-
-def mock_node_id() -> bytes:
-    """Random node id to pass to cluster_metrics.update."""
-    return os.urandom(10)
-
-
-def fill_in_node_ids(provider, cluster_metrics) -> None:
-    """Node ids for each ip are usually obtained by polling the GCS
-    in monitor.py. For test purposes, we sometimes need to manually fill
-    these fields with mocks.
-    """
-    for node in provider.non_terminated_nodes({}):
-        ip = provider.internal_ip(node)
-        cluster_metrics.node_id_by_ip[ip] = mock_node_id()
+    CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UNINITIALIZED, STATUS_UPDATE_FAILED
 
 
 class MockNode:
@@ -616,43 +603,58 @@ class CloudTikTest(unittest.TestCase):
         except Exception:
             self.fail("Config did not pass validation test!")
 
-    def testClusterMetricsUpdate(self):
-        config = SMALL_CLUSTER.copy()
-        config["min_workers"] = 1
-        config["max_workers"] = 10
-        config["target_utilization_fraction"] = 0.5
+    def ScaleUpHelper(self, disable_node_updaters):
+        config = copy.deepcopy(SMALL_CLUSTER)
+        config["provider"]["disable_node_updaters"] = disable_node_updaters
         config_path = self.write_config(config)
         self.provider = MockProvider()
-        cm = ClusterMetrics()
         runner = MockProcessRunner()
-        runner.respond_to_call("json .Config.Env", ["[]" for i in range(6)])
-        self.provider.create_node(
-            {},
-            {
-                CLOUDTIK_TAG_NODE_KIND: NODE_KIND_HEAD,
-                CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE,
-                CLOUDTIK_TAG_USER_NODE_TYPE: "head.default",
-            },
-            1,
-        )
-        cm.update("172.0.0.0", mock_node_id(), {"CPU": 1}, {"CPU": 0}, {}, {})
-        clusterscaler = MockClusterScaler(
+        mock_metrics = Mock(spec=ClusterPrometheusMetrics())
+        cluster_scaler = MockClusterScaler(
             config_path,
-            cm,
+            ClusterMetrics(),
             max_failures=0,
             process_runner=runner,
             update_interval_s=0,
+            prometheus_metrics=mock_metrics,
         )
-        assert (
-                len(
-                    self.provider.non_terminated_nodes(
-                        {CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER, }
-                    )
-                )
-                == 0
-        )
-        clusterscaler.update()
-        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER})
+        assert len(self.provider.non_terminated_nodes({})) == 0
+        cluster_scaler.update()
+        self.waitForNodes(2)
+
+        # started_nodes metric should have been incremented by 2
+        assert mock_metrics.started_nodes.inc.call_count == 2
+        mock_metrics.started_nodes.inc.assert_called_with(1)
+        assert mock_metrics.worker_create_node_time.observe.call_count == 2
+        cluster_scaler.update()
+        # The two autoscaler update iterations in this test led to two
+        # observations of the update time.
+        assert mock_metrics.update_time.observe.call_count == 2
+        self.waitForNodes(2)
+
+        # running_workers metric should be set to 2
+        mock_metrics.running_workers.set.assert_called_with(2)
+
+        if disable_node_updaters:
+            # Node Updaters have NOT been invoked because they were explicitly
+            # disabled.
+            time.sleep(1)
+            assert len(runner.calls) == 0
+            # Nodes were create in uninitialized and not updated.
+            self.waitForNodes(
+                2, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UNINITIALIZED}
+            )
+        else:
+            # Node Updaters have been invoked.
+            self.waitFor(lambda: len(runner.calls) > 0)
+            # The updates failed. Key thing is that the updates completed.
+            self.waitForNodes(
+                2, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UPDATE_FAILED}
+            )
+        assert mock_metrics.drain_node_exceptions.inc.call_count == 0
+
+    def testScaleUpNoUpdaters(self):
+        self.ScaleUpHelper(disable_node_updaters=True)
 
 
 if __name__ == "__main__":
