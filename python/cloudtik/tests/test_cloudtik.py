@@ -18,7 +18,6 @@ from subprocess import CalledProcessError
 from threading import Thread
 from typing import Dict, Callable, List, Optional, Any
 
-
 from cloudtik.core._private.call_context import CallContext
 from cloudtik.core._private.cli_logger import cli_logger, cf
 from cloudtik.core._private.cluster.cluster_operator import _should_create_new_head, _set_up_config_for_head_node, \
@@ -26,20 +25,20 @@ from cloudtik.core._private.cluster.cluster_operator import _should_create_new_h
 from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler
 from cloudtik.core._private.docker import validate_docker_config
 from cloudtik.core._private.event_system import global_event_system, CreateClusterEvent
-from cloudtik.core._private.node.node_updater import NodeUpdater, NodeUpdaterThread
+from cloudtik.core._private.node.node_updater import NodeUpdater
 from cloudtik.core._private.prometheus_metrics import ClusterPrometheusMetrics
 from cloudtik.core._private.utils import prepare_config, validate_config, fillout_defaults, \
     fill_node_type_min_max_workers, DOCKER_CONFIG_KEY, RUNTIME_CONFIG_KEY, get_cluster_uri, hash_launch_conf, \
-    hash_runtime_conf, is_docker_enabled, get_commands_to_run, cluster_booting_completed
+    hash_runtime_conf, is_docker_enabled, get_commands_to_run, cluster_booting_completed, merge_cluster_config
 from cloudtik.core._private.cluster import cluster_operator
 from cloudtik.core._private.cluster.cluster_metrics import ClusterMetrics
-from cloudtik.core._private.providers import _NODE_PROVIDERS, _DEFAULT_CONFIGS, _get_node_provider
+from cloudtik.core._private.providers import _NODE_PROVIDERS, _DEFAULT_CONFIGS, _get_node_provider, _PROVIDER_HOMES
 from cloudtik.core.api import get_docker_host_mount_location
 
 from cloudtik.core.node_provider import NodeProvider
 from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, CLOUDTIK_TAG_USER_NODE_TYPE, \
     CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UNINITIALIZED, STATUS_UPDATE_FAILED, NODE_KIND_HEAD, CLOUDTIK_TAG_LAUNCH_CONFIG, \
-    CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER
+    CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER, STATUS_UP_TO_DATE
 
 
 class MockNode:
@@ -192,14 +191,16 @@ class MockProvider(NodeProvider):
         self.ready_to_create.set()
         self.cache_stopped = cache_stopped
         self.unique_ips = unique_ips
+        self.fail_to_fetch_ip = False
         # Many of these functions are called by node_launcher or updater in
         # different threads. This can be treated as a global lock for
         # everything.
-        self.num_non_terminated_nodes_calls = 0
         self.lock = threading.Lock()
+        self.num_non_terminated_nodes_calls = 0
         super().__init__(None, None)
 
     def non_terminated_nodes(self, tag_filters):
+        self.num_non_terminated_nodes_calls += 1
         with self.lock:
             if self.throw:
                 raise Exception("oops")
@@ -478,9 +479,14 @@ class ClusterMetricsTest(unittest.TestCase):
 class CloudTikTest(unittest.TestCase):
     def setUp(self):
         _NODE_PROVIDERS["mock"] = lambda config: self.create_provider
+        _PROVIDER_HOMES["mock"] = self._load_mock_provider_home
         _DEFAULT_CONFIGS["mock"] = _DEFAULT_CONFIGS["aws"]
         self.provider = None
         self.tmpdir = tempfile.mkdtemp()
+
+    def _load_mock_provider_home(self):
+        import cloudtik.providers as mock_provider
+        return os.path.dirname(mock_provider.__file__)
 
     def waitForNodes(self, expected, comparison=None, tag_filters=None):
         if tag_filters is None:
@@ -503,13 +509,17 @@ class CloudTikTest(unittest.TestCase):
         assert self.provider
         return self.provider
 
+    def prepare_mock_config(self, config):
+        with_defaults = fillout_defaults(config)
+        merge_cluster_config(with_defaults)
+        validate_docker_config(with_defaults)
+        fill_node_type_min_max_workers(with_defaults)
+        return with_defaults
+
     def write_config(self, config, call_prepare_config=True):
         new_config = copy.deepcopy(config)
         if call_prepare_config:
-            with_defaults = fillout_defaults(config)
-            validate_docker_config(with_defaults)
-            fill_node_type_min_max_workers(with_defaults)
-            new_config = with_defaults
+            new_config = self.prepare_mock_config(new_config)
         path = os.path.join(self.tmpdir, "simple.yaml")
         with open(path, "w") as f:
             f.write(yaml.dump(new_config))
@@ -684,6 +694,7 @@ class CloudTikTest(unittest.TestCase):
 
     def testGetOrCreateHeadNode(self):
         config = copy.deepcopy(SMALL_CLUSTER)
+        config = self.prepare_mock_config(config)
         head_run_option = "--kernel-memory=10g"
         standard_run_option = "--memory-swap=5g"
         config["docker"]["head_run_options"] = [head_run_option]
@@ -937,7 +948,9 @@ class CloudTikTest(unittest.TestCase):
             _runner=runner,
         )
         self.waitForNodes(1)
-        self.assertEqual(self.provider.mock_nodes[0].node_type, None)
+        runner.assert_has_call("1.2.3.4", "init_cmd")
+        runner.assert_has_call("1.2.3.4", "head_setup_cmd")
+        runner.assert_has_call("1.2.3.4", "head_start_cmd")
         runner.assert_has_call("1.2.3.4", pattern="docker run")
         runner.assert_has_call("1.2.3.4", pattern=head_run_option)
         runner.assert_has_call("1.2.3.4", pattern=standard_run_option)
