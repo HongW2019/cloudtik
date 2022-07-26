@@ -423,9 +423,6 @@ SMALL_CLUSTER = {
     "head_node": {
         "TestProp": 1,
     },
-    "worker_nodes": {
-        "TestProp": 2,
-    },
     "file_mounts": {},
     "cluster_synced_files": [],
     "initialization_commands": ["init_cmd"],
@@ -1113,24 +1110,29 @@ class CloudTikTest(unittest.TestCase):
     def testLaunchConfigChange(self):
         config_path = self.write_config(SMALL_CLUSTER)
         self.provider = MockProvider()
-        cm = ClusterMetrics()
+        runner = MockProcessRunner()
         cluster_scaler = MockClusterScaler(
-            config_path, cm, max_failures=0, update_interval_s=0
+            config_path,
+            ClusterMetrics(),
+            max_launch_batch=5,
+            max_concurrent_launches=5,
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=10,
         )
         cluster_scaler.update()
         self.waitForNodes(2)
-
+        assert cluster_scaler.pending_launches.value == 0
         # Update the config to change the node type
         new_config = SMALL_CLUSTER.copy()
-        new_config["worker_nodes"]["InstanceType"] = "updated"
+        new_config["max_workers"] = 1
         self.write_config(new_config)
-        self.provider.ready_to_create.clear()
-        fill_in_node_ids(self.provider, cm)
-        for _ in range(5):
-            cluster_scaler.update()
-        self.waitForNodes(1)
-        self.provider.ready_to_create.set()
-        self.waitForNodes(2)
+        cluster_scaler.update()
+        # not updated yet
+        # note that node termination happens in the main thread, so
+        # we do not need to add any delay here before checking
+        assert len(self.provider.non_terminated_nodes({})) == 2
+        assert cluster_scaler.pending_launches.value == 0
 
 
 if __name__ == "__main__":
