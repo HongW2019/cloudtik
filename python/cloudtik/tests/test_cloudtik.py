@@ -40,9 +40,7 @@ from cloudtik.core.api import get_docker_host_mount_location
 from cloudtik.core.node_provider import NodeProvider
 from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, CLOUDTIK_TAG_USER_NODE_TYPE, \
     CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UNINITIALIZED, STATUS_UPDATE_FAILED, NODE_KIND_HEAD, CLOUDTIK_TAG_LAUNCH_CONFIG, \
-    CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER, STATUS_UP_TO_DATE, NODE_KIND_WORKER
-
-from python.cloudtik.core import node_provider
+    CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER
 
 
 def mock_node_id() -> bytes:
@@ -541,7 +539,7 @@ MULTI_WORKER_CLUSTER = dict(
 class ClusterMetricsTest(unittest.TestCase):
     def testHeartbeat(self):
         cluster_metrics = ClusterMetrics()
-        cluster_metrics.update("1.1.1.1", b'\xb6\x80\xbdw\xbd\x1c\xee\xf6@\x11', None, {"CPU": 2}, {"CPU": 1}, {})
+        cluster_metrics.update("1.1.1.1", mock_node_id(), None, {"CPU": 2}, {"CPU": 1}, {})
         cluster_metrics.mark_active("2.2.2.2")
         assert "1.1.1.1" in cluster_metrics.last_heartbeat_time_by_ip
         assert "2.2.2.2" in cluster_metrics.last_heartbeat_time_by_ip
@@ -1210,8 +1208,6 @@ class CloudTikTest(unittest.TestCase):
         runner.assert_has_call(
             "1.2.3.4", pattern=common_container_copy + "cloudtik_bootstrap_config.yaml"
         )
-
-
 
 
 if __name__ == "__main__":
