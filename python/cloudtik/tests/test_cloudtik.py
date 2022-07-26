@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import re
 import subprocess
@@ -1040,6 +1041,32 @@ class CloudTikTest(unittest.TestCase):
             # Checks that the file is present before copying into the container
             assert first_rsync < first_cp
 
+    def testGetOrCreateHeadNodeFromStoppedRestartOnly(self):
+        config = self.testGetOrCreateHeadNode()
+        config["from"] = None
+        self.provider.cache_stopped = True
+        existing_nodes = self.provider.non_terminated_nodes({})
+        assert len(existing_nodes) == 1
+        self.provider.terminate_node(existing_nodes[0])
+        runner = MockProcessRunner()
+        runner.respond_to_call("json .Mounts", ["[]"])
+        # Two initial calls to rsync, + 2 more calls during run_init
+        runner.respond_to_call(".State.Running", ["false", "false", "false", "false"])
+        runner.respond_to_call("json .Config.Env", ["[]"])
+        call_context = CallContext()
+        self.get_or_create_head_node(
+            config,
+            call_context,
+            no_restart=False,
+            restart_only=True,
+            yes=True,
+            _provider=self.provider,
+            _runner=runner,
+        )
+        self.waitForNodes(1)
+        runner.assert_has_call("1.2.3.4", "init_cmd")
+        runner.assert_has_call("1.2.3.4", "head_start_cmd")
+
     def testValidateNetworkConfig(self):
         web_yaml = ("https://raw.githubusercontent.com/oap-project/cloudtik/main/python/cloudtik/templates/aws/small"
                     ".yaml")
@@ -1107,7 +1134,7 @@ class CloudTikTest(unittest.TestCase):
     def testScaleUpNoUpdaters(self):
         self.ScaleUpHelper(disable_node_updaters=True)
 
-    def testLaunchConfigChange(self):
+    def testUpdateThrottling(self):
         config_path = self.write_config(SMALL_CLUSTER)
         self.provider = MockProvider()
         runner = MockProcessRunner()
@@ -1133,6 +1160,58 @@ class CloudTikTest(unittest.TestCase):
         # we do not need to add any delay here before checking
         assert len(self.provider.non_terminated_nodes({})) == 2
         assert cluster_scaler.pending_launches.value == 0
+
+    def testDockerFileMountsAdded(self):
+        config = copy.deepcopy(SMALL_CLUSTER)
+        config["file_mounts"] = {"source": "/dev/null"}
+        config = self.prepare_mock_config(config)
+        self.provider = MockProvider()
+        runner = MockProcessRunner()
+        mounts = [
+            {
+                "Type": "bind",
+                "Source": "/sys",
+                "Destination": "/sys",
+                "Mode": "ro",
+                "RW": False,
+                "Propagation": "rprivate",
+            }
+        ]
+        runner.respond_to_call("json .Mounts", [json.dumps(mounts)])
+        # Two initial calls to rsync, +1 more call during run_init
+        runner.respond_to_call(".State.Running", ["false", "false", "true", "true"])
+        runner.respond_to_call("json .Config.Env", ["[]"])
+        self.get_or_create_head_node(
+            config,
+            CallContext(),
+            no_restart=False,
+            restart_only=False,
+            yes=True,
+            _provider=self.provider,
+            _runner=runner,
+        )
+        self.waitForNodes(1)
+        runner.assert_has_call("1.2.3.4", "init_cmd")
+        runner.assert_has_call("1.2.3.4", "head_setup_cmd")
+        runner.assert_has_call("1.2.3.4", "head_start_cmd")
+        runner.assert_has_call("1.2.3.4", pattern="docker stop")
+        runner.assert_has_call("1.2.3.4", pattern="docker run")
+
+        docker_mount_prefix = get_docker_host_mount_location(
+            SMALL_CLUSTER["cluster_name"]
+        )
+        runner.assert_not_has_call(
+            "1.2.3.4", pattern=f"-v {docker_mount_prefix}/~/cloudtik_bootstrap_config"
+        )
+        common_container_copy = f"rsync -e.*docker exec -i.*{docker_mount_prefix}/~/"
+        runner.assert_has_call(
+            "1.2.3.4", pattern=common_container_copy + "cloudtik_bootstrap_key.pem"
+        )
+        runner.assert_has_call(
+            "1.2.3.4", pattern=common_container_copy + "cloudtik_bootstrap_config.yaml"
+        )
+
+
 
 
 if __name__ == "__main__":
