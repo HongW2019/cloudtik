@@ -1052,6 +1052,9 @@ class CloudTikTest(unittest.TestCase):
             )
         assert mock_metrics.drain_node_exceptions.inc.call_count == 0
 
+    def testScaleUp(self):
+        self.ScaleUpHelper(disable_node_updaters=False)
+
     def testScaleUpNoUpdaters(self):
         self.ScaleUpHelper(disable_node_updaters=True)
 
@@ -1165,56 +1168,60 @@ class CloudTikTest(unittest.TestCase):
         autoscaler.update()
         self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER})
 
-    # def testRsyncCommandWithoutDocker(self):
-    #     cluster_cfg = SMALL_CLUSTER.copy()
-    #     cluster_cfg["docker"] = {}
-    #     config_path = self.write_config(cluster_cfg)
-    #     self.provider = MockProvider(unique_ips=True)
-    #     self.provider.create_node(
-    #         {}, {CLOUDTIK_TAG_NODE_KIND: "head", STATUS_UP_TO_DATE: "up-to-date"}, 1
-    #     )
-    #     self.provider.create_node(
-    #         {}, {CLOUDTIK_TAG_NODE_KIND: "worker", STATUS_UP_TO_DATE: "up-to-date"}, 10
-    #     )
-    #     self.provider.finish_starting_nodes()
-    #     runner = MockProcessRunner()
-    #     node_provider._get_node_provider = Mock(
-    #         return_value=self.provider
-    #     )
-    #     cluster_operator._bootstrap_config = Mock(
-    #         return_value=SMALL_CLUSTER
-    #     )
-    #     cluster_operator._rsync(
-    #         cluster_cfg,
-    #         CallContext(),
-    #         source=config_path,
-    #         target="/tmp/test_path",
-    #         down=True,
-    #     )
-    #     runner.assert_has_call("1.2.3.0", pattern="rsync")
-    #
-    #     cluster_operator._rsync(
-    #         cluster_cfg,
-    #         CallContext(),
-    #         source=config_path,
-    #         target="/tmp/test_path",
-    #         down=True,
-    #         ip_address="1.2.3.5",
-    #     )
-    #     runner.assert_has_call("1.2.3.5", pattern="rsync")
-    #     runner.clear_history()
-    #
-    #     cluster_operator._rsync(
-    #         cluster_cfg,
-    #         CallContext(),
-    #         source=config_path,
-    #         target="/tmp/test_path",
-    #         down=True,
-    #         ip_address="172.0.0.4",
-    #         use_internal_ip=True,
-    #     )
-    #     runner.assert_has_call("172.0.0.4", pattern="rsync")
-    #     runner.clear_history()
+    def testRsyncCommandWithoutDocker(self):
+        cluster_cfg = SMALL_CLUSTER.copy()
+        cluster_cfg["docker"] = {}
+        config_path = self.write_config(cluster_cfg)
+        cluster_cfg = self.prepare_mock_config(cluster_cfg)
+        self.provider = MockProvider(unique_ips=True)
+        self.provider.create_node(
+            {}, {CLOUDTIK_TAG_NODE_KIND: "head", CLOUDTIK_TAG_NODE_STATUS: "up-to-date"}, 1
+        )
+        self.provider.create_node(
+            {}, {CLOUDTIK_TAG_NODE_KIND: "worker", CLOUDTIK_TAG_NODE_STATUS: "up-to-date"}, 10
+        )
+        self.provider.finish_starting_nodes()
+        runner = MockProcessRunner()
+        node_provider._get_node_provider = Mock(
+            return_value=self.provider
+        )
+        cluster_operator._bootstrap_config = Mock(
+            return_value=SMALL_CLUSTER
+        )
+        cluster_operator._rsync(
+            cluster_cfg,
+            CallContext(),
+            source=config_path,
+            target="/tmp/test_path",
+            down=True,
+            _runner=runner,
+        )
+        runner.assert_has_call("1.2.3.0", pattern="rsync")
+        #
+        # cluster_operator._rsync(
+        #     cluster_cfg,
+        #     CallContext(),
+        #     source=config_path,
+        #     target="/tmp/test_path",
+        #     down=True,
+        #     node_ip="1.2.3.5",
+        #     _runner=runner,
+        # )
+        # runner.assert_has_call("1.2.3.5", pattern="rsync")
+        # runner.clear_history()
+        #
+        # cluster_operator._rsync(
+        #     cluster_cfg,
+        #     CallContext(),
+        #     source=config_path,
+        #     target="/tmp/test_path",
+        #     down=True,
+        #     node_ip="172.0.0.4",
+        #     use_internal_ip=True,
+        #     _runner=runner,
+        # )
+        # runner.assert_has_call("172.0.0.4", pattern="rsync")
+        # runner.clear_history()
 
     # def testClusterScalerConfigValidationFailNotFatal(self):
     #     invalid_config = {**SMALL_CLUSTER, "invalid_property_12345": "test"}
@@ -1296,56 +1303,91 @@ class CloudTikTest(unittest.TestCase):
     #             f"{docker_mount_prefix}/home/test-folder/",
     #         )
 
-    # def testRsyncCommandWithoutDocker(self):
-    #     cluster_cfg = SMALL_CLUSTER.copy()
-    #     cluster_cfg["docker"] = {}
-    #     config_path = self.write_config(cluster_cfg)
-    #     self.provider = MockProvider(unique_ips=True)
-    #     self.provider.create_node(
-    #         {}, {CLOUDTIK_TAG_NODE_KIND: "head", STATUS_UP_TO_DATE: "up-to-date"}, 1
-    #     )
-    #     self.provider.create_node(
-    #         {}, {CLOUDTIK_TAG_NODE_KIND: "worker", STATUS_UP_TO_DATE: "up-to-date"}, 10
-    #     )
-    #     self.provider.finish_starting_nodes()
-    #     runner = MockProcessRunner()
-    #     node_provider._get_node_provider = Mock(
-    #         return_value=self.provider
-    #     )
-    #     cluster_operator._bootstrap_config = Mock(
-    #         return_value=SMALL_CLUSTER
-    #     )
-    #     cluster_operator._rsync(
-    #         cluster_cfg,
-    #         CallContext(),
-    #         source=config_path,
-    #         target="/tmp/test_path",
-    #         down=True,
-    #     )
-    #     runner.assert_has_call("1.2.3.0", pattern="rsync")
-    #
-    #     cluster_operator._rsync(
-    #         cluster_cfg,
-    #         CallContext(),
-    #         source=config_path,
-    #         target="/tmp/test_path",
-    #         down=True,
-    #         ip_address="1.2.3.5",
-    #     )
-    #     runner.assert_has_call("1.2.3.5", pattern="rsync")
-    #     runner.clear_history()
-    #
-    #     cluster_operator._rsync(
-    #         cluster_cfg,
-    #         CallContext(),
-    #         source=config_path,
-    #         target="/tmp/test_path",
-    #         down=True,
-    #         ip_address="172.0.0.4",
-    #         use_internal_ip=True,
-    #     )
-    #     runner.assert_has_call("172.0.0.4", pattern="rsync")
-    #     runner.clear_history()
+    def testScaleDownMaxWorkers(self):
+        """Tests terminating nodes due to max_nodes per type."""
+        config = copy.deepcopy(MULTI_WORKER_CLUSTER)
+        config["available_node_types"]["m4.large"]["min_workers"] = 3
+        config["available_node_types"]["m4.large"]["max_workers"] = 3
+        config["available_node_types"]["m4.large"]["resources"] = {}
+        config["available_node_types"]["m4.16xlarge"]["resources"] = {}
+        config["available_node_types"]["p2.xlarge"]["min_workers"] = 5
+        config["available_node_types"]["p2.xlarge"]["max_workers"] = 8
+        config["available_node_types"]["p2.xlarge"]["resources"] = {}
+        config["available_node_types"]["p2.8xlarge"]["min_workers"] = 2
+        config["available_node_types"]["p2.8xlarge"]["max_workers"] = 4
+        config["available_node_types"]["p2.8xlarge"]["resources"] = {}
+        config["max_workers"] = 13
+
+        config_path = self.write_config(config)
+        config = self.prepare_mock_config(config)
+        self.provider = MockProvider()
+        runner = MockProcessRunner()
+        runner.respond_to_call("json .Config.Env", ["[]" for i in range(15)])
+        lm = ClusterMetrics()
+
+        self.get_or_create_head_node(
+            config,
+            CallContext(),
+            no_restart=False,
+            restart_only=False,
+            yes=True,
+            _provider=self.provider,
+            _runner=runner,
+        )
+        self.waitForNodes(1)
+
+        autoscaler = MockClusterScaler(
+            config_path,
+            lm,
+            max_failures=0,
+            max_concurrent_launches=13,
+            max_launch_batch=13,
+            process_runner=runner,
+            update_interval_s=0,
+        )
+        autoscaler.update()
+        self.waitForNodes(12)
+        assert autoscaler.pending_launches.value == 0
+        assert (
+            len(
+                self.provider.non_terminated_nodes(
+                    {CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER}
+                )
+            )
+            == 11
+        )
+
+        # Terminate some nodes
+        config["available_node_types"]["m4.large"]["min_workers"] = 2  # 3
+        config["available_node_types"]["m4.large"]["max_workers"] = 2
+        config["available_node_types"]["p2.8xlarge"]["min_workers"] = 0  # 2
+        config["available_node_types"]["p2.8xlarge"]["max_workers"] = 0
+        # And spawn one.
+        config["available_node_types"]["p2.xlarge"]["min_workers"] = 6  # 5
+        config["available_node_types"]["p2.xlarge"]["max_workers"] = 6
+        config["from"] = None
+        self.write_config(config)
+        fill_in_node_ids(self.provider, lm)
+        autoscaler.update()
+        events = autoscaler.event_summarizer.summary()
+        self.waitFor(lambda: autoscaler.pending_launches.value == 0)
+        self.waitForNodes(9, tag_filters={CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER})
+        assert autoscaler.pending_launches.value == 0
+        events = autoscaler.event_summarizer.summary()
+        # assert "Removing 1 nodes of type m4.large (max_workers_per_type)." in events
+        # assert "Removing 2 nodes of type p2.8xlarge (max_workers_per_type)." in events
+
+        # We should not be starting/stopping empty_node at all.
+        for event in events:
+            assert "empty_node" not in event
+
+        node_type_counts = defaultdict(int)
+        for node_id in NonTerminatedNodes(self.provider).worker_ids:
+            tags = self.provider.node_tags(node_id)
+            if CLOUDTIK_TAG_USER_NODE_TYPE in tags:
+                node_type = tags[CLOUDTIK_TAG_USER_NODE_TYPE]
+                node_type_counts[node_type] += 1
+        assert node_type_counts == {'m4.large': 2, 'p2.xlarge': 6, 'worker.default': 1}
 
     def testUpdateThrottling(self):
         config_path = self.write_config(SMALL_CLUSTER)
