@@ -24,7 +24,7 @@ from cloudtik.core._private.call_context import CallContext
 from cloudtik.core._private.cli_logger import cli_logger, cf
 from cloudtik.core._private.cluster.cluster_operator import _should_create_new_head, _set_up_config_for_head_node, \
     POLL_INTERVAL
-from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler, NonTerminatedNodes, logger
+from cloudtik.core._private.cluster.cluster_scaler import ClusterScaler, NonTerminatedNodes
 from cloudtik.core._private.docker import validate_docker_config
 from cloudtik.core._private.event_system import global_event_system, CreateClusterEvent
 from cloudtik.core._private.node.node_updater import NodeUpdater
@@ -41,9 +41,7 @@ from cloudtik.core.api import get_docker_host_mount_location
 from cloudtik.core.node_provider import NodeProvider
 from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, CLOUDTIK_TAG_USER_NODE_TYPE, \
     CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UNINITIALIZED, STATUS_UPDATE_FAILED, NODE_KIND_HEAD, CLOUDTIK_TAG_LAUNCH_CONFIG, \
-    CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER, STATUS_UP_TO_DATE, NODE_KIND_WORKER
-
-from python.cloudtik.core import node_provider
+    CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER,  NODE_KIND_WORKER
 
 
 def mock_node_id() -> bytes:
@@ -356,98 +354,6 @@ class MockClusterScaler(ClusterScaler):
         # Strict inequality if update is called twice within the throttling
         # interval `self.update_interval_s`
         assert end_calls <= start_calls + 1
-
-    # def _update(self):
-    #     # Only works with MockProvider
-    #     assert isinstance(self.provider, MockProvider)
-    #     start_calls = self.provider.num_non_terminated_nodes_calls
-    #     now = time.time()
-    #     # Throttle autoscaling updates to this interval to avoid exceeding
-    #     # rate limits on API calls.
-    #     if now - self.last_update_time < self.update_interval_s:
-    #         return
-    #
-    #     self.last_update_time = now
-    #
-    #     # Query the provider to update the list of non-terminated nodes
-    #     self.non_terminated_nodes = NonTerminatedNodes(self.provider)
-    #
-    #     # This will accumulate the nodes we need to terminate.
-    #     self.nodes_to_terminate = []
-    #
-    #     # Update running nodes gauge
-    #     num_workers = len(self.non_terminated_nodes.worker_ids)
-    #     self.prometheus_metrics.running_workers.set(num_workers)
-    #
-    #     # Remove from LoadMetrics the ips unknown to the NodeProvider.
-    #     self.cluster_metrics.prune_active_ips(active_ips=[
-    #         self.provider.internal_ip(node_id)
-    #         for node_id in self.non_terminated_nodes.all_node_ids
-    #     ])
-    #
-    #     # Update status strings
-    #     logger.info(self.info_string())
-    #
-    #     self.terminate_nodes_to_enforce_config_constraints(now)
-    #
-    #     if not self.disable_node_number:
-    #         # Assign node number to new nodes
-    #         self.assign_node_number_to_new_nodes()
-    #
-    #     wait_for_update = self.wait_for_minimal_nodes_before_update()
-    #     if not wait_for_update:
-    #         if self.disable_node_updaters:
-    #             self.terminate_unhealthy_nodes(now)
-    #         else:
-    #             self.process_completed_updates()
-    #             self.update_nodes()
-    #             self.attempt_to_recover_unhealthy_nodes(now)
-    #             self.set_prometheus_updater_data()
-    #
-    #     # Dict[NodeType, int], List[ResourceDict]
-    #     to_launch, unfulfilled = (
-    #         self.resource_demand_scheduler.get_nodes_to_launch(
-    #             self.non_terminated_nodes.all_node_ids,
-    #             self.pending_launches.breakdown(),
-    #             self.cluster_metrics.get_resource_demands(),
-    #             self.cluster_metrics.get_resource_utilization(),
-    #             self.cluster_metrics.get_static_node_resources_by_ip(),
-    #             ensure_min_cluster_size=self.cluster_metrics.
-    #             get_resource_requests()))
-    #     self._report_pending_infeasible(unfulfilled)
-    #
-    #     self.launch_required_nodes(to_launch)
-    #
-    #     # Record the amount of time the cluster scaler took for
-    #     # this _update() iteration.
-    #     update_time = time.time() - self.last_update_time
-    #     self.prometheus_metrics.update_time.observe(update_time)
-    #
-    #     end_calls = self.provider.num_non_terminated_nodes_calls
-    #     # Strict inequality if update is called twice within the throttling
-    #     # interval `self.update_interval_s`
-    #     assert end_calls <= start_calls + 1
-    #
-    # def attempt_to_recover_unhealthy_nodes(self, now):
-    #     for node_id in self.non_terminated_nodes.worker_ids:
-    #         self.recover_if_needed(node_id, now)
-    #
-    # def recover_if_needed(self, node_id, now):
-    #     if not self.can_update(node_id):
-    #         return
-    #     if self.heartbeat_on_time(node_id, now):
-    #         return
-    #
-    # def heartbeat_on_time(self, node_id, now: float) -> bool:
-    #     """Determine whether we've received a heartbeat from a node within the
-    #     last CLOUDTIK_HEARTBEAT_TIMEOUT_S seconds.
-    #     This is only for MockClusterScaler.
-    #     """
-    #     key = self.provider.internal_ip(node_id)
-    #
-    #     if key:
-    #         return True
-    #     return False
 
     def spawn_updater(self, node_id, setup_commands, start_commands,
                       node_resources, docker_config, call_context):
@@ -1160,20 +1066,20 @@ class CloudTikTest(unittest.TestCase):
         runner.assert_has_call("1.2.3.4", "init_cmd")
         runner.assert_has_call("1.2.3.4", "head_start_cmd")
 
-    # def testValidateNetworkConfig(self):
-    #     web_yaml = ("https://raw.githubusercontent.com/oap-project/cloudtik/main/python/cloudtik/templates/aws/small"
-    #                 ".yaml")
-    #     response = urllib.request.urlopen(web_yaml, timeout=5)
-    #     content = response.read()
-    #     with tempfile.TemporaryFile() as f:
-    #         f.write(content)
-    #         f.seek(0)
-    #         config = yaml.safe_load(f)
-    #     config = prepare_config(config)
-    #     try:
-    #         validate_config(config)
-    #     except Exception:
-    #         self.fail("Config did not pass validation test!")
+    def testValidateNetworkConfig(self):
+        web_yaml = ("https://raw.githubusercontent.com/oap-project/cloudtik/main/python/cloudtik/templates/aws/small"
+                    ".yaml")
+        response = urllib.request.urlopen(web_yaml, timeout=5)
+        content = response.read()
+        with tempfile.TemporaryFile() as f:
+            f.write(content)
+            f.seek(0)
+            config = yaml.safe_load(f)
+        config = prepare_config(config)
+        try:
+            validate_config(config)
+        except Exception:
+            self.fail("Config did not pass validation test!")
 
     def ScaleUpHelper(self, disable_node_updaters):
         config = copy.deepcopy(SMALL_CLUSTER)
@@ -1229,33 +1135,6 @@ class CloudTikTest(unittest.TestCase):
 
     def testScaleUpNoUpdaters(self):
         self.ScaleUpHelper(disable_node_updaters=True)
-
-    # def testUpdateThrottling(self):
-    #     config_path = self.write_config(SMALL_CLUSTER)
-    #     self.provider = MockProvider()
-    #     runner = MockProcessRunner()
-    #     cluster_scaler = MockClusterScaler(
-    #         config_path,
-    #         ClusterMetrics(),
-    #         max_launch_batch=5,
-    #         max_concurrent_launches=5,
-    #         max_failures=0,
-    #         process_runner=runner,
-    #         update_interval_s=10,
-    #     )
-    #     cluster_scaler.update()
-    #     self.waitForNodes(2)
-    #     assert cluster_scaler.pending_launches.value == 0
-    #     # Update the config to change the node type
-    #     new_config = SMALL_CLUSTER.copy()
-    #     new_config["max_workers"] = 1
-    #     self.write_config(new_config)
-    #     cluster_scaler.update()
-    #     # not updated yet
-    #     # note that node termination happens in the main thread, so
-    #     # we do not need to add any delay here before checking
-    #     assert len(self.provider.non_terminated_nodes({})) == 2
-    #     assert cluster_scaler.pending_launches.value == 0
 
     def testDockerFileMountsAdded(self):
         config = copy.deepcopy(SMALL_CLUSTER)
@@ -1390,73 +1269,6 @@ class CloudTikTest(unittest.TestCase):
                 node_type = tags[CLOUDTIK_TAG_USER_NODE_TYPE]
                 node_type_counts[node_type] += 1
         assert node_type_counts == {'m4.large': 2, 'p2.xlarge': 6, 'worker.default': 1}
-
-    # def testDockerImageExistsBeforeInspect(self):
-    #     config = copy.deepcopy(SMALL_CLUSTER)
-    #     config["min_workers"] = 1
-    #     config["max_workers"] = 1
-    #     config["docker"]["pull_before_run"] = False
-    #     config_path = self.write_config(config)
-    #     self.provider = MockProvider()
-    #     runner = MockProcessRunner()
-    #     runner.respond_to_call("json .Config.Env", ["[]" for i in range(1)])
-    #     autoscaler = MockClusterScaler(
-    #         config_path,
-    #         ClusterMetrics(),
-    #         max_failures=0,
-    #         process_runner=runner,
-    #         update_interval_s=0,
-    #     )
-    #     autoscaler.update()
-    #     autoscaler.update()
-    #     self.waitForNodes(2)
-    #     self.provider.finish_starting_nodes()
-    #     autoscaler.update()
-    #     self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
-    #     first_pull = [
-    #         (i, cmd)
-    #         for i, cmd in enumerate(runner.command_history())
-    #         if "docker pull" in cmd
-    #     ]
-    #     first_targeted_inspect = [
-    #         (i, cmd)
-    #         for i, cmd in enumerate(runner.command_history())
-    #         if "docker inspect -f" in cmd
-    #     ]
-    #
-    #     # This checks for the bug mentioned #13128 where the image is inspected
-    #     # before the image is present.
-    #     assert min(x[0] for x in first_pull) < min(x[0] for x in first_targeted_inspect)
-
-    # def testRsyncCommandWithoutDocker(self):
-    #     cluster_cfg = SMALL_CLUSTER.copy()
-    #     cluster_cfg["docker"] = {}
-    #     config_path = self.write_config(cluster_cfg)
-    #     cluster_cfg = self.prepare_mock_config(cluster_cfg)
-    #     self.provider = MockProvider(unique_ips=True)
-    #     self.provider.create_node(
-    #         {}, {CLOUDTIK_TAG_NODE_KIND: "head", CLOUDTIK_TAG_NODE_STATUS: "up-to-date"}, 1
-    #     )
-    #     self.provider.create_node(
-    #         {}, {CLOUDTIK_TAG_NODE_KIND: "worker", CLOUDTIK_TAG_NODE_STATUS: "up-to-date"}, 10
-    #     )
-    #     self.provider.finish_starting_nodes()
-    #     runner = MockProcessRunner()
-    #     node_provider._get_node_provider = Mock(
-    #         return_value=self.provider
-    #     )
-    #     cluster_operator._bootstrap_config = Mock(
-    #         return_value=SMALL_CLUSTER
-    #     )
-    #     cluster_operator._rsync(
-    #         cluster_cfg,
-    #         CallContext(),
-    #         source=config_path,
-    #         target="/tmp/test_path",
-    #         down=True,
-    #         _runner=runner,
-    #     )
-    #     runner.assert_has_call("1.2.3.0", pattern="rsync")
 
 
 if __name__ == "__main__":
