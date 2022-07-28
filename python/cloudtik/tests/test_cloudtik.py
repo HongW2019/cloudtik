@@ -9,6 +9,7 @@ import time
 import unittest
 import urllib
 from collections import defaultdict
+from enum import Enum
 from types import ModuleType
 
 import pytest
@@ -41,7 +42,26 @@ from cloudtik.core.api import get_docker_host_mount_location
 from cloudtik.core.node_provider import NodeProvider
 from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS, CLOUDTIK_TAG_USER_NODE_TYPE, \
     CLOUDTIK_TAG_CLUSTER_NAME, STATUS_UNINITIALIZED, STATUS_UPDATE_FAILED, NODE_KIND_HEAD, CLOUDTIK_TAG_LAUNCH_CONFIG, \
-    CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER,  NODE_KIND_WORKER
+    CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER, NODE_KIND_WORKER, STATUS_UP_TO_DATE
+
+
+class DrainNodeOutcome(str, Enum):
+    """Potential outcomes of DrainNode calls, each of which is handled
+    differently by the autoscaler.
+    """
+
+    # Return a reponse indicating all nodes were succesfully drained.
+    Succeeded = "Succeeded"
+    # Return response indicating at least one node failed to be drained.
+    NotAllDrained = "NotAllDrained"
+    # Return an unimplemented gRPC error, indicating an old GCS.
+    Unimplemented = "Unimplemented"
+    # Raise a generic unexpected RPC error.
+    GenericRpcError = "GenericRpcError"
+    # Raise a generic unexpected exception.
+    GenericException = "GenericException"
+    # Tell the autoscaler to fail finding ips during drain
+    FailedToFindIp = "FailedToFindIp"
 
 
 def mock_node_id() -> bytes:
@@ -1269,6 +1289,36 @@ class CloudTikTest(unittest.TestCase):
                 node_type = tags[CLOUDTIK_TAG_USER_NODE_TYPE]
                 node_type_counts[node_type] += 1
         assert node_type_counts == {'m4.large': 2, 'p2.xlarge': 6, 'worker.default': 1}
+
+    def testSetupCommandsWithNoNodeCaching(self):
+        config = copy.deepcopy(SMALL_CLUSTER)
+        config["min_workers"] = 1
+        config["max_workers"] = 1
+        config_path = self.write_config(config)
+        self.provider = MockProvider(cache_stopped=False)
+        runner = MockProcessRunner()
+        runner.respond_to_call("json .Config.Env", ["[]" for i in range(2)])
+        lm = ClusterMetrics()
+        autoscaler = MockClusterScaler(
+            config_path,
+            lm,
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+        )
+        nodes_id = autoscaler.provider.non_terminated_nodes({})
+        for node_id in nodes_id:
+            autoscaler.provider.terminate_node(node_id)
+        autoscaler.update()
+        self.provider = autoscaler.provider
+        self.waitForNodes(2)
+        self.provider.finish_starting_nodes()
+        autoscaler.update()
+        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
+        runner.assert_has_call("172.0.0.0", "init_cmd")
+        runner.assert_has_call("172.0.0.0", "setup_cmd")
+        runner.assert_has_call("172.0.0.0", "worker_setup_cmd")
+        runner.assert_has_call("172.0.0.0", "worker_start_cmd")
 
 
 if __name__ == "__main__":
