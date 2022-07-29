@@ -45,25 +45,6 @@ from cloudtik.core.tags import CLOUDTIK_TAG_NODE_KIND, CLOUDTIK_TAG_NODE_STATUS,
     CLOUDTIK_TAG_NODE_NAME, CLOUDTIK_TAG_NODE_NUMBER, CLOUDTIK_TAG_HEAD_NODE_NUMBER, NODE_KIND_WORKER, STATUS_UP_TO_DATE
 
 
-class DrainNodeOutcome(str, Enum):
-    """Potential outcomes of DrainNode calls, each of which is handled
-    differently by the autoscaler.
-    """
-
-    # Return a reponse indicating all nodes were succesfully drained.
-    Succeeded = "Succeeded"
-    # Return response indicating at least one node failed to be drained.
-    NotAllDrained = "NotAllDrained"
-    # Return an unimplemented gRPC error, indicating an old GCS.
-    Unimplemented = "Unimplemented"
-    # Raise a generic unexpected RPC error.
-    GenericRpcError = "GenericRpcError"
-    # Raise a generic unexpected exception.
-    GenericException = "GenericException"
-    # Tell the autoscaler to fail finding ips during drain
-    FailedToFindIp = "FailedToFindIp"
-
-
 def mock_node_id() -> bytes:
     """Random node id to pass to load_metrics.update."""
     return os.urandom(10)
@@ -1397,6 +1378,96 @@ class CloudTikTest(unittest.TestCase):
         runner.assert_not_has_call(worker_ip, "worker_setup_cmd")
         runner.assert_has_call(worker_ip, "worker_start_cmd")
 
+        runner.clear_history()
+        cluster_scaler.update()
+        runner.assert_not_has_call(worker_ip, "setup_cmd")
+
+        # We did not start any other nodes
+        next_ip = "172.0.0.{}".format(worker_id + 1)
+        runner.assert_not_has_call(next_ip, " ")
+
+    def testSetupCommandsWithStoppedNodeCachingDocker(self):
+        # NOTE(ilr) Setup & Init commands **should** run with stopped nodes
+        # when Docker is in use.
+        file_mount_dir = tempfile.mkdtemp()
+        config = copy.deepcopy(SMALL_CLUSTER)
+        config["file_mounts"] = {"/root/test-folder": file_mount_dir}
+        config["file_mounts_sync_continuously"] = True
+        config["min_workers"] = 1
+        config["max_workers"] = 1
+        config_path = self.write_config(config)
+        self.provider = MockProvider(cache_stopped=True)
+        runner = MockProcessRunner()
+        runner.respond_to_call("json .Config.Env", ["[]" for i in range(3)])
+        cm = ClusterMetrics()
+        cluster_scaler = MockClusterScaler(
+            config_path,
+            cm,
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+        )
+        cluster_scaler.update()
+        self.provider = cluster_scaler.provider
+        self.waitForNodes(2)
+        self.provider.finish_starting_nodes()
+        cluster_scaler.update()
+        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
+        nodes_id = self.provider.non_terminated_nodes({})
+        if nodes_id:
+            worker_id = nodes_id[-1] + 2
+        else:
+            worker_id = 1
+        worker_ip = "172.0.0.{}".format(worker_id)
+        runner.assert_has_call(worker_ip, "init_cmd")
+        runner.assert_has_call(worker_ip, "setup_cmd")
+        runner.assert_has_call(worker_ip, "worker_setup_cmd")
+        runner.assert_has_call(worker_ip, "worker_start_cmd")
+        runner.assert_has_call(worker_ip, "docker run")
+
+        # Check the node was indeed reused
+        nodes_id = self.provider.non_terminated_nodes({})
+        for node_id in nodes_id:
+            self.provider.terminate_node(node_id)
+        cluster_scaler.update()
+        self.waitForNodes(2)
+        runner.clear_history()
+        self.provider.finish_starting_nodes()
+        cluster_scaler.update()
+        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
+        # These all must happen when the node is stopped and resued
+        runner.assert_has_call(worker_ip, "init_cmd")
+        runner.assert_has_call(worker_ip, "setup_cmd")
+        runner.assert_has_call(worker_ip, "worker_setup_cmd")
+        runner.assert_has_call(worker_ip, "worker_start_cmd")
+        runner.assert_has_call(worker_ip, "docker run")
+
+        with open(f"{file_mount_dir}/new_file", "w") as f:
+            f.write("abcdefgh")
+
+        # Check that run_init happens when file_mounts have updated
+        nodes_id = self.provider.non_terminated_nodes({})
+        for node_id in nodes_id:
+            self.provider.terminate_node(node_id)
+        cluster_scaler.update()
+        self.waitForNodes(2)
+        runner.clear_history()
+        self.provider.finish_starting_nodes()
+        cluster_scaler.update()
+        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
+        runner.assert_has_call(worker_ip, "init_cmd")
+        runner.assert_has_call(worker_ip, "setup_cmd")
+        runner.assert_has_call(worker_ip, "worker_setup_cmd")
+        runner.assert_has_call(worker_ip, "worker_start_cmd")
+        runner.assert_has_call(worker_ip, "docker run")
+
+        docker_run_cmd_indx = [
+            i for i, cmd in enumerate(runner.command_history()) if "docker run" in cmd
+        ][0]
+        mkdir_cmd_indx = [
+            i for i, cmd in enumerate(runner.command_history()) if "mkdir -p" in cmd
+        ][0]
+        assert mkdir_cmd_indx < docker_run_cmd_indx
         runner.clear_history()
         cluster_scaler.update()
         runner.assert_not_has_call(worker_ip, "setup_cmd")
