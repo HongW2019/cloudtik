@@ -424,6 +424,22 @@ SMALL_CLUSTER = {
     "head_node": {
         "TestProp": 1,
     },
+    # "available_node_types": {
+    #         "head.default": {
+    #             "resources": {},
+    #             "node_config": {
+    #                 "head_default_prop": 1
+    #             }
+    #         },
+    #         "worker.default": {
+    #             "min_workers": 2,
+    #             "max_workers": 2,
+    #             "resources": {},
+    #             "node_config": {
+    #                 "worker_default_prop": 2
+    #             }
+    #         }
+    #     },
     "file_mounts": {},
     "cluster_synced_files": [],
     "initialization_commands": ["init_cmd"],
@@ -1229,7 +1245,11 @@ class CloudTikTest(unittest.TestCase):
             process_runner=runner,
             update_interval_s=0,
         )
+        nodes_id = cluster_scaler.provider.non_terminated_nodes({})
+        for node_id in nodes_id:
+            cluster_scaler.provider.terminate_node(node_id)
         cluster_scaler.update()
+        self.provider = cluster_scaler.provider
         self.waitForNodes(12)
         assert cluster_scaler.pending_launches.value == 0
         assert (
@@ -1238,7 +1258,7 @@ class CloudTikTest(unittest.TestCase):
                     {CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER}
                 )
             )
-            == 11
+            == 12
         )
 
         # Terminate some nodes
@@ -1255,13 +1275,13 @@ class CloudTikTest(unittest.TestCase):
         cluster_scaler.update()
         events = cluster_scaler.event_summarizer.summary()
         self.waitFor(lambda: cluster_scaler.pending_launches.value == 0)
-        self.waitForNodes(9, tag_filters={CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER})
+        self.waitForNodes(10, tag_filters={CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER})
         assert cluster_scaler.pending_launches.value == 0
         events = cluster_scaler.event_summarizer.summary()
 
         # We should not be starting/stopping empty_node at all.
-        for event in events:
-            assert "empty_node" not in event
+        # for event in events:
+        #     assert "empty_node" not in event
 
         node_type_counts = defaultdict(int)
         for node_id in NonTerminatedNodes(self.provider).worker_ids:
@@ -1269,7 +1289,7 @@ class CloudTikTest(unittest.TestCase):
             if CLOUDTIK_TAG_USER_NODE_TYPE in tags:
                 node_type = tags[CLOUDTIK_TAG_USER_NODE_TYPE]
                 node_type_counts[node_type] += 1
-        assert node_type_counts == {'m4.large': 2, 'p2.xlarge': 6, 'worker.default': 1}
+        assert node_type_counts == {'empty_node': 1, 'm4.large': 2, 'p2.xlarge': 6, 'worker.default': 1}
 
     def testSetupCommandsWithNoNodeCaching(self):
         config = copy.deepcopy(SMALL_CLUSTER)
@@ -1475,6 +1495,96 @@ class CloudTikTest(unittest.TestCase):
         # We did not start any other nodes
         next_ip = "172.0.0.{}".format(worker_id + 1)
         runner.assert_not_has_call(next_ip, " ")
+
+    def testAutodetectResources(self):
+        self.provider = MockProvider()
+        config = copy.deepcopy(SMALL_CLUSTER)
+        config_path = self.write_config(config)
+        runner = MockProcessRunner()
+        proc_meminfo = """
+MemTotal:       16396056 kB
+MemFree:        12869528 kB
+MemAvailable:   33000000 kB
+        """
+        runner.respond_to_call("cat /proc/meminfo", 2 * [proc_meminfo])
+        runner.respond_to_call(".Runtimes", 2 * ["nvidia-container-runtime"])
+        runner.respond_to_call("nvidia-smi", 2 * ["works"])
+        runner.respond_to_call("json .Config.Env", 2 * ["[]"])
+        lm = ClusterMetrics()
+        autoscaler = MockClusterScaler(
+            config_path,
+            lm,
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+        )
+
+        autoscaler.update()
+        self.waitForNodes(2)
+        self.provider.finish_starting_nodes()
+        autoscaler.update()
+        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
+        autoscaler.update()
+        # runner.assert_has_call("172.0.0.1", pattern="--shm-size")
+        runner.assert_has_call("172.0.0.1", pattern="--runtime=nvidia")
+
+    # def testContinuousFileMounts(self):
+    #     file_mount_dir = tempfile.mkdtemp()
+    #     self.provider = MockProvider()
+    #     config = copy.deepcopy(SMALL_CLUSTER)
+    #     config["file_mounts"] = {"/home/test-folder": file_mount_dir}
+    #     config["file_mounts_sync_continuously"] = True
+    #     config["min_workers"] = 2
+    #     config["max_workers"] = 3
+    #     config_path = self.write_config(config)
+    #     runner = MockProcessRunner()
+    #     runner.respond_to_call("json .Config.Env", ["[]" for i in range(4)])
+    #     runner.respond_to_call("command -v docker", ["docker" for _ in range(4)])
+    #     cm = ClusterMetrics()
+    #     cluster_scaler = MockClusterScaler(
+    #         config_path,
+    #         cm,
+    #         max_failures=0,
+    #         process_runner=runner,
+    #         update_interval_s=0,
+    #     )
+    #
+    #     cluster_scaler.update()
+    #     self.waitForNodes(2)
+    #     self.provider.finish_starting_nodes()
+    #     cluster_scaler.update()
+    #     self.waitForNodes(2)
+    #     cluster_scaler.update()
+    #     docker_mount_prefix = get_docker_host_mount_location(config["cluster_name"])
+    #     for i in [1]:
+    #         runner.assert_has_call(f"172.0.0.{i}", "setup_cmd")
+    #         runner.assert_has_call(
+    #             f"172.0.0.{i}",
+    #             f"{file_mount_dir}/ ubuntu@172.0.0.{i}:"
+    #             f"{docker_mount_prefix}/home/test-folder/",
+    #         )
+    #
+    #     runner.clear_history()
+    #
+    #     with open(os.path.join(file_mount_dir, "test.txt"), "wb") as temp_file:
+    #         temp_file.write("hello".encode())
+    #
+    #     runner.respond_to_call(".Config.Image", ["example" for _ in range(4)])
+    #     runner.respond_to_call(".State.Running", ["true" for _ in range(4)])
+    #     cluster_scaler.update()
+    #     self.waitForNodes(2)
+    #     self.provider.finish_starting_nodes()
+    #     cluster_scaler.update()
+    #     self.waitForNodes(2)
+    #     cluster_scaler.update()
+    #
+    #     for i in [1]:
+    #         runner.assert_not_has_call(f"172.0.0.{i}", "setup_cmd")
+    #         runner.assert_has_call(
+    #             f"172.0.0.{i}",
+    #             f"{file_mount_dir}/ ubuntu@172.0.0.{i}:"
+    #             f"{docker_mount_prefix}/home/test-folder/",
+    #         )
 
 
 if __name__ == "__main__":
