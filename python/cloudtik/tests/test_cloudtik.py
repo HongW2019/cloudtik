@@ -1528,6 +1528,48 @@ MemAvailable:   33000000 kB
         # runner.assert_has_call("172.0.0.1", pattern="--shm-size")
         runner.assert_has_call("172.0.0.1", pattern="--runtime=nvidia")
 
+    def testDockerImageExistsBeforeInspect(self):
+        config = copy.deepcopy(SMALL_CLUSTER)
+        config["min_workers"] = 1
+        config["max_workers"] = 1
+        config["docker"]["pull_before_run"] = False
+        config_path = self.write_config(config)
+        self.provider = MockProvider()
+        runner = MockProcessRunner()
+        runner.respond_to_call("json .Config.Env", ["[]" for i in range(1)])
+        autoscaler = MockClusterScaler(
+            config_path,
+            ClusterMetrics(),
+            max_failures=0,
+            process_runner=runner,
+            update_interval_s=0,
+        )
+        nodes_id = autoscaler.provider.non_terminated_nodes({})
+        for node_id in nodes_id:
+            autoscaler.provider.terminate_node(node_id)
+        autoscaler.update()
+        autoscaler.update()
+        self.provider = autoscaler.provider
+        self.waitForNodes(2)
+        self.provider.finish_starting_nodes()
+        autoscaler.update()
+        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
+        first_pull = [
+            (i, cmd)
+            for i, cmd in enumerate(runner.command_history())
+            if "docker pull" in cmd
+        ]
+        first_targeted_inspect = [
+            (i, cmd)
+            for i, cmd in enumerate(runner.command_history())
+            if "docker inspect -f" in cmd
+        ]
+
+        # This checks for the bug mentioned #13128 where the image is inspected
+        # before the image is present.
+        assert min(x[0] for x in first_pull) < min(x[0] for x in first_targeted_inspect)
+
+
     # def testContinuousFileMounts(self):
     #     file_mount_dir = tempfile.mkdtemp()
     #     self.provider = MockProvider()
