@@ -424,22 +424,22 @@ SMALL_CLUSTER = {
     "head_node": {
         "TestProp": 1,
     },
-    # "available_node_types": {
-    #         "head.default": {
-    #             "resources": {},
-    #             "node_config": {
-    #                 "head_default_prop": 1
-    #             }
-    #         },
-    #         "worker.default": {
-    #             "min_workers": 2,
-    #             "max_workers": 2,
-    #             "resources": {},
-    #             "node_config": {
-    #                 "worker_default_prop": 2
-    #             }
-    #         }
-    #     },
+    "available_node_types": {
+            "head.default": {
+                "resources": {},
+                "node_config": {
+                    "head_default_prop": 1
+                }
+            },
+            "worker.default": {
+                "min_workers": 2,
+                "max_workers": 2,
+                "resources": {},
+                "node_config": {
+                    "worker_default_prop": 2
+                }
+            }
+        },
     "file_mounts": {},
     "cluster_synced_files": [],
     "initialization_commands": ["init_cmd"],
@@ -1115,19 +1115,19 @@ class CloudTikTest(unittest.TestCase):
         )
         assert len(self.provider.non_terminated_nodes({})) == 0
         cluster_scaler.update()
-        self.waitForNodes(2)
+        self.waitForNodes(2, tag_filters={CLOUDTIK_TAG_USER_NODE_TYPE: "worker.default"})
 
         assert mock_metrics.started_nodes.inc.call_count == 2
-        mock_metrics.started_nodes.inc.assert_called_with(1)
-        assert mock_metrics.worker_create_node_time.observe.call_count == 2
+        mock_metrics.started_nodes.inc.assert_called_with(2)
+        assert mock_metrics.worker_create_node_time.observe.call_count == 3
         cluster_scaler.update()
         # The two cluster_scaler update iterations in this test led to two
         # observations of the update time.
         assert mock_metrics.update_time.observe.call_count == 2
-        self.waitForNodes(2)
+        self.waitForNodes(2, tag_filters={CLOUDTIK_TAG_USER_NODE_TYPE: "worker.default"})
 
         # running_workers metric should be set to 2
-        mock_metrics.running_workers.set.assert_called_with(2)
+        mock_metrics.running_workers.set.assert_called_with(3)
 
         if disable_node_updaters:
             # Node Updaters have NOT been invoked because they were explicitly
@@ -1136,14 +1136,14 @@ class CloudTikTest(unittest.TestCase):
             assert len(runner.calls) == 0
             # Nodes were created in uninitialized and not updated.
             self.waitForNodes(
-                2, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UNINITIALIZED}
+                3, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UNINITIALIZED}
             )
         else:
             # Node Updaters have been invoked.
             self.waitFor(lambda: len(runner.calls) > 0)
             # The updates failed. Key thing is that the updates completed.
             self.waitForNodes(
-                1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UPDATE_FAILED}
+                2, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UPDATE_FAILED}
             )
         assert mock_metrics.drain_node_exceptions.inc.call_count == 0
 
@@ -1223,7 +1223,7 @@ class CloudTikTest(unittest.TestCase):
         self.provider = MockProvider()
         runner = MockProcessRunner()
         runner.respond_to_call("json .Config.Env", ["[]" for i in range(15)])
-        lm = ClusterMetrics()
+        cm = ClusterMetrics()
 
         self.get_or_create_head_node(
             config,
@@ -1238,7 +1238,7 @@ class CloudTikTest(unittest.TestCase):
 
         cluster_scaler = MockClusterScaler(
             config_path,
-            lm,
+            cm,
             max_failures=0,
             max_concurrent_launches=13,
             max_launch_batch=13,
@@ -1271,7 +1271,7 @@ class CloudTikTest(unittest.TestCase):
         config["available_node_types"]["p2.xlarge"]["max_workers"] = 6
         config["from"] = None
         self.write_config(config)
-        fill_in_node_ids(self.provider, lm)
+        fill_in_node_ids(self.provider, cm)
         cluster_scaler.update()
         self.waitFor(lambda: cluster_scaler.pending_launches.value == 0)
         self.waitForNodes(10, tag_filters={CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER})
@@ -1507,20 +1507,20 @@ MemAvailable:   33000000 kB
         runner.respond_to_call(".Runtimes", 2 * ["nvidia-container-runtime"])
         runner.respond_to_call("nvidia-smi", 2 * ["works"])
         runner.respond_to_call("json .Config.Env", 2 * ["[]"])
-        lm = ClusterMetrics()
+        cm = ClusterMetrics()
         autoscaler = MockClusterScaler(
             config_path,
-            lm,
+            cm,
             max_failures=0,
             process_runner=runner,
             update_interval_s=0,
         )
 
         autoscaler.update()
-        self.waitForNodes(2)
+        self.waitForNodes(2, tag_filters={CLOUDTIK_TAG_USER_NODE_TYPE: "worker.default"})
         self.provider.finish_starting_nodes()
         autoscaler.update()
-        self.waitForNodes(1, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
+        self.waitForNodes(2, tag_filters={CLOUDTIK_TAG_NODE_STATUS: STATUS_UP_TO_DATE})
         autoscaler.update()
         # runner.assert_has_call("172.0.0.1", pattern="--shm-size")
         runner.assert_has_call("172.0.0.1", pattern="--runtime=nvidia")
