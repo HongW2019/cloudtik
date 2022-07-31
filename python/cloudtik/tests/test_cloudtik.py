@@ -1273,15 +1273,12 @@ class CloudTikTest(unittest.TestCase):
         self.write_config(config)
         fill_in_node_ids(self.provider, lm)
         cluster_scaler.update()
-        events = cluster_scaler.event_summarizer.summary()
         self.waitFor(lambda: cluster_scaler.pending_launches.value == 0)
         self.waitForNodes(10, tag_filters={CLOUDTIK_TAG_NODE_KIND: NODE_KIND_WORKER})
         assert cluster_scaler.pending_launches.value == 0
         events = cluster_scaler.event_summarizer.summary()
-
-        # We should not be starting/stopping empty_node at all.
-        # for event in events:
-        #     assert "empty_node" not in event
+        assert "Removing 1 nodes of type m4.large (max_workers_per_type)." in events
+        assert "Removing 2 nodes of type p2.8xlarge (max_workers_per_type)." in events
 
         node_type_counts = defaultdict(int)
         for node_id in NonTerminatedNodes(self.provider).worker_ids:
