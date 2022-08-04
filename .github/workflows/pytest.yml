@@ -24,3 +24,5 @@ jobs:
       - name: Test with pytest
         run: |
           pytest python/cloudtik/tests/test_cloudtik.py
+          pytest python/cloudtik/tests/aws/test_aws_batch_tag_update.py
+          pytest python/cloudtik/tests/gcp/test_gcp_node_provider.py
