@@ -52,7 +52,7 @@ def teardown_module():
                     message += "\nPROCESS STDERR:\n" + f.read()
             raise RuntimeError(message)
 
-
+@pytest.mark.skipif(os.path.exists(CLOUDTIK_REDIS_EXECUTABLE) == False, reason="Skip these tests if redis doesn't exist")
 class TestNodeTable:
     @classmethod
     def setup_class(self):
