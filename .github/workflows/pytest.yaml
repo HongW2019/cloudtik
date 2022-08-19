@@ -23,4 +23,4 @@ jobs:
           pip install -U "cloudtik[all] @ https://d30257nes7d4fq.cloudfront.net/downloads/cloudtik/cloudtik-0.9.1-cp37-cp37m-manylinux2014_x86_64.whl" 
       - name: Test with pytest
         run: |
-          pytest python/cloudtik/tests/uts
+          pytest python/cloudtik/tests/uts/test_cloudtik.py
