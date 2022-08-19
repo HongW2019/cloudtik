@@ -19,7 +19,7 @@ jobs:
       - name: Set up GCC
         uses: egor-tensin/setup-gcc@v1
         with:
-          version: 4.8
+          version: 7
           platform: x64
       - name: Build wheel
         run: |
