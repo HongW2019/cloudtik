@@ -5,7 +5,7 @@ import json
 import redis
 
 EXE_SUFFIX = ".exe" if sys.platform == "win32" else ""
-CLOUDTIK_PATH = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+CLOUDTIK_PATH = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))))
 CLOUDTIK_REDIS_EXECUTABLE = os.path.join(
     CLOUDTIK_PATH, "core/thirdparty/redis/redis-server" + EXE_SUFFIX)
 
@@ -52,7 +52,7 @@ def teardown_module():
                     message += "\nPROCESS STDERR:\n" + f.read()
             raise RuntimeError(message)
 
-# @pytest.mark.skipif(os.path.exists(CLOUDTIK_REDIS_EXECUTABLE) == False, reason="Skip these tests if redis doesn't exist")
+
 class TestNodeTable:
     @classmethod
     def setup_class(self):
