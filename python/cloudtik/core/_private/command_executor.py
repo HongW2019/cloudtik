@@ -389,7 +389,7 @@ class SSHCommandExecutor(CommandExecutor):
         ssh_control_path = "/tmp/cloudtik_ssh_{}/{}".format(
             ssh_user_hash[:HASH_MAX_LENGTH],
             ssh_control_hash[:HASH_MAX_LENGTH])
-
+        self.home_dir = None
         self.cluster_name = cluster_name
         self.log_prefix = log_prefix
         self.process_runner = process_runner
@@ -538,6 +538,8 @@ class SSHCommandExecutor(CommandExecutor):
             shutdown_after_run=False,
             cmd_to_print=None,
             silent=False):
+        cmd = self._host_expand_user(cmd, any_char=True)
+        cmd_to_print = self._host_expand_user(cmd_to_print, any_char=True) if cmd_to_print else None
         if shutdown_after_run:
             cmd, cmd_to_print = _with_shutdown(cmd, cmd_to_print)
         if ssh_options_override_ssh_key:
@@ -655,6 +657,19 @@ class SSHCommandExecutor(CommandExecutor):
         ]
         self.cli_logger.verbose("Running `{}`", cf.bold(" ".join(command)))
         self._run_helper(command, silent=self.call_context.is_rsync_silent())
+
+    def _host_expand_user(self, string, any_char=False):
+        user_pos = string.find("~")
+        if user_pos > -1:
+            self.home_dir = self.run(
+                    "printenv HOME",
+                    with_output=True).decode("utf-8").strip()
+            if any_char:
+                return string.replace("~/", self.home_dir + "/")
+            elif not any_char and user_pos == 0:
+                return string.replace("~", self.home_dir, 1)
+
+        return string
 
     def remote_shell_command_str(self):
         self._set_ssh_ip_if_required()
