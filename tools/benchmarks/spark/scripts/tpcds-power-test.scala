@@ -18,8 +18,8 @@ val query_filter = Seq()        // Seq() == all queries
 val randomizeQueries = false    // run queries in a random order. Recommended for parallel runs.
 
 if (fsdir == "") {
-  println("File system dir must be specified with --conf spark.driver.fsdir")
-  sys.exit(0)
+    println("File system dir must be specified with --conf spark.driver.fsdir")
+    sys.exit(0)
 }
 
 // detailed results will be written as JSON to this location.
@@ -29,42 +29,42 @@ var databaseName = s"tpcds_${format}_scale_${scaleFactor}_db"
 val use_arrow = conf.getBoolean("spark.driver.useArrow", false) // when you want to use gazella_plugin to run TPC-DS, you need to set it true.
 
 if (use_arrow){
-  resultLocation = s"${fsdir}/shared/data/results/tpcds_arrow/${scaleFactor}/"
-  databaseName = s"tpcds_arrow_scale_${scaleFactor}_db"
-  val tables = Seq("call_center", "catalog_page", "catalog_returns", "catalog_sales", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "store_returns", "store_sales", "time_dim", "warehouse", "web_page", "web_returns", "web_sales", "web_site")
-  if (spark.catalog.databaseExists(s"$databaseName")) {
-    println(s"$databaseName has exists!")
-  }else{
-    spark.sql(s"create database if not exists $databaseName").show
-    spark.sql(s"use $databaseName").show
-    for (table <- tables) {
-      if (spark.catalog.tableExists(s"$table")){
-        println(s"$table has exists!")
-      }else{
-        spark.catalog.createTable(s"$table", s"$data_path/$table", "arrow")
-      }
-    }
-    if (partitionTables) {
-      for (table <- tables) {
-        try{
-          spark.sql(s"ALTER TABLE $table RECOVER PARTITIONS").show
-        }catch{
-          case e: Exception => println(e)
+    resultLocation = s"${fsdir}/shared/data/results/tpcds_arrow/${scaleFactor}/"
+    databaseName = s"tpcds_arrow_scale_${scaleFactor}_db"
+    val tables = Seq("call_center", "catalog_page", "catalog_returns", "catalog_sales", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "store_returns", "store_sales", "time_dim", "warehouse", "web_page", "web_returns", "web_sales", "web_site")
+    if (spark.catalog.databaseExists(s"$databaseName")) {
+        println(s"$databaseName has exists!")
+    }else{
+        spark.sql(s"create database if not exists $databaseName").show
+        spark.sql(s"use $databaseName").show
+        for (table <- tables) {
+            if (spark.catalog.tableExists(s"$table")){
+                println(s"$table has exists!")
+            }else{
+                spark.catalog.createTable(s"$table", s"$data_path/$table", "arrow")
+            }
         }
-      }
+        if (partitionTables) {
+            for (table <- tables) {
+                try{
+                    spark.sql(s"ALTER TABLE $table RECOVER PARTITIONS").show
+                }catch{
+                        case e: Exception => println(e)
+                }
+            }
+        }
     }
-  }
 } else {
-  // Check whether the database is created, we create external tables if not
-  if (spark.catalog.databaseExists(s"$databaseName")) {
-    println(s"Using existing $databaseName")
-  } else {
-    import com.databricks.spark.sql.perf.tpcds.TPCDSTables
+    // Check whether the database is created, we create external tables if not
+    if (spark.catalog.databaseExists(s"$databaseName")) {
+        println(s"Using existing $databaseName")
+    } else {
+        import com.databricks.spark.sql.perf.tpcds.TPCDSTables
 
-    println(s"$databaseName doesn't exist. Creating...")
-    val tables = new TPCDSTables(spark.sqlContext, "", s"${scaleFactor}", false)
-    tables.createExternalTables(data_path, format, databaseName, overwrite = true, discoverPartitions = partitionTables)
-  }
+        println(s"$databaseName doesn't exist. Creating...")
+        val tables = new TPCDSTables(spark.sqlContext, "", s"${scaleFactor}", false)
+        tables.createExternalTables(data_path, format, databaseName, overwrite = true, discoverPartitions = partitionTables)
+    }
 }
 
 val timeout = 60 // timeout in hours
