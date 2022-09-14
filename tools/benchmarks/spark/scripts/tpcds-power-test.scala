@@ -125,16 +125,12 @@ val finalResult = totalResult.select(col("Query") +: roundCols.map(c => round(co
 finalResult.show(200)
 
 // Save the performance summary dataframe to a CSV file with a specified file name
-import org.apache.hadoop.fs._
-
-val finalResultPath = s"${experiment.resultPath}/summary/"
+val finalResultPath = s"${experiment.resultPath}/summary"
 finalResult.repartition(1).write.option("header", "true").mode("overwrite").csv(finalResultPath)
-val fs = FileSystem.get(sc.hadoopConfiguration)
-val file = fs.globStatus(new Path(s"$finalResultPath/*.csv"))(0).getPath().getName()
-val srcPath=new Path(s"$finalResultPath/$file")
-val destPath= new Path(s"$finalResultPath/finalresult.csv")
-fs.rename(srcPath, destPath)
 
-println(s"Performance summary is saved to ${destPath}")
+import scala.sys.process._
+
+Seq("hadoop","fs","-mv",f"$finalResultPath/*csv", f"${finalResultPath}/finalresult.csv").!!
+println(s"Performance summary is saved to ${finalResultPath}/finalresult.csv")
 
 sys.exit(0)
