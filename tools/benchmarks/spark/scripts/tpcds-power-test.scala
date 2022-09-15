@@ -13,8 +13,8 @@ val iterations = conf.getInt("spark.driver.iterations", 1)
 // abfs://container@storage_account.dfs.core.windows.net
 val fsdir = conf.get("spark.driver.fsdir", "")
 
-val query_filter = Seq()        // Seq() == all queries
-// val query_filter = Seq("q1-v2.4", "q2-v2.4") // run subset of queries
+// val query_filter = Seq()        // Seq() == all queries
+val query_filter = Seq("q19-v2.4", "q21-v2.4") // run subset of queries
 val randomizeQueries = false    // run queries in a random order. Recommended for parallel runs.
 
 if (fsdir == "") {
