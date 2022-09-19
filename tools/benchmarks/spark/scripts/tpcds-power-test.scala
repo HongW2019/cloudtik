@@ -61,7 +61,7 @@ if (use_arrow){
     if (spark.catalog.databaseExists(s"$databaseName") && !forceRecreate) {
         println(s"Using existing $databaseName")
     } else {
-        if (forceRecreate) {t
+        if (forceRecreate) {
             println(s"Force to drop $databaseName")
             sql(s"drop database if exists $databaseName cascade")
         }
