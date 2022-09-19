@@ -53,8 +53,6 @@ if (use_arrow){
 
     sql(s"drop database if exists $databaseName cascade")
     println(s"$databaseName doesn't exist. Creating...")
-    sql(s"create database if not exists $databaseName")
-    sql(s"use $databaseName")
     val tables = new TPCDSTables(spark.sqlContext, "", s"${scaleFactor}", false)
     tables.createExternalTables(data_path, format, databaseName, overwrite = true, discoverPartitions = partitionTables)
 }
