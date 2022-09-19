@@ -32,39 +32,31 @@ if (use_arrow){
     resultLocation = s"${fsdir}/shared/data/results/tpcds_arrow/${scaleFactor}/"
     databaseName = s"tpcds_arrow_scale_${scaleFactor}_db"
     val tables = Seq("call_center", "catalog_page", "catalog_returns", "catalog_sales", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "store_returns", "store_sales", "time_dim", "warehouse", "web_page", "web_returns", "web_sales", "web_site")
-    if (spark.catalog.databaseExists(s"$databaseName")) {
-        println(s"$databaseName has exists!")
-    }else{
-        spark.sql(s"create database if not exists $databaseName").show
-        spark.sql(s"use $databaseName").show
+    sql(s"drop database if exists $databaseName cascade")
+    sql(s"create database if not exists $databaseName").show
+    sql(s"use $databaseName").show
+    for (table <- tables) {
+      spark.catalog.createTable(s"$table", s"$data_path/$table", "arrow")
+    }
+
+    if (partitionTables) {
         for (table <- tables) {
-            if (spark.catalog.tableExists(s"$table")){
-                println(s"$table has exists!")
-            }else{
-                spark.catalog.createTable(s"$table", s"$data_path/$table", "arrow")
-            }
-        }
-        if (partitionTables) {
-            for (table <- tables) {
-                try{
-                    spark.sql(s"ALTER TABLE $table RECOVER PARTITIONS").show
-                }catch{
-                        case e: Exception => println(e)
-                }
+            try{
+                spark.sql(s"ALTER TABLE $table RECOVER PARTITIONS").show
+            }catch{
+                    case e: Exception => println(e)
             }
         }
     }
 } else {
-    // Check whether the database is created, we create external tables if not
-    if (spark.catalog.databaseExists(s"$databaseName")) {
-        println(s"Using existing $databaseName")
-    } else {
-        import com.databricks.spark.sql.perf.tpcds.TPCDSTables
+    import com.databricks.spark.sql.perf.tpcds.TPCDSTables
 
-        println(s"$databaseName doesn't exist. Creating...")
-        val tables = new TPCDSTables(spark.sqlContext, "", s"${scaleFactor}", false)
-        tables.createExternalTables(data_path, format, databaseName, overwrite = true, discoverPartitions = partitionTables)
-    }
+    sql(s"drop database if exists $databaseName cascade")
+    println(s"$databaseName doesn't exist. Creating...")
+    sql(s"create database if not exists $databaseName")
+    sql(s"use $databaseName")
+    val tables = new TPCDSTables(spark.sqlContext, "", s"${scaleFactor}", false)
+    tables.createExternalTables(data_path, format, databaseName, overwrite = true, discoverPartitions = partitionTables)
 }
 
 val timeout = 60 // timeout in hours
