@@ -13,7 +13,7 @@ val iterations = conf.getInt("spark.driver.iterations", 1)
 // abfs://container@storage_account.dfs.core.windows.net
 val fsdir = conf.get("spark.driver.fsdir", "")
 // If the tables in database are not fully created in the previous run, you need to force to drop and recreate the database and tables.
-val forceRecreate = conf.getBoolean("spark.database.force.recreate", false)
+val recreateDatabase = conf.getBoolean("spark.driver.recreateDatabase", false)
 
 val query_filter = Seq()        // Seq() == all queries
 // val query_filter = Seq("q1-v2.4", "q2-v2.4") // run subset of queries
@@ -34,9 +34,9 @@ if (use_arrow){
     resultLocation = s"${fsdir}/shared/data/results/tpcds_arrow/${scaleFactor}/"
     databaseName = s"tpcds_arrow_scale_${scaleFactor}_db"
     val tables = Seq("call_center", "catalog_page", "catalog_returns", "catalog_sales", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "store_returns", "store_sales", "time_dim", "warehouse", "web_page", "web_returns", "web_sales", "web_site")
-    if (spark.catalog.databaseExists(s"$databaseName") && !forceRecreate) {
+    if (spark.catalog.databaseExists(s"$databaseName") && !recreateDatabase) {
         println(s"$databaseName has exists!")
-    } else if (spark.catalog.databaseExists(s"$databaseName") && forceRecreate) {
+    } else if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
         println(s"$databaseName exists, now force to drop and recreate it...")
         sql(s"drop database if exists $databaseName cascade")
     }else{
@@ -61,9 +61,9 @@ if (use_arrow){
     }
 } else {
     // Check whether the database is created, we create external tables if not
-    if (spark.catalog.databaseExists(s"$databaseName") && !forceRecreate) {
+    if (spark.catalog.databaseExists(s"$databaseName") && !recreateDatabase) {
         println(s"Using existing $databaseName")
-    } else if (spark.catalog.databaseExists(s"$databaseName") && forceRecreate) {
+    } else if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
         println(s"$databaseName exists, now force to drop and recreate it...")
         sql(s"drop database if exists $databaseName cascade")
     } else {
