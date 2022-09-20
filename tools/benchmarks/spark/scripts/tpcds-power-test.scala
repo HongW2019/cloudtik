@@ -35,19 +35,18 @@ if (use_arrow){
     databaseName = s"tpcds_arrow_scale_${scaleFactor}_db"
     val tables = Seq("call_center", "catalog_page", "catalog_returns", "catalog_sales", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "store_returns", "store_sales", "time_dim", "warehouse", "web_page", "web_returns", "web_sales", "web_site")
     if (spark.catalog.databaseExists(s"$databaseName") && !recreateDatabase) {
-        println(s"$databaseName exists!")
-    } else if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
-        println(s"$databaseName exists, now force to drop and recreate it...")
-        sql(s"drop database if exists $databaseName cascade")
-    }else{
+        println(s"Using existing $databaseName")
+    } else {
+        if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
+            println(s"$databaseName exists, now force to drop and recreate it...")
+            sql(s"drop database if exists $databaseName cascade")
+        } else {
+            println(s"$databaseName doesn't exist. Creating...")
+        }
         spark.sql(s"create database if not exists $databaseName").show
         spark.sql(s"use $databaseName").show
         for (table <- tables) {
-            if (spark.catalog.tableExists(s"$table")){
-                println(s"$table exists!")
-            }else{
-                spark.catalog.createTable(s"$table", s"$data_path/$table", "arrow")
-            }
+            spark.catalog.createTable(s"$table", s"$data_path/$table", "arrow")
         }
         if (partitionTables) {
             for (table <- tables) {
@@ -63,13 +62,16 @@ if (use_arrow){
     // Check whether the database is created, we create external tables if not
     if (spark.catalog.databaseExists(s"$databaseName") && !recreateDatabase) {
         println(s"Using existing $databaseName")
-    } else if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
-        println(s"$databaseName exists, now force to drop and recreate it...")
-        sql(s"drop database if exists $databaseName cascade")
     } else {
+        if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
+            println(s"$databaseName exists, now force to drop and recreate it")
+            sql(s"drop database if exists $databaseName cascade")
+        } else {
+            println(s"$databaseName doesn't exist. Creating...")
+        }
+
         import com.databricks.spark.sql.perf.tpcds.TPCDSTables
 
-        println(s"$databaseName doesn't exist. Creating...")
         val tables = new TPCDSTables(spark.sqlContext, "", s"${scaleFactor}", false)
         tables.createExternalTables(data_path, format, databaseName, overwrite = true, discoverPartitions = partitionTables)
     }
