@@ -36,6 +36,9 @@ if (use_arrow){
     val tables = Seq("call_center", "catalog_page", "catalog_returns", "catalog_sales", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "store_returns", "store_sales", "time_dim", "warehouse", "web_page", "web_returns", "web_sales", "web_site")
     if (spark.catalog.databaseExists(s"$databaseName") && !forceRecreate) {
         println(s"$databaseName has exists!")
+    } else if (spark.catalog.databaseExists(s"$databaseName") && forceRecreate) {
+        println(s"$databaseName exists, now force to drop and recreate it...")
+        sql(s"drop database if exists $databaseName cascade")
     }else{
         spark.sql(s"create database if not exists $databaseName").show
         spark.sql(s"use $databaseName").show
@@ -60,11 +63,10 @@ if (use_arrow){
     // Check whether the database is created, we create external tables if not
     if (spark.catalog.databaseExists(s"$databaseName") && !forceRecreate) {
         println(s"Using existing $databaseName")
+    } else if (spark.catalog.databaseExists(s"$databaseName") && forceRecreate) {
+        println(s"$databaseName exists, now force to drop and recreate it...")
+        sql(s"drop database if exists $databaseName cascade")
     } else {
-        if (forceRecreate) {
-            println(s"Force to drop $databaseName")
-            sql(s"drop database if exists $databaseName cascade")
-        }
         import com.databricks.spark.sql.perf.tpcds.TPCDSTables
 
         println(s"$databaseName doesn't exist. Creating...")
