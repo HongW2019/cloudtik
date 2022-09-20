@@ -38,7 +38,7 @@ if (use_arrow){
         println(s"Using existing $databaseName")
     } else {
         if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
-            println(s"$databaseName exists, now force to drop and recreate it...")
+            println(s"$databaseName exists, now drop and recreate it...")
             sql(s"drop database if exists $databaseName cascade")
         } else {
             println(s"$databaseName doesn't exist. Creating...")
@@ -64,7 +64,7 @@ if (use_arrow){
         println(s"Using existing $databaseName")
     } else {
         if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
-            println(s"$databaseName exists, now force to drop and recreate it")
+            println(s"$databaseName exists, now drop and recreate it")
             sql(s"drop database if exists $databaseName cascade")
         } else {
             println(s"$databaseName doesn't exist. Creating...")
