@@ -33,11 +33,12 @@ val use_arrow = conf.getBoolean("spark.driver.useArrow", false) // when you want
 if (use_arrow){
     resultLocation = s"${fsdir}/shared/data/results/tpcds_arrow/${scaleFactor}/"
     databaseName = s"tpcds_arrow_scale_${scaleFactor}_db"
+    val databaseExists = spark.catalog.databaseExists(s"$databaseName")
     val tables = Seq("call_center", "catalog_page", "catalog_returns", "catalog_sales", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "store_returns", "store_sales", "time_dim", "warehouse", "web_page", "web_returns", "web_sales", "web_site")
-    if (spark.catalog.databaseExists(s"$databaseName") && !recreateDatabase) {
+    if (databaseExists && !recreateDatabase) {
         println(s"Using existing $databaseName")
     } else {
-        if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
+        if (databaseExists) {
             println(s"$databaseName exists, now drop and recreate it...")
             sql(s"drop database if exists $databaseName cascade")
         } else {
@@ -60,10 +61,11 @@ if (use_arrow){
     }
 } else {
     // Check whether the database is created, we create external tables if not
-    if (spark.catalog.databaseExists(s"$databaseName") && !recreateDatabase) {
+    val databaseExists = spark.catalog.databaseExists(s"$databaseName")
+    if (databaseExists && !recreateDatabase) {
         println(s"Using existing $databaseName")
     } else {
-        if (spark.catalog.databaseExists(s"$databaseName") && recreateDatabase) {
+        if (databaseExists) {
             println(s"$databaseName exists, now drop and recreate it...")
             sql(s"drop database if exists $databaseName cascade")
         } else {
