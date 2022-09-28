@@ -444,7 +444,8 @@ function configure_jupyter_for_spark() {
       echo Y | jupyter lab --generate-config;
       # Set default password(cloudtik) for JupyterLab
       sed -i  "1 ic.NotebookApp.password = 'argon2:\$argon2id\$v=19\$m=10240,t=10,p=8\$Y+sBd6UhAyKNsI+/mHsy9g\$WzJsUujSzmotUkblSTpMwCFoOBVSwm7S5oOPzpC+tz8'" ~/.jupyter/jupyter_lab_config.py
-
+      # Disable cross-site-request-forgery protection when shutting down jupyter lab
+      sed -i  "1 ic.NotebookApp.disable_check_xsrf = true"
       # Set default notebook_dir for JupyterLab
       export JUPYTER_WORKSPACE=/home/$(whoami)/jupyter
       mkdir -p $JUPYTER_WORKSPACE
