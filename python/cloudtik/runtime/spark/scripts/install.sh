@@ -25,11 +25,11 @@ done
 
 if [ -z "$SPARK_VERSION" ]; then
     # if SPARK_VERSION is not set, set a default Spark version
-    export SPARK_VERSION=3.2.1
+    export SPARK_VERSION=3.1.1
 fi
 
 # Set Hadoop version based on Spark version
-export HADOOP_VERSION=3.3.1
+export HADOOP_VERSION=3.2.0
 
 export USER_HOME=/home/$(whoami)
 export RUNTIME_PATH=$USER_HOME/runtime
