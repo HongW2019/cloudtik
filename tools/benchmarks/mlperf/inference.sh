@@ -23,5 +23,5 @@ export MODEL_DIR=$HOME/mlcommons/inference/recommendation/model
 export DATA_DIR=$HOME/mlcommons/inference/recommendation/criteo
 export DLRM_DIR=$HOME/mlcommons/training/recommendation/dlrm
 
-cd $HOME/mlcommons/inference/recommendation/dlrm/pytorch
-./run_local.sh pytorch dlrm kaggle cpu --scenario Offline --samples-to-aggregate-fix=2048 --max-batchsize=2048
+# cd $HOME/mlcommons/inference/recommendation/dlrm/pytorch
+# ./run_local.sh pytorch dlrm kaggle cpu --scenario Offline --samples-to-aggregate-fix=2048 --max-batchsize=2048
