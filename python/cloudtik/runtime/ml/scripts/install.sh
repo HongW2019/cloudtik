@@ -31,6 +31,8 @@ function install_tools() {
     # Install necessary tools
     which cmake > /dev/null || sudo apt-get -qq update -y > /dev/null; sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install cmake -y > /dev/null
     which g++-9 > /dev/null || sudo apt-get -qq update -y > /dev/null; sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install g++-9 -y > /dev/null
+    # For MLPerf
+    sudo apt-get -qq update -y > /dev/null; sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install build-essential sox libsndfile1-dev -y > /dev/null
 }
 
 function install_ml() {
@@ -43,6 +45,9 @@ function install_ml() {
     mkdir -p $RUNTIME_PATH/mlflow
     echo "Installing horovod..."
     export CXX=/usr/bin/g++-9 && HOROVOD_WITH_PYTORCH=1 HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_MXNET=1 HOROVOD_WITH_GLOO=1 pip -qq install horovod[all-frameworks]==0.25.0
+    echo "Installations for MLPerf..."
+    pip -qq install opencv-python-headless onnx onnxruntime pydot torchviz pybind11
+    pip -qq install "git+https://github.com/mlperf/logging.git@1.0.0"
 }
 
 install_tools
