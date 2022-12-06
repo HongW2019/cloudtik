@@ -35,7 +35,7 @@ function clone_mlperf() {
 }
 
 function install_tools() {
-    sudo apt-get install build-essential -y
+    sudo apt-get install -qq build-essential -y
 #    # For RNN-T
 #    sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y sox libsndfile1 libsndfile1-dev python-pybind11
 }
