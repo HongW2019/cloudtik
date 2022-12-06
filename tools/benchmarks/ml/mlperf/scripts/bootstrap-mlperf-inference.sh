@@ -26,7 +26,7 @@ function clone_mlperf() {
     MLPERF_HOME=$BENCHMARK_TOOL_HOME/mlperf
     MLPERF_INFERENCE_HOME=$MLPERF_HOME/inference
     MLPERF_TRAINING_HOME=$MLPERF_HOME/training
-    mkdir -p $BENCHMARK_TOOL_HOME
+    mkdir -p MLPERF_HOME
     cd $MLPERF_HOME
     # TODO: whether select a tag to clone
     git clone --recurse-submodules https://github.com/mlcommons/training.git
