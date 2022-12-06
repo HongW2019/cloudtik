@@ -50,9 +50,13 @@ function install_libaries() {
 #    pip -qq install pybind11==2.2
 }
 
-
 # Install MLPerf loadgen
 function install_mlperf_loadgen() {
     cd MLPERF_INFERENCE_HOME/loadgen
     CFLAGS="-std=c++14" python setup.py install
 }
+
+clone_mlperf
+install_tools
+install_libaries
+install_mlperf_loadgen
