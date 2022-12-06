@@ -35,9 +35,7 @@ function clone_mlperf() {
 }
 
 function install_tools() {
-    # Install Cmake, GCC 9.0
-    sudo apt-get install cmake -y
-    sudo apt-get install gcc-9 g++-9 -y
+    sudo apt-get install build-essential -y
 #    # For RNN-T
 #    sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y sox libsndfile1 libsndfile1-dev python-pybind11
 }
