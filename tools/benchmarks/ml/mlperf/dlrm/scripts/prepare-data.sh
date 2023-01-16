@@ -24,17 +24,17 @@ set -x
 ls -ltrash
 
 
-rm -rf /data/dlrm/spark
-rm -rf /data/dlrm/intermediate_binary
-rm -rf /data/dlrm/output
-rm -rf /data/dlrm/criteo_parquet
-rm -rf /data/dlrm/binary_dataset
+#rm -rf /data/dlrm/spark
+#rm -rf /data/dlrm/intermediate_binary
+#rm -rf /data/dlrm/output
+#rm -rf /data/dlrm/criteo_parquet
+#rm -rf /data/dlrm/binary_dataset
 
 
-download_dir=${download_dir:-'/data/dlrm/criteo'}
-./verify-criteo-downloaded.sh ${download_dir}
+download_dir=${download_dir:-'/home/wh/mlperf/data/dlrm/criteo'}
+# ./verify-criteo-downloaded.sh ${download_dir}
 
-output_path=${output_path:-'/data/dlrm/output'}
+output_path=${output_path:-'/home/wh/mlperf/data/dlrm/output'}
 
 if [ -f ${output_path}/train/_SUCCESS ] \
     && [ -f ${output_path}/validation/_SUCCESS ] \
@@ -47,8 +47,8 @@ fi
 
 #preprocessing_version=Spark
 
-conversion_intermediate_dir=${conversion_intermediate_dir:-'/data/dlrm/intermediate_binary'}
-final_output_dir=${final_output_dir:-'/data/dlrm/binary_dataset'}
+conversion_intermediate_dir=${conversion_intermediate_dir:-'/home/wh/mlperf/data/dlrm/intermediate_binary'}
+final_output_dir=${final_output_dir:-'/home/wh/mlperf/data/dlrm/binary_dataset'}
 
 #source ${DGX_VERSION}_config.sh
 
