@@ -31,10 +31,10 @@ ls -ltrash
 #rm -rf /data/dlrm/binary_dataset
 
 
-download_dir=${download_dir:-'/home/wh/mlperf/data/dlrm/criteo'}
+download_dir=${download_dir:-'/data/dlrm/criteo'}
 # ./verify-criteo-downloaded.sh ${download_dir}
 
-output_path=${output_path:-'/home/wh/mlperf/data/dlrm/output'}
+output_path=${output_path:-'/data/dlrm/output'}
 
 if [ -f ${output_path}/train/_SUCCESS ] \
     && [ -f ${output_path}/validation/_SUCCESS ] \
@@ -42,41 +42,41 @@ if [ -f ${output_path}/train/_SUCCESS ] \
     echo "Spark preprocessing already carried out"
 else
     echo "Performing spark preprocessing"
-    ./run-spark-cpu.sh $2 ${download_dir} ${output_path} $1
+    bash run-spark-cpu.sh $2 ${download_dir} ${output_path}
 fi
 
 #preprocessing_version=Spark
 
-conversion_intermediate_dir=${conversion_intermediate_dir:-'/home/wh/mlperf/data/dlrm/intermediate_binary'}
-final_output_dir=${final_output_dir:-'/home/wh/mlperf/data/dlrm/binary_dataset'}
+conversion_intermediate_dir=${conversion_intermediate_dir:-'/data/dlrm/intermediate_binary'}
+final_output_dir=${final_output_dir:-'/data/dlrm/binary_dataset'}
 
 #source ${DGX_VERSION}_config.sh
 
-if [ -d ${final_output_dir}/train ] \
-   && [ -d ${final_output_dir}/validation ] \
-   && [ -d ${final_output_dir}/test ] \
-   && [ -f ${final_output_dir}/feature_spec.yaml ]; then
-
-    echo "Final conversion already done"
-else
-    echo "Performing final conversion to a custom data format"
-    python parquet_to_binary.py --parallel_jobs ${TOTAL_CORES} --src_dir ${output_path} \
-                                --intermediate_dir  ${conversion_intermediate_dir} \
-                                --dst_dir ${final_output_dir}
-
-    cp "${output_path}/model_size.json" "${final_output_dir}/model_size.json"
-
-    python split_dataset.py --dataset "${final_output_dir}" --output "${final_output_dir}/split"
-    rm ${final_output_dir}/train_data.bin
-    rm ${final_output_dir}/validation_data.bin
-    rm ${final_output_dir}/test_data.bin
-    rm ${final_output_dir}/model_size.json
-
-    mv ${final_output_dir}/split/* ${final_output_dir}
-    rm -rf ${final_output_dir}/split
-fi
-
-echo "Done preprocessing the Criteo Kaggle Dataset"
+#if [ -d ${final_output_dir}/train ] \
+#   && [ -d ${final_output_dir}/validation ] \
+#   && [ -d ${final_output_dir}/test ] \
+#   && [ -f ${final_output_dir}/feature_spec.yaml ]; then
+#
+#    echo "Final conversion already done"
+#else
+#    echo "Performing final conversion to a custom data format"
+#    python parquet_to_binary.py --parallel_jobs ${TOTAL_CORES} --src_dir ${output_path} \
+#                                --intermediate_dir  ${conversion_intermediate_dir} \
+#                                --dst_dir ${final_output_dir}
+#
+#    cp "${output_path}/model_size.json" "${final_output_dir}/model_size.json"
+#
+#    python split_dataset.py --dataset "${final_output_dir}" --output "${final_output_dir}/split"
+#    rm ${final_output_dir}/train_data.bin
+#    rm ${final_output_dir}/validation_data.bin
+#    rm ${final_output_dir}/test_data.bin
+#    rm ${final_output_dir}/model_size.json
+#
+#    mv ${final_output_dir}/split/* ${final_output_dir}
+#    rm -rf ${final_output_dir}/split
+#fi
+#
+#echo "Done preprocessing the Criteo Kaggle Dataset"
 
 
 

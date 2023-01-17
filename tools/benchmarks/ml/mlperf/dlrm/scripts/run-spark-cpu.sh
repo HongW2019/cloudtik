@@ -20,11 +20,11 @@ set -e
 # should modify below environment variables
 
 # the data path including 1TB criteo data, day_0, day_1, ...
-export INPUT_PATH=${1:-'/home/wh/mlperf/data/dlrm/criteo'}
+export INPUT_PATH=${1:-'/data/dlrm/criteo'}
 
 # the output path, use for generating the dictionary and the final dataset
 # the output folder should have more than 300GB
-export OUTPUT_PATH=${2:-'/home/wh/mlperf/data/dlrm/spark/output'}
+export OUTPUT_PATH=${2:-'/data/dlrm/spark/output'}
 
 export FREQUENCY_LIMIT=${3:-'15'}
 
