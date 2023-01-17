@@ -15,21 +15,12 @@
 # limitations under the License.
 
 # Examples:
-# to run on CPU with a frequency limit of 15 using Spark CPU:
-#   ./prepare_dataset.sh 15 CPU
+#   ./prepare_dataset.sh
 
 set -e
 set -x
 
 ls -ltrash
-
-
-#rm -rf /data/dlrm/spark
-#rm -rf /data/dlrm/intermediate_binary
-#rm -rf /data/dlrm/output
-#rm -rf /data/dlrm/criteo_parquet
-#rm -rf /data/dlrm/binary_dataset
-
 
 download_dir=${download_dir:-'/data/dlrm/criteo'}
 # ./verify-criteo-downloaded.sh ${download_dir}
@@ -41,42 +32,38 @@ if [ -f ${output_path}/train/_SUCCESS ] \
     && [ -f ${output_path}/test/_SUCCESS ]; then
     echo "Spark preprocessing already carried out"
 else
-    echo "Performing spark preprocessing"
+    echo "Performing Spark preprocessing"
     bash run-spark-cpu.sh $2 ${download_dir} ${output_path}
 fi
-
-#preprocessing_version=Spark
 
 conversion_intermediate_dir=${conversion_intermediate_dir:-'/data/dlrm/intermediate_binary'}
 final_output_dir=${final_output_dir:-'/data/dlrm/binary_dataset'}
 
-#source ${DGX_VERSION}_config.sh
+if [ -d ${final_output_dir}/train ] \
+   && [ -d ${final_output_dir}/validation ] \
+   && [ -d ${final_output_dir}/test ] \
+   && [ -f ${final_output_dir}/feature_spec.yaml ]; then
 
-#if [ -d ${final_output_dir}/train ] \
-#   && [ -d ${final_output_dir}/validation ] \
-#   && [ -d ${final_output_dir}/test ] \
-#   && [ -f ${final_output_dir}/feature_spec.yaml ]; then
-#
-#    echo "Final conversion already done"
-#else
-#    echo "Performing final conversion to a custom data format"
-#    python parquet_to_binary.py --parallel_jobs ${TOTAL_CORES} --src_dir ${output_path} \
-#                                --intermediate_dir  ${conversion_intermediate_dir} \
-#                                --dst_dir ${final_output_dir}
-#
-#    cp "${output_path}/model_size.json" "${final_output_dir}/model_size.json"
-#
-#    python split_dataset.py --dataset "${final_output_dir}" --output "${final_output_dir}/split"
-#    rm ${final_output_dir}/train_data.bin
-#    rm ${final_output_dir}/validation_data.bin
-#    rm ${final_output_dir}/test_data.bin
-#    rm ${final_output_dir}/model_size.json
-#
-#    mv ${final_output_dir}/split/* ${final_output_dir}
-#    rm -rf ${final_output_dir}/split
-#fi
-#
-#echo "Done preprocessing the Criteo Kaggle Dataset"
+    echo "Final conversion already done"
+else
+    echo "Performing final conversion to a custom data format"
+    python parquet_to_binary.py --parallel_jobs ${TOTAL_CORES} --src_dir ${output_path} \
+                                --intermediate_dir  ${conversion_intermediate_dir} \
+                                --dst_dir ${final_output_dir}
+
+    cp "${output_path}/model_size.json" "${final_output_dir}/model_size.json"
+
+    python split_dataset.py --dataset "${final_output_dir}" --output "${final_output_dir}/split"
+    rm ${final_output_dir}/train_data.bin
+    rm ${final_output_dir}/validation_data.bin
+    rm ${final_output_dir}/test_data.bin
+    rm ${final_output_dir}/model_size.json
+
+    mv ${final_output_dir}/split/* ${final_output_dir}
+    rm -rf ${final_output_dir}/split
+fi
+
+echo "Done preprocessing the Criteo Kaggle Dataset"
 
 
 

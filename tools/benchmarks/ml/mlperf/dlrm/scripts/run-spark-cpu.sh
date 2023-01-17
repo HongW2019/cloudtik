@@ -30,47 +30,32 @@ export FREQUENCY_LIMIT=${3:-'15'}
 
 # spark local dir should have about 3TB
 # the temporary path used for spark shuffle write
-export SPARK_LOCAL_DIRS='/mnt/disks/1/spark/tmp'
-
-# below numbers should be adjusted according to the resource of your running environment
-# set the total number of CPU cores, spark can use
-export TOTAL_CORES=88
-
-# set the number of executors
-export NUM_EXECUTORS=8
-
-# the cores for each executor, it'll be calculated
-export NUM_EXECUTOR_CORES=$((${TOTAL_CORES}/${NUM_EXECUTORS}))
-
-# unit: GB,  set the max memory you want to use
-export TOTAL_MEMORY=200
-
-# unit: GB, set the memory for driver
-export DRIVER_MEMORY=30
-
-# the memory per executor
-export EXECUTOR_MEMORY=$(((${TOTAL_MEMORY}-${DRIVER_MEMORY})/${NUM_EXECUTORS}))
+#export SPARK_LOCAL_DIRS='/tmp'
+#
+## below numbers should be adjusted according to the resource of your running environment
+## set the total number of CPU cores, spark can use
+#export TOTAL_CORES=88
+#
+## set the number of executors
+#export NUM_EXECUTORS=8
+#
+## the cores for each executor, it'll be calculated
+#export NUM_EXECUTOR_CORES=$((${TOTAL_CORES}/${NUM_EXECUTORS}))
+#
+## unit: GB,  set the max memory you want to use
+#export TOTAL_MEMORY=200
+#
+## unit: GB, set the memory for driver
+#export DRIVER_MEMORY=30
+#
+## the memory per executor
+#export EXECUTOR_MEMORY=$(((${TOTAL_MEMORY}-${DRIVER_MEMORY})/${NUM_EXECUTORS}))
 
 OPTS="--frequency_limit $FREQUENCY_LIMIT"
-
-#export SPARK_HOME=/opt/beaver/spark
-#export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-#export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
-
-# we use spark standalone to run the job
-#export MASTER=spark://$HOSTNAME:7077
-
-#echo "Starting spark standalone"
-#start-master.sh
-#start-slave.sh $MASTER
 
 echo "Generating the dictionary..."
 spark-submit --master yarn \
       --deploy-mode client \
-    	--driver-memory "${DRIVER_MEMORY}G" \
-    	--executor-cores $NUM_EXECUTOR_CORES \
-    	--executor-memory "${EXECUTOR_MEMORY}G" \
-    	--conf spark.cores.max=$TOTAL_CORES \
     	--conf spark.task.cpus=1 \
       --conf spark.sql.files.maxPartitionBytes=1073741824 \
     	--conf spark.sql.shuffle.partitions=600 \
@@ -87,10 +72,6 @@ spark-submit --master yarn \
 echo "Transforming the train data from day_0 to day_22..."
 spark-submit --master yarn \
       --deploy-mode client \
-    	--driver-memory "${DRIVER_MEMORY}G" \
-    	--executor-cores $NUM_EXECUTOR_CORES \
-    	--executor-memory "${EXECUTOR_MEMORY}G" \
-    	--conf spark.cores.max=$TOTAL_CORES \
     	--conf spark.task.cpus=1 \
       --conf spark.sql.files.maxPartitionBytes=1073741824 \
     	--conf spark.sql.shuffle.partitions=600 \
@@ -121,10 +102,6 @@ tail -n $latter $last_day > $temp_validation/day_23
 echo "Transforming the test data in day_23..."
 spark-submit --master yarn \
       --deploy-mode client \
-    	--driver-memory "${DRIVER_MEMORY}G" \
-    	--executor-cores $NUM_EXECUTOR_CORES \
-    	--executor-memory "${EXECUTOR_MEMORY}G" \
-    	--conf spark.cores.max=$TOTAL_CORES \
     	--conf spark.task.cpus=1 \
       --conf spark.sql.files.maxPartitionBytes=1073741824 \
     	--conf spark.sql.shuffle.partitions=30 \
@@ -142,10 +119,6 @@ spark-submit --master yarn \
 echo "Transforming the validation data in day_23..."
 spark-submit --master yarn \
       --deploy-mode client \
-    	--driver-memory "${DRIVER_MEMORY}G" \
-    	--executor-cores $NUM_EXECUTOR_CORES \
-    	--executor-memory "${EXECUTOR_MEMORY}G" \
-    	--conf spark.cores.max=$TOTAL_CORES \
     	--conf spark.task.cpus=1 \
       --conf spark.sql.files.maxPartitionBytes=1073741824 \
     	--conf spark.sql.shuffle.partitions=30 \
