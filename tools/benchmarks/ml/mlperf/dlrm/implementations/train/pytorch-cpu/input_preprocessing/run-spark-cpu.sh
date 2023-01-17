@@ -65,7 +65,7 @@ spark-submit --master yarn \
     	spark_data_utils.py --mode generate_models \
     	$OPTS \
     	--input_folder $INPUT_PATH \
-    	--days 0-1 \
+    	--days 0-23 \
     	--model_folder $OUTPUT_PATH/models \
     	--write_mode overwrite --low_mem 2>&1 | tee submit_dict_log.txt
 
@@ -80,7 +80,7 @@ spark-submit --master yarn \
     	--conf spark.network.timeout=1800s \
     	spark_data_utils.py --mode transform \
     	--input_folder $INPUT_PATH \
-    	--days 0-1 \
+    	--days 0-22 \
     	--output_folder $OUTPUT_PATH/train \
       --model_size_file $OUTPUT_PATH/model_size.json \
     	--model_folder $OUTPUT_PATH/models \
